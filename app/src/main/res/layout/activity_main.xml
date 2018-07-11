@@ -27,13 +27,24 @@
         android:layout_above="@id/Button"
         android:layout_below="@id/txtTravelWeather"
         android:layout_marginTop="42dp"
-        android:layout_marginBottom="36dp">
+        android:layout_marginStart="60dp"
+        android:layout_marginLeft="60dp">
 
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/txtUserName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textColorHint="@android:color/white"
+            android:text="0987"
+            android:textColor="@android:color/white"
+            android:textSize="34dp"
+            android:inputType="phone"
+            app:met_baseColor="@android:color/white"
+            app:met_floatingLabel="highlight"
+            app:met_maxCharacters="11"
+            app:met_primaryColor="@android:color/white"
+            app:met_singleLineEllipsis="true" />
 
         <com.rengwuxian.materialedittext.MaterialEditText
 
@@ -41,7 +52,16 @@
             android:layout_below="@id/txtUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:textColorHint="@android:color/white"
+            android:text="123"
+            android:textColor="@android:color/white"
+            android:textSize="34dp"
+            android:inputType="textPassword"
+            app:met_baseColor="@android:color/white"
+            app:met_floatingLabel="highlight"
+            app:met_maxCharacters="11"
+            app:met_primaryColor="@android:color/white"
+            app:met_singleLineEllipsis="true"
             />
 
     </LinearLayout>
@@ -51,31 +71,46 @@
 
 
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/Button"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <info.hoang8f.widget.FButton
-            android:id="@+id/btnLogin"
-            android:text="Login"
-            android:backgroundTint="#D5E8D4"
+        <com.andexert.library.RippleView
+            android:id="@+id/more"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            app:rv_color="#9C27B0"
+            app:rv_type="simpleRipple"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="120dp"
+            android:layout_marginLeft="120dp">
+
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:background="#D5E8D4"
+                android:text="Login" />
+        </com.andexert.library.RippleView>
+
+        <Button
+            android:background="#D5E8D4"
+            android:text="Sign Up"
+            android:layout_below="@id/more"
+            android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp" />
+            android:layout_marginTop="17dp"
+            android:layout_marginBottom="32dp"/>
 
-        <info.hoang8f.widget.FButton
-            android:id="@+id/btnSignUp"
-            android:text="SIGN UP"
-            android:backgroundTint="#D5E8D4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_margin="16dp"/>
 
-    </LinearLayout>
+
+    </RelativeLayout>
 
 
 
