@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "393459142515",
+    "firebase_url": "https://travelweather-7b8a6.firebaseio.com",
+    "project_id": "travelweather-7b8a6",
+    "storage_bucket": "travelweather-7b8a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:393459142515:android:23b0edb8b60112fb",
+        "android_client_info": {
+          "package_name": "com.example.dell.travelweather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "393459142515-ol2ejtu5mu3ukhvs390h0fr0cim63u2e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dell.travelweather",
+            "certificate_hash": "c40ed9cf01eed42ff763961a5df823dee676eeeb"
+          }
+        },
+        {
+          "client_id": "393459142515-b1q7q1iks8vs4vtlnotbi481v32rkglm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYb-Br0L5D11y6QvoxNNqnaohbJ-bNLOQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "393459142515-b1q7q1iks8vs4vtlnotbi481v32rkglm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

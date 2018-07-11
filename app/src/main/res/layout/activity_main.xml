@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099CC"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/txtTravelWeather"
+        android:text="Travel Weather"
+        android:textSize="30sp"
+        android:textAlignment="center"
+        android:layout_marginTop="60dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <LinearLayout
+        android:id="@+id/UserPass"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/Button"
+        android:layout_below="@id/txtTravelWeather"
+        android:layout_marginTop="42dp"
+        android:layout_marginBottom="36dp">
+
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/txtUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+
+            android:id="@+id/txtPassword"
+            android:layout_below="@id/txtUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            />
+
+    </LinearLayout>
+
+
+
+
+
+
+    <LinearLayout
+        android:id="@+id/Button"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <info.hoang8f.widget.FButton
+            android:id="@+id/btnLogin"
+            android:text="Login"
+            android:backgroundTint="#D5E8D4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp" />
+
+        <info.hoang8f.widget.FButton
+            android:id="@+id/btnSignUp"
+            android:text="SIGN UP"
+            android:backgroundTint="#D5E8D4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_margin="16dp"/>
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>
