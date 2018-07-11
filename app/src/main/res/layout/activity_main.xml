@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099CC"
+    android:background="@color/colorBackground"
     tools:context=".MainActivity">
 
     <TextView
@@ -32,7 +32,8 @@
 
 
         <com.rengwuxian.materialedittext.MaterialEditText
-            android:id="@+id/txtUserName"
+            android:id="@+id/txtPhone"
+            android:hint="Phone Number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@android:color/white"
@@ -49,7 +50,8 @@
         <com.rengwuxian.materialedittext.MaterialEditText
 
             android:id="@+id/txtPassword"
-            android:layout_below="@id/txtUserName"
+            android:hint="Password"
+            android:layout_below="@id/txtPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@android:color/white"
@@ -99,6 +101,7 @@
         </com.andexert.library.RippleView>
 
         <Button
+            android:id="@+id/btnSignUp"
             android:background="#D5E8D4"
             android:text="Sign Up"
             android:layout_below="@id/more"

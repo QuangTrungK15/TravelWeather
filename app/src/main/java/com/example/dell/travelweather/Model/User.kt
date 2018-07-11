@@ -1,31 +1,21 @@
 package com.example.dell.travelweather.Model
 
-class User {
+class User(var name : String="", var password : String="") {
 
+    /*public var name : String
 
-    public var Name : String
-        set(value) {this.Name = value}
-        get() {
-            return Name
-        }
-    private var Password : String
-        set(value) {this.Password = value}
-        get() {
-            return Password
-        }
-    private  var Phone : String
-        set(value) {this.Phone = value}
-        get() {
-            return Phone
-        }
+    public var password : String*/
+
+    public  var phone : String = ""
 
 
 
 
-
-
-
-
-
+//
+//    init {
+//        name = nameu
+//        password = pass
+//    }
+//
 
 }
