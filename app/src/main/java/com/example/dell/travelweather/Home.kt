@@ -58,16 +58,16 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.nav_camera -> {
+            R.id.nav_profile -> {
                 // Handle the camera action
             }
-            R.id.nav_gallery -> {
+            R.id.nav_places -> {
 
             }
-            R.id.nav_slideshow -> {
+            R.id.nav_notification -> {
 
             }
-            R.id.nav_manage -> {
+           /* R.id.nav_manage -> {
 
             }
             R.id.nav_share -> {
@@ -75,7 +75,7 @@ class Home : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListene
             }
             R.id.nav_send -> {
 
-            }
+            }*/
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
