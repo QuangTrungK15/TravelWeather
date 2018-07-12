@@ -32,18 +32,18 @@
 
 
         <com.rengwuxian.materialedittext.MaterialEditText
-            android:id="@+id/txtPhone"
-            android:hint="Phone Number"
+            android:id="@+id/txtEmail"
+            android:hint="Email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@android:color/white"
-            android:text="0987"
+            android:text="trung123@gmail.com"
             android:textColor="@android:color/white"
-            android:textSize="34dp"
-            android:inputType="phone"
+            android:textSize="24dp"
+            android:inputType="textEmailAddress"
             app:met_baseColor="@android:color/white"
             app:met_floatingLabel="highlight"
-            app:met_maxCharacters="11"
+            app:met_maxCharacters="30"
             app:met_primaryColor="@android:color/white"
             app:met_singleLineEllipsis="true" />
 
@@ -51,13 +51,13 @@
 
             android:id="@+id/txtPassword"
             android:hint="Password"
-            android:layout_below="@id/txtPhone"
+            android:layout_below="@id/txtEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@android:color/white"
-            android:text="123"
+            android:text="123456"
             android:textColor="@android:color/white"
-            android:textSize="34dp"
+            android:textSize="24dp"
             android:inputType="textPassword"
             app:met_baseColor="@android:color/white"
             app:met_floatingLabel="highlight"

@@ -9,22 +9,33 @@ import com.rengwuxian.materialedittext.MaterialEditText
 import com.google.firebase.database.DatabaseError
 import android.widget.Toast
 import android.content.Intent
+import android.text.TextUtils
+import android.util.Log
 import com.example.dell.travelweather.Common.Common
 import com.example.dell.travelweather.Model.User
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ValueEventListener
 
-
-
-
+import com.google.firebase.auth.AuthResult
+import com.google.android.gms.tasks.Task
+import android.support.annotation.NonNull
+import com.google.android.gms.tasks.OnCompleteListener
+import android.R.attr.password
+import android.app.ProgressDialog
+import android.support.v4.app.FragmentActivity
 
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var btnLogin: Button
     lateinit var btnSignUp: Button
-    lateinit var editPhone: MaterialEditText
+    lateinit var editEmail: MaterialEditText
     lateinit var editPassword: MaterialEditText
+
+
+    lateinit var mAuth : FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,10 +46,15 @@ class MainActivity : AppCompatActivity() {
 
         val table_user: DatabaseReference = database.getReference("User")
 
+
+        mAuth  = FirebaseAuth.getInstance()
+
+
+
         btnLogin = findViewById(R.id.btnLogin)
         btnSignUp = findViewById(R.id.btnSignUp)
 
-        editPhone = findViewById(R.id.txtPhone)
+        editEmail = findViewById(R.id.txtEmail)
         editPassword = findViewById(R.id.txtPassword)
 
 
@@ -51,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         btnLogin.setOnClickListener {
 
-             // Attach a listener to read the data at our posts reference
+            /*   // Attach a listener to read the data at our posts reference
             table_user.addValueEventListener(object : ValueEventListener {
                 override fun onCancelled(p0: DatabaseError) {
                 }
@@ -84,8 +100,73 @@ class MainActivity : AppCompatActivity() {
 
                 }
             })
+
+*/
+
+            signIN(editEmail.text.toString(),editPassword.text.toString())
         }
+
+    }
+
+
+
+
+    private fun signIN( email:String, password:String)
+    {
+
+        if(!validateForm(email,password))
+            return
+
+        val progress = ProgressDialog(this)
+        progress.setMessage("Loading....")
+        progress.show();
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, OnCompleteListener<AuthResult> { task ->
+                    if (task.isSuccessful) {
+
+
+                        // update UI with the signed-in user's information
+                        val user = mAuth.getCurrentUser()
+                        val homeIntent = Intent(this@MainActivity, Home::class.java)
+                        startActivity(homeIntent)
+                        finish()
+
+
+                    } else {
+                        progress.dismiss()
+                        Log.e("AAA", "signIn: Fail!", task.getException())
+                        Toast.makeText(this@MainActivity, "Authentication failed!", Toast.LENGTH_SHORT).show()
+                    }
+
+
+                })
 
 
     }
+
+
+
+     private fun validateForm(email:String , password : String) : Boolean
+    {
+
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(this@MainActivity, "Enter email address!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(this@MainActivity, "Enter password!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (password.length < 6) {
+            Toast.makeText(this@MainActivity, "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true
+    }
+
+
+
 }
