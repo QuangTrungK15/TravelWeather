@@ -1,5 +1,6 @@
 package com.example.dell.travelweather
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
@@ -75,7 +76,9 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle navigation view item clicks here.
         when (item.itemId) {
             R.id.nav_profile -> {
-                // Handle the camera action
+                // Handle the profile action
+                val intent = Intent(this@HomeActivity,ProfileActivity::class.java)
+                startActivity(intent)
             }
             R.id.nav_places -> {
 

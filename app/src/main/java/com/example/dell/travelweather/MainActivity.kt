@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
         btnSignUp.setOnClickListener {
             val signUpIntent = Intent(this@MainActivity, SignUpActivity::class.java)
             startActivity(signUpIntent)
