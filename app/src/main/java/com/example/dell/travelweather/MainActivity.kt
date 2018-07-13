@@ -37,6 +37,9 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var mAuth : FirebaseAuth
 
+
+    lateinit var table_user : DatabaseReference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -44,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
 
-        val table_user: DatabaseReference = database.getReference("User")
+        table_user= database.getReference("user")
 
 
         mAuth  = FirebaseAuth.getInstance()
@@ -85,7 +88,7 @@ class MainActivity : AppCompatActivity() {
                         user!!.phone = editPhone.text.toString()
 
                         if (user.password == editPassword.text.toString()) {
-                            val homeIntent = Intent(this@MainActivity, Home::class.java)
+                            val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
                             Common.currentUser = user
                             startActivity(homeIntent)
                             finish()
@@ -126,10 +129,24 @@ class MainActivity : AppCompatActivity() {
 
 
                         // update UI with the signed-in user's information
-                        val user = mAuth.getCurrentUser()
-                        val homeIntent = Intent(this@MainActivity, Home::class.java)
-                        startActivity(homeIntent)
-                        finish()
+                        val u = mAuth.getCurrentUser()
+                        table_user.addValueEventListener(object : ValueEventListener {
+
+                            override fun onCancelled(p0: DatabaseError) {
+
+                            }
+
+                            override fun onDataChange(p0: DataSnapshot) {
+                                val user = p0.child(u!!.uid).getValue(User::class.java)
+                                Common.currentUser = user!!
+                                Log.e("AAA","11111111"+ Common.currentUser.name)
+                                val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
+                                startActivity(homeIntent)
+                                finish()
+                            }
+
+
+                        })
 
 
                     } else {

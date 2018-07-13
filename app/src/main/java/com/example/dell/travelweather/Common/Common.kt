@@ -5,6 +5,6 @@ import com.example.dell.travelweather.Model.User
 class Common {
 
     companion object {
-       lateinit var currentUser : User
+       var currentUser : User = User("","","")
     }
 }
