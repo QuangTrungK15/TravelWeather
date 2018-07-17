@@ -49,6 +49,24 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
 
+
+
+
+    // Recyclerview
+    implementation 'com.android.support:recyclerview-v7:27.1.0'
+    implementation 'com.android.support:design:27.1.0'
+
+    // RxJava
+    implementation 'io.reactivex.rxjava2:rxjava:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.2.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'

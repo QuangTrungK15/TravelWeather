@@ -2,25 +2,49 @@ package com.example.dell.travelweather
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import com.example.dell.travelweather.Common.Common
+import android.widget.Toast
+import com.example.dell.travelweather.common.Common
+import com.example.dell.travelweather.model.AndroidVersion
+import com.example.dell.travelweather.model.WeatherDetails
+import com.example.dell.travelweather.repository.Repository
+import com.example.dell.travelweather.service.ApiService
+import com.example.dell.travelweather.utils.StringFormatter.convertToValueWithUnit
+import com.example.dell.travelweather.utils.StringFormatter.unitDegreesCelsius
+import com.squareup.picasso.Picasso
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
+import kotlinx.android.synthetic.main.content_home.*
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+
+    private val TAG = MainActivity::class.java.simpleName
+
+
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
+
+
+
+        requestWeatherDetails()
+
 
         fab.setOnClickListener { view ->
 
@@ -46,7 +70,56 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         nav_view.setNavigationItemSelectedListener(this)
+
+
+
+
     }
+
+
+    private fun requestWeatherDetails() {
+        Repository.createService(ApiService::class.java).getWeatherDetailsOneLocation("Ha Noi",Common.ACCESS_API_KEY)
+                .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
+                .subscribeOn(Schedulers.io())//chi dinh cho request lam viec tren I/O Thread(request to api ,  download a file,...)
+                .subscribe(
+                        //cú pháp của rxjava trong kotlin
+                        { result ->
+                            //request thành công
+                            handleSuccessWeatherDetails(result)
+                        },
+                        { error ->
+                            //request thất bai
+                            handlerErrorWeatherDetails(error)
+                        }
+                )
+    }
+
+    private fun handlerErrorWeatherDetails(error: Throwable?) {
+
+    }
+
+    private fun handleSuccessWeatherDetails(result: WeatherDetails?) {
+        //Log.e(TAG,"Successfull")
+
+        txt_city_name.text = result!!.nameCity.toString()
+        val temperatue : Double = convertFahrenheitToCelsius(result.temperature.temp)
+        txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, temperatue)
+        txt_main_weather.text = result.weather[0].nameWeather
+
+
+        Picasso.with(getBaseContext()).load(Common.BASE_URL_UPLOAD+result.weather[0].icon+".png").into(img_weather_icon);
+
+    }
+
+
+    private fun convertFahrenheitToCelsius(temperatue : Double) : Double
+    {
+        val temp = (temperatue - 273.15)
+        return temp
+    }
+
+
+
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {

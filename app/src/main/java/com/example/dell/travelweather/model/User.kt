@@ -1,4 +1,4 @@
-package com.example.dell.travelweather.Model
+package com.example.dell.travelweather.model
 
 class User(var name : String="" , var email : String="", var phone : String = "") {
 

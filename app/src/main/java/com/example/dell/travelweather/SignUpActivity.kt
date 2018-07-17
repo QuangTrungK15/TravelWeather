@@ -8,18 +8,15 @@ import android.widget.Button
 import com.google.firebase.database.*
 import com.rengwuxian.materialedittext.MaterialEditText
 import android.widget.Toast
-import com.google.android.gms.common.oob.SignUp
-import com.example.dell.travelweather.R.id.editPhone
-import com.example.dell.travelweather.R.id.editPass
-import com.example.dell.travelweather.R.id.editName
-import com.example.dell.travelweather.Model.User
+import com.example.dell.travelweather.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import java.nio.file.Files.exists
-
 
 
 class SignUpActivity : AppCompatActivity() {
+
+
+    private val TAG : String = MainActivity::class.toString()
 
 
     lateinit var editEmail: MaterialEditText
@@ -114,7 +111,7 @@ class SignUpActivity : AppCompatActivity() {
 
             if(it.isSuccessful)
             {
-                Log.e("AAA", "createAccount: Success!");
+                Log.e(TAG, "createAccount: Success!");
                 val user : FirebaseUser = mAuth.currentUser!!
                 writeNewUser(user.uid,editName.text.toString(), user.email!!,editPhone.text.toString())
                 Toast.makeText(this@SignUpActivity, "Sign up successfull ! ", Toast.LENGTH_SHORT).show()
