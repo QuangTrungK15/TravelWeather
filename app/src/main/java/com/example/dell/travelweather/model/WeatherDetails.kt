@@ -11,4 +11,7 @@ class WeatherDetails {
 
     @SerializedName("name")
     lateinit var nameCity : String
+
+    @SerializedName("dt")
+    var dateTime : Long = 0
 }

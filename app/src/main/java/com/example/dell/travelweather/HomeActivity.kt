@@ -3,6 +3,7 @@ package com.example.dell.travelweather
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.NavigationView
+import android.support.design.widget.TabLayout
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
@@ -12,11 +13,13 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import com.example.dell.travelweather.adapter.ViewPagerAdapter
 import com.example.dell.travelweather.common.Common
 import com.example.dell.travelweather.model.AndroidVersion
 import com.example.dell.travelweather.model.WeatherDetails
 import com.example.dell.travelweather.repository.Repository
 import com.example.dell.travelweather.service.ApiService
+import com.example.dell.travelweather.utils.StringFormatter.convertTimestampToDayAndHourFormat
 import com.example.dell.travelweather.utils.StringFormatter.convertToValueWithUnit
 import com.example.dell.travelweather.utils.StringFormatter.unitDegreesCelsius
 import com.squareup.picasso.Picasso
@@ -25,6 +28,9 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home.*
+import android.os.Build
+
+
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -61,6 +67,25 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
         val headerView = navigationView.getHeaderView(0)
+
+        //Bind fragments on viewpager
+        val adapter  = ViewPagerAdapter(getSupportFragmentManager())
+        adapter.addFragment(FragmentOne(), "ONE")
+        adapter.addFragment(FragmentTwo(), "TWO")
+        adapter.addFragment(FragmentTwo(), "THREE")
+        adapter.addFragment(FragmentTwo(), "FOUR")
+        adapter.addFragment(FragmentTwo(), "FIVE")
+        adapter.addFragment(FragmentTwo(), "TWO")
+        adapter.addFragment(FragmentTwo(), "TWO")
+        view_pager.adapter = adapter
+
+        tabs.setTabMode(TabLayout.MODE_SCROLLABLE);
+        tabs.setupWithViewPager(view_pager)
+
+
+
+
+
 
         //Set name on header navigation
 
@@ -100,16 +125,27 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun handleSuccessWeatherDetails(result: WeatherDetails?) {
         //Log.e(TAG,"Successfull")
+        setupMainWeatherDetailsInfo(result)
 
+    }
+
+
+
+    private fun setupMainWeatherDetailsInfo(result: WeatherDetails?)
+    {
+        Log.e("TAG", result!!.dateTime.toString())
+        txt_date_time.text = convertTimestampToDayAndHourFormat(result!!.dateTime)
         txt_city_name.text = result!!.nameCity.toString()
         val temperatue : Double = convertFahrenheitToCelsius(result.temperature.temp)
         txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, temperatue)
         txt_main_weather.text = result.weather[0].nameWeather
 
 
-        Picasso.with(getBaseContext()).load(Common.BASE_URL_UPLOAD+result.weather[0].icon+".png").into(img_weather_icon);
+        Picasso.with(getBaseContext()).load(Common.BASE_URL_UPLOAD+result.weather[0].icon+".png").into(img_weather_icon)
 
     }
+
+
 
 
     private fun convertFahrenheitToCelsius(temperatue : Double) : Double
