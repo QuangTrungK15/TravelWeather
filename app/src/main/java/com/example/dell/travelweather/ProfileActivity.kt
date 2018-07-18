@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import com.example.dell.travelweather.common.Common
-import com.example.dell.travelweather.model.User
+import com.example.dell.travelweather.model.UserDbO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -88,7 +88,7 @@ class ProfileActivity : AppCompatActivity() {
 
 
 
-            val user = User(editName.text.toString(),editEmail.text.toString(),editPhone.text.toString())
+            val user = UserDbO(editName.text.toString(),editEmail.text.toString(),editPhone.text.toString())
             table_user.child(mAuth.uid!!).setValue(user)
             Log.e(TAG, "UPDATE");
 

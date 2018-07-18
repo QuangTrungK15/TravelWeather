@@ -12,7 +12,7 @@ import android.content.Intent
 import android.text.TextUtils
 import android.util.Log
 import com.example.dell.travelweather.common.Common
-import com.example.dell.travelweather.model.User
+import com.example.dell.travelweather.model.UserDbO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ValueEventListener
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                     {
 
 
-                        val user = p0.child(editPhone.text.toString()).getValue(User::class.java)
+                        val user = p0.child(editPhone.text.toString()).getValue(UserDbO::class.java)
 
                         //Log.e("AAA" , ""+ editPhone.text.toString())
 
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
                     }
                     else
-                        Toast.makeText(this@MainActivity, "User not exits in database !!!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "UserDbO not exits in database !!!", Toast.LENGTH_SHORT).show()
 
                 }
             })
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             override fun onDataChange(p0: DataSnapshot) {
-                                val user = p0.child(u!!.uid).getValue(User::class.java)
+                                val user = p0.child(u!!.uid).getValue(UserDbO::class.java)
                                 Common.currentUser = user!!
                                 //Log.e(TAG,"11111111"+ Common.currentUser.name)
                                 val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)

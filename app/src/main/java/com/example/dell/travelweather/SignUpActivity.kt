@@ -8,7 +8,7 @@ import android.widget.Button
 import com.google.firebase.database.*
 import com.rengwuxian.materialedittext.MaterialEditText
 import android.widget.Toast
-import com.example.dell.travelweather.model.User
+import com.example.dell.travelweather.model.UserDbO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
@@ -69,7 +69,7 @@ class SignUpActivity : AppCompatActivity() {
                     } else {
 
                         //get value to elements
-                        val user = User(editName.text.toString(), editPass.text.toString())
+                        val user = UserDbO(editName.text.toString(), editPass.text.toString())
 
                         //Sign up user account
                         table_user.child(editPhone.text.toString()).setValue(user)
@@ -133,7 +133,7 @@ class SignUpActivity : AppCompatActivity() {
 
 
     private fun writeNewUser(userId : String, username : String, email : String, phone : String) {
-        val user  = User(username, email,phone)
+        val user  = UserDbO(username, email,phone)
 
         table_user.child(userId).setValue(user)
     }

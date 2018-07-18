@@ -2,12 +2,12 @@ package com.example.dell.travelweather.model
 
 import com.google.gson.annotations.SerializedName
 
-class WeatherDetails {
+class WeatherDetailsResponse {
 
-    lateinit var weather : List<Weather>
+    lateinit var weather : List<WeatherItem>
 
     @SerializedName("main")
-    lateinit var temperature : Temperature
+    lateinit var temperature : TemperatureItem
 
     @SerializedName("name")
     lateinit var nameCity : String

@@ -2,7 +2,7 @@ package com.example.dell.travelweather.model
 
 import com.google.gson.annotations.SerializedName
 
-class Weather{
+class WeatherItem{
 
 
      lateinit var id : String

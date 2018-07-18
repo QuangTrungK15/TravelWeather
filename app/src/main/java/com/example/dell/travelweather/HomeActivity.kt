@@ -12,11 +12,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import com.example.dell.travelweather.adapter.ViewPagerAdapter
 import com.example.dell.travelweather.common.Common
-import com.example.dell.travelweather.model.AndroidVersion
-import com.example.dell.travelweather.model.WeatherDetails
+import com.example.dell.travelweather.model.WeatherDetailsResponse
 import com.example.dell.travelweather.repository.Repository
 import com.example.dell.travelweather.service.ApiService
 import com.example.dell.travelweather.utils.StringFormatter.convertTimestampToDayAndHourFormat
@@ -28,77 +26,49 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home.*
-import android.os.Build
-
 
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-
     private val TAG = MainActivity::class.java.simpleName
-
-
-
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
 
-
-
         requestWeatherDetails()
 
-
         fab.setOnClickListener { view ->
-
         }
-
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
-
-        val editName : TextView
-
         val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
         val headerView = navigationView.getHeaderView(0)
 
         //Bind fragments on viewpager
-        val adapter  = ViewPagerAdapter(getSupportFragmentManager())
-        adapter.addFragment(FragmentOne(), "ONE")
-        adapter.addFragment(FragmentTwo(), "TWO")
-        adapter.addFragment(FragmentTwo(), "THREE")
-        adapter.addFragment(FragmentTwo(), "FOUR")
-        adapter.addFragment(FragmentTwo(), "FIVE")
-        adapter.addFragment(FragmentTwo(), "TWO")
-        adapter.addFragment(FragmentTwo(), "TWO")
+        var titles = ArrayList<String>()
+        titles.add("One")
+        titles.add("Two")
+        titles.add("Three")
+        titles.add("Four")
+        titles.add("Five")
+        titles.add("Six")
+
+        val adapter  = ViewPagerAdapter(getSupportFragmentManager(), titles)
         view_pager.adapter = adapter
 
         tabs.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabs.setupWithViewPager(view_pager)
 
-
-
-
-
-
-        //Set name on header navigation
-
-        editName = headerView.findViewById<TextView>(R.id.txtName)
+        var editName = headerView.findViewById<TextView>(R.id.txtName)
         editName.text = Common.currentUser.name
 
-
-
         nav_view.setNavigationItemSelectedListener(this)
-
-
-
-
     }
 
 
@@ -123,7 +93,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    private fun handleSuccessWeatherDetails(result: WeatherDetails?) {
+    private fun handleSuccessWeatherDetails(result: WeatherDetailsResponse?) {
         //Log.e(TAG,"Successfull")
         setupMainWeatherDetailsInfo(result)
 
@@ -131,7 +101,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
-    private fun setupMainWeatherDetailsInfo(result: WeatherDetails?)
+    private fun setupMainWeatherDetailsInfo(result: WeatherDetailsResponse?)
     {
         Log.e("TAG", result!!.dateTime.toString())
         txt_date_time.text = convertTimestampToDayAndHourFormat(result!!.dateTime)
