@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:393459142515:android:23b0edb8b60112fb",
         "android_client_info": {
-          "package_name": "com.example.dell.travelweather"
+          "package_name": "com.horus.travelweather"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "393459142515-ol2ejtu5mu3ukhvs390h0fr0cim63u2e.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.dell.travelweather",
+            "package_name": "com.horus.travelweather",
             "certificate_hash": "c40ed9cf01eed42ff763961a5df823dee676eeeb"
           }
         },

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".HomeActivity"
+    tools:context=".activity.HomeActivity"
     tools:showIn="@layout/app_bar_home">
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -97,7 +97,7 @@
                     android:id="@+id/tabs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/colorPrimary"
+                    android:background="@color/colorPrimary"
                     app:tabGravity="fill"
                     app:tabTextColor="#FFF"
                     app:tabSelectedTextColor="@color/colorAccent"
