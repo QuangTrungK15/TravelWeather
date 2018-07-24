@@ -7,9 +7,9 @@ import java.util.*
 
 object StringFormatter {
 
-    /*val unitPercentage = "%"
+    val unitPercentage = "%"
     val unitDegrees = "\u00b0"
-    val unitsMetresPerSecond = "m/s"*/
+    val unitsMetresPerSecond = "m/s"
     val unitDegreesCelsius = "\u2103"
 
 
@@ -27,13 +27,5 @@ object StringFormatter {
         //formatter.timeZone = TimeZone.getTimeZone("UTC")
         val dateFormat = formatter.format(Date(timestamp))
         return dateFormat
-
-
-        /*var stamp = timestamp
-        var date = Date(timestamp)
-        stamp = date.time
-
-        return  stamp.toString()
-*/
     }
 }

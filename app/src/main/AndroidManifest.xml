@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.horus.travelweather">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,6 +26,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activity.SignUpActivity" />
         <activity android:name=".activity.ProfileActivity" />
+        <activity android:name=".activity.AddLocationActivity"
+            android:label="@string/title_add_location"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCyBNIAtBDcE8l8I8v1-NO19nG3LLwEkA0"/>
     </application>
 
 </manifest>

@@ -1,12 +1,16 @@
 package com.horus.travelweather.activity
 
+import android.Manifest
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.design.widget.TabLayout
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -15,15 +19,7 @@ import android.widget.TextView
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.ViewPagerAdapter
 import com.horus.travelweather.common.TWConstant
-import com.horus.travelweather.model.WeatherDetailsResponse
-import com.horus.travelweather.repository.Repository
-import com.horus.travelweather.service.ApiService
-import com.horus.travelweather.utils.StringFormatter.convertTimestampToDayAndHourFormat
-import com.horus.travelweather.utils.StringFormatter.convertToValueWithUnit
-import com.horus.travelweather.utils.StringFormatter.unitDegreesCelsius
-import com.squareup.picasso.Picasso
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home.*
@@ -38,8 +34,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
 
-        requestWeatherDetails()
-
         fab.setOnClickListener { view ->
         }
 
@@ -51,67 +45,35 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
         val headerView = navigationView.getHeaderView(0)
 
-        //Bind fragments on viewpager
-        var titles = ArrayList<String>()
-        titles.add("One")
-        titles.add("Two")
-        titles.add("Three")
-        titles.add("Four")
-        titles.add("Five")
-        titles.add("Six")
+        val rxPermissions = RxPermissions(this)
+        rxPermissions
+                .request(Manifest.permission.ACCESS_FINE_LOCATION)
+                .subscribe { granted ->
+                    if (granted) { // Always true pre-M
+                        //Bind fragments on viewpager
+                        val titles = ArrayList<String>()
+                        titles.add("One")
+                        titles.add("Two")
+                        titles.add("Three")
 
-        val adapter = ViewPagerAdapter(getSupportFragmentManager(), titles)
-        view_pager.adapter = adapter
+                        val adapter = ViewPagerAdapter(getSupportFragmentManager(), titles)
+                        view_pager.adapter = adapter
 
-        tabs.setTabMode(TabLayout.MODE_SCROLLABLE);
-        tabs.setupWithViewPager(view_pager)
+                    } else {
+                        // Oups permission denied
+                        Log.e(TAG,"Access fail")
+                    }
+                }
+
+
+
 
         var editName = headerView.findViewById<TextView>(R.id.txtName)
         editName.text = TWConstant.currentUser.name
 
+
+
         nav_view.setNavigationItemSelectedListener(this)
-    }
-
-    private fun requestWeatherDetails() {
-        Repository.createService(ApiService::class.java).getWeatherDetailsOneLocation("Ha Noi", TWConstant.ACCESS_API_KEY)
-                .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
-                .subscribeOn(Schedulers.io())//chi dinh cho request lam viec tren I/O Thread(request to api ,  download a file,...)
-                .subscribe(
-                        //cú pháp của rxjava trong kotlin
-                        { result ->
-                            //request thành công
-                            handleSuccessWeatherDetails(result)
-                        },
-                        { error ->
-                            //request thất bai
-                            handlerErrorWeatherDetails(error)
-                        }
-                )
-    }
-
-    private fun handlerErrorWeatherDetails(error: Throwable?) {
-
-    }
-
-    private fun handleSuccessWeatherDetails(result: WeatherDetailsResponse?) {
-        setupMainWeatherDetailsInfo(result)
-    }
-
-    private fun setupMainWeatherDetailsInfo(result: WeatherDetailsResponse?) {
-        Log.e("TAG", result!!.dateTime.toString())
-        txt_date_time.text = convertTimestampToDayAndHourFormat(result!!.dateTime)
-        txt_city_name.text = result!!.nameCity.toString()
-        val temperatue: Double = convertFahrenheitToCelsius(result.temperature.temp)
-        txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, temperatue)
-        txt_main_weather.text = result.weather[0].nameWeather
-
-        Picasso.with(getBaseContext()).load(TWConstant.BASE_URL_UPLOAD + result.weather[0].icon + ".png").into(img_weather_icon)
-    }
-
-
-    private fun convertFahrenheitToCelsius(temperatue: Double): Double {
-        val temp = (temperatue - 273.15)
-        return temp
     }
 
 

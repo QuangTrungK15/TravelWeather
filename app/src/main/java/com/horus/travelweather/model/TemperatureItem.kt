@@ -1,7 +1,8 @@
 package com.horus.travelweather.model
 
-class TemperatureItem (var temp : Double,
-                       var temp_min : String ="",
-                       var temp_max : String = ""){
+class TemperatureItem (var temp : Double ,
+                       var humidity : Double,
+                       var temp_min : Double,
+                       var temp_max : Double){
 
 }

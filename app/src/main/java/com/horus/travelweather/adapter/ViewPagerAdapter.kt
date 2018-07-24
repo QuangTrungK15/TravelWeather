@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import com.horus.travelweather.fragment.HourInfoFragment
+import com.horus.travelweather.fragment.AddLocationFragment
+import com.horus.travelweather.fragment.WeatherDetailFragment
 
 //
 //class ViewPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(manager) {
@@ -35,10 +36,10 @@ import com.horus.travelweather.fragment.HourInfoFragment
 //
 //}
 
-class ViewPagerAdapter(fragmentManager: FragmentManager, var titles: List<String>) :
+open class ViewPagerAdapter(fragmentManager: FragmentManager, var titles: List<String>) :
         FragmentPagerAdapter(fragmentManager) {
     override fun getItem(position: Int): Fragment {
-        return newInstance(position)
+        return newInstance(position,titles.size-1)
     }
 
     override fun getCount(): Int {
@@ -49,13 +50,34 @@ class ViewPagerAdapter(fragmentManager: FragmentManager, var titles: List<String
         return titles.get(position)
     }
 
+
+
     companion object {
-        fun newInstance(position: Int): HourInfoFragment {
-            val fragment = HourInfoFragment()
+        fun newInstance(position: Int, size: Int) : Fragment {
+
+            if(position!=size) {
+               return newInsWeather(position)
+            }
+            else {
+               return newInsAddLocation(position)
+            }
+
+
+        }
+        fun newInsWeather(position: Int): WeatherDetailFragment {
+            val fragment = WeatherDetailFragment()
+            val args = Bundle()
+            args.putInt("position", position)
+            fragment.arguments = args
+            return fragment
+        }
+        fun newInsAddLocation(position: Int): AddLocationFragment {
+            val fragment = AddLocationFragment()
             val args = Bundle()
             args.putInt("position", position)
             fragment.arguments = args
             return fragment
         }
     }
+
 }
