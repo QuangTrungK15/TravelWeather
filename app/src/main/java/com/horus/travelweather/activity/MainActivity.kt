@@ -25,7 +25,7 @@ import com.horus.travelweather.R
 
 class MainActivity : AppCompatActivity() {
 
-    private val TAG : String = MainActivity::class.toString()
+    private val TAG: String = MainActivity::class.toString()
 
     lateinit var btnLogin: Button
     lateinit var btnSignUp: Button
@@ -33,10 +33,10 @@ class MainActivity : AppCompatActivity() {
     lateinit var editPassword: MaterialEditText
 
 
-    lateinit var mAuth : FirebaseAuth
+    lateinit var mAuth: FirebaseAuth
 
 
-    lateinit var table_user : DatabaseReference
+    lateinit var table_user: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,10 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
 
-        table_user= database.getReference("user")
+        table_user = database.getReference("user")
 
 
-        mAuth  = FirebaseAuth.getInstance()
+        mAuth = FirebaseAuth.getInstance()
 
 
 
@@ -103,18 +103,15 @@ class MainActivity : AppCompatActivity() {
 
 */
 
-            signIN(editEmail.text.toString(),editPassword.text.toString())
+            signIN(editEmail.text.toString(), editPassword.text.toString())
         }
 
     }
 
 
+    private fun signIN(email: String, password: String) {
 
-
-    private fun signIN( email:String, password:String)
-    {
-
-        if(!validateForm(email,password))
+        if (!validateForm(email, password))
             return
 
         val progress = ProgressDialog(this)
@@ -123,16 +120,11 @@ class MainActivity : AppCompatActivity() {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, OnCompleteListener<AuthResult> { task ->
                     if (task.isSuccessful) {
-
-
                         // update UI with the signed-in user's information
                         val u = mAuth.getCurrentUser()
                         table_user.addValueEventListener(object : ValueEventListener {
-
                             override fun onCancelled(p0: DatabaseError) {
-
                             }
-
                             override fun onDataChange(p0: DataSnapshot) {
                                 val user = p0.child(u!!.uid).getValue(UserDbO::class.java)
                                 TWConstant.currentUser = user!!
@@ -141,26 +133,17 @@ class MainActivity : AppCompatActivity() {
                                 startActivity(homeIntent)
                                 finish()
                             }
-
-
                         })
-
-
                     } else {
                         progress.dismiss()
                         Log.e(TAG, "signIn: Fail!", task.getException())
                         Toast.makeText(this@MainActivity, "Authentication failed!", Toast.LENGTH_SHORT).show()
                     }
-
-
                 })
-
-
     }
 
 
-    private fun validateForm(email:String, password : String) : Boolean
-    {
+    private fun validateForm(email: String, password: String): Boolean {
 
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(this@MainActivity, "Enter email address!", Toast.LENGTH_SHORT).show();
@@ -179,7 +162,6 @@ class MainActivity : AppCompatActivity() {
 
         return true
     }
-
 
 
 }
