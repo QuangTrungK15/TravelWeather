@@ -38,6 +38,7 @@ import android.net.LocalSocketAddress
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import com.horus.travelweather.adapter.DailyWeatherAdapter
 import com.horus.travelweather.model.DailyWeatherDetailResponse
 import io.reactivex.Single
 import ru.solodovnikov.rx2locationmanager.LocationTime
@@ -73,13 +74,8 @@ class WeatherDetailFragment : Fragment() {
                         }
                 )
 
-    }
 
-
-
-    private fun requesDailytWeatherDetails(lat : Double,long :Double) {
-
-        Repository.createService(ApiService::class.java).getDailyWeatherDetails("Thanh pho Ho Chi Minh", TWConstant.ACCESS_API_KEY)
+        Repository.createService(ApiService::class.java).getDailyWeatherCoordinates(lat,long, TWConstant.ACCESS_API_KEY)
                 .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
                 .subscribeOn(Schedulers.io())//chi dinh cho request lam viec tren I/O Thread(request to api ,  download a file,...)
                 .subscribe(
@@ -99,12 +95,38 @@ class WeatherDetailFragment : Fragment() {
 
 
 
+   /* private fun requestDailytWeatherDetails() {
+
+        Repository.createService(ApiService::class.java).getDailyWeatherDetails("Ha Noi", TWConstant.ACCESS_API_KEY)
+                .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
+                .subscribeOn(Schedulers.io())//chi dinh cho request lam viec tren I/O Thread(request to api ,  download a file,...)
+                .subscribe(
+                        //cú pháp của rxjava trong kotlin
+                        { result ->
+                            //request thành công
+                            processResponseDataDaily(result)
+                        },
+                        { error ->
+                            //request thất bai
+                            handlerErrorWeatherDetails(error)
+                        }
+                )
+
+    }
+*/
+
+
+
     private fun handlerErrorWeatherDetails(error: Throwable?) {
         Log.e(TAG,""+error.toString())
     }
 
     private fun processResponseDataDaily(result: DailyWeatherDetailResponse?) {
-
+        Log.e(TAG,"111111111"+ result!!.list[0].temperature.temp)
+        val adapter = DailyWeatherAdapter(result.list)
+        val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(this.context, LinearLayoutManager.HORIZONTAL, false)
+        rv_hourly_weather_list.layoutManager = layoutManager
+        rv_hourly_weather_list.adapter = adapter
     }
 
     private fun processResponseData(result : WeatherDetailsResponse)
@@ -132,7 +154,8 @@ class WeatherDetailFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         requestLocation()
-        initRecyclerView()
+        //initRecyclerView()
+
         return inflater.inflate(R.layout.fragment_weather_details, container, false)
     }
 

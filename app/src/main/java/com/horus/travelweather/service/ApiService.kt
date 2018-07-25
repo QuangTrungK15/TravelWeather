@@ -12,6 +12,11 @@ interface ApiService {
     fun getDailyWeatherDetails(@Query("q") cityName : String,
                           @Query("APPID") keyAPI : String): Observable<DailyWeatherDetailResponse>
 
+    @GET("forecast")
+    fun getDailyWeatherCoordinates(@Query("lat") latitude : Double,
+                                   @Query("lon") longitude : Double,
+                                   @Query("APPID") keyAPI : String): Observable<DailyWeatherDetailResponse>
+
     @GET("weather")
     fun getWeatherDetailsOneLocation(@Query("q") cityName : String,
                           @Query("APPID") keyAPI : String): Observable<WeatherDetailsResponse>

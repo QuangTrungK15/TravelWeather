@@ -59,6 +59,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         val adapter = ViewPagerAdapter(getSupportFragmentManager(), titles)
                         view_pager.adapter = adapter
 
+
                     } else {
                         // Oups permission denied
                         Log.e(TAG,"Access fail")
@@ -68,7 +69,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
-        var editName = headerView.findViewById<TextView>(R.id.txtName)
+        val editName = headerView.findViewById<TextView>(R.id.txtName)
         editName.text = TWConstant.currentUser.name
 
 

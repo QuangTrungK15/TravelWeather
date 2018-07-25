@@ -24,8 +24,22 @@ object StringFormatter {
     fun convertTimestampToDayAndHourFormat(timestamp: Long): String{
         val DAY_HOUR_MINUTE = "dd/MM/yyyy, HH:mm"
         val formatter = SimpleDateFormat (DAY_HOUR_MINUTE, Locale.ENGLISH)
-        //formatter.timeZone = TimeZone.getTimeZone("UTC")
-        val dateFormat = formatter.format(Date(timestamp))
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        val dateFormat = formatter.format(Date(timestamp*1000))
         return dateFormat
+    }
+
+
+    fun convertTimestampHourFormat(timestamp: Long): String{
+        val DAY_HOUR_MINUTE = "HH:mm"
+        val formatter = SimpleDateFormat (DAY_HOUR_MINUTE, Locale.ENGLISH)
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        val dateFormat = formatter.format(Date(timestamp*1000))
+        return dateFormat
+    }
+
+    fun convertKelvinToCelsius(temperatue: Double): Double {
+        val temp = (temperatue - 273.15)
+        return temp
     }
 }
