@@ -55,7 +55,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         titles.add("One")
                         titles.add("Two")
                         titles.add("Three")
-
                         val adapter = ViewPagerAdapter(getSupportFragmentManager(), titles)
                         view_pager.adapter = adapter
 

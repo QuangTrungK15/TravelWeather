@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.places.Places
@@ -17,11 +19,9 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
-
-
-
-
-
+import com.horus.travelweather.adapter.LocationAdapter
+import com.horus.travelweather.model.LocationDbO
+import kotlinx.android.synthetic.main.activity_add_location.*
 
 
 class AddLocationActivity : AppCompatActivity() {
@@ -34,18 +34,14 @@ class AddLocationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_location)
 
-        // Construct a GeoDataClient.
-        val mGeoDataClient = Places.getGeoDataClient(this, null);
+        val list : List<LocationDbO> = listOf(LocationDbO("TP Ho Chi Minh"), LocationDbO("Hai Phong"))
+        val adapter = LocationAdapter(list)
+        val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        rv_location.adapter = adapter
+        rv_location.layoutManager = layoutManager
 
-        // Construct a PlaceDetectionClient.
-        val mPlaceDetectionClient = Places.getPlaceDetectionClient(this, null);
 
-        // TODO: Start using the Places API.
         callPlaceAutocompleteActivityIntent()
-
-
-
-
 
     }
 

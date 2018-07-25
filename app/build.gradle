@@ -1,3 +1,4 @@
+
 apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
@@ -10,6 +11,7 @@ android {
         applicationId "com.horus.travelweather"
         minSdkVersion 16
         targetSdkVersion 27
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -36,7 +38,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-database:16.0.1'
     implementation 'com.firebaseui:firebase-ui-database:3.2.2'
-    implementation 'com.google.firebase:firebase-auth:16.0.1'
+    implementation 'com.google.firebase:firebase-auth:16.0.2'
 
 
 
