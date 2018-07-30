@@ -19,8 +19,11 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
+import com.horus.travelweather.Database.PlaceData
+import com.horus.travelweather.Database.PlaceDatabase
 import com.horus.travelweather.adapter.LocationAdapter
 import com.horus.travelweather.model.LocationDbO
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_add_location.*
 
 
@@ -30,9 +33,14 @@ class AddLocationActivity : AppCompatActivity() {
 
     var PLACE_AUTOCOMPLETE_REQUEST_CODE = 1
 
+    private  val compositeDisposable = CompositeDisposable()
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_location)
+        val  placeDb = PlaceDatabase.getInstance(baseContext).placeDataDao()
 
         val list : List<LocationDbO> = listOf(LocationDbO("TP Ho Chi Minh"), LocationDbO("Hai Phong"))
         val adapter = LocationAdapter(list)
@@ -67,6 +75,11 @@ class AddLocationActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
                 Log.e(TAG, "Place:" + place.name)
+                val placeDB = PlaceData(place.name.toString(),place.latLng.latitude,place.latLng.longitude)
+                val  placeDb = PlaceDatabase.getInstance(baseContext).placeDataDao()
+                placeDb.insert(placeDB)
+
+
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(this, data)
                 Log.e(TAG, status.statusMessage)
