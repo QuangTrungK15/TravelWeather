@@ -1,10 +1,9 @@
-package com.horus.travelweather.Database
+package com.horus.travelweather.database
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
-import android.media.AudioManager
 
 
 @Database(entities = arrayOf(PlaceData::class), version = 1)

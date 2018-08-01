@@ -48,18 +48,12 @@ import java.util.concurrent.TimeUnit
 
 class WeatherDetailFragment : Fragment() {
 
+    private val TAG = WeatherDetailFragment::class.java.simpleName
 
 
-    private val TAG = MainActivity::class.java.simpleName
+    private fun requestWeatherDetails(lat: Double, long: Double) {
 
-    private fun initRecyclerView() {
-        val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(this.context, LinearLayoutManager.HORIZONTAL, false)
-        rv_hourly_weather_list.layoutManager = layoutManager
-    }
-
-    private fun requestWeatherDetails(lat : Double,long :Double) {
-
-        Repository.createService(ApiService::class.java).getWeatherDetailsCoordinates(lat,long, TWConstant.ACCESS_API_KEY)
+        Repository.createService(ApiService::class.java).getWeatherDetailsCoordinates(lat, long, TWConstant.ACCESS_API_KEY)
                 .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
                 .subscribeOn(Schedulers.io())//chi dinh cho request lam viec tren I/O Thread(request to api ,  download a file,...)
                 .subscribe(
@@ -75,7 +69,7 @@ class WeatherDetailFragment : Fragment() {
                 )
 
 
-        Repository.createService(ApiService::class.java).getDailyWeatherCoordinates(lat,long, TWConstant.ACCESS_API_KEY)
+        Repository.createService(ApiService::class.java).getDailyWeatherCoordinates(lat, long, TWConstant.ACCESS_API_KEY)
                 .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
                 .subscribeOn(Schedulers.io())//chi dinh cho request lam viec tren I/O Thread(request to api ,  download a file,...)
                 .subscribe(
@@ -91,55 +85,29 @@ class WeatherDetailFragment : Fragment() {
                 )
 
     }
-
-
-
-
-   /* private fun requestDailytWeatherDetails() {
-
-        Repository.createService(ApiService::class.java).getDailyWeatherDetails("Ha Noi", TWConstant.ACCESS_API_KEY)
-                .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
-                .subscribeOn(Schedulers.io())//chi dinh cho request lam viec tren I/O Thread(request to api ,  download a file,...)
-                .subscribe(
-                        //cú pháp của rxjava trong kotlin
-                        { result ->
-                            //request thành công
-                            processResponseDataDaily(result)
-                        },
-                        { error ->
-                            //request thất bai
-                            handlerErrorWeatherDetails(error)
-                        }
-                )
-
-    }
-*/
-
-
 
     private fun handlerErrorWeatherDetails(error: Throwable?) {
-        Log.e(TAG,""+error.toString())
+        Log.e(TAG, "" + error.toString())
     }
 
     private fun processResponseDataDaily(result: DailyWeatherDetailResponse?) {
-        Log.e(TAG,"111111111"+ result!!.list[0].temperature.temp)
+        Log.e(TAG, "111111111" + result!!.list[0].temperature.temp)
         val adapter = DailyWeatherAdapter(result.list)
-        val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(this.context, LinearLayoutManager.HORIZONTAL, false)
+        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this.context, LinearLayoutManager.HORIZONTAL, false)
         rv_hourly_weather_list.layoutManager = layoutManager
         rv_hourly_weather_list.adapter = adapter
     }
 
-    private fun processResponseData(result : WeatherDetailsResponse)
-    {
+    private fun processResponseData(result: WeatherDetailsResponse) {
         txt_date_time.text = convertTimestampToDayAndHourFormat(result.dateTime)
         txt_city_name.text = result.nameCity.toString()
         txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp))
-        txt_temp_max.text = convertToValueWithUnit(0, unitDegreesCelsius,convertKelvinToCelsius(result.temperature.temp_max))
-        txt_temp_min.text = convertToValueWithUnit(0, unitDegreesCelsius,convertKelvinToCelsius(result.temperature.temp_min))
+        txt_temp_max.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp_max))
+        txt_temp_min.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp_min))
         txt_main_weather.text = result.weather[0].nameWeather
 
-        txt_humidity.text = convertToValueWithUnit(0, unitPercentage,result.temperature.humidity)
-        txt_wind.text = convertToValueWithUnit(0, unitsMetresPerSecond,result.wind.speed)
+        txt_humidity.text = convertToValueWithUnit(0, unitPercentage, result.temperature.humidity)
+        txt_wind.text = convertToValueWithUnit(0, unitsMetresPerSecond, result.wind.speed)
         txt_cloud_cover.text = result.clouds.all.toString()
         Picasso.with(this.context).load(TWConstant.BASE_URL_UPLOAD + result.weather[0].icon + ".png").into(img_weather_icon)
     }
@@ -150,26 +118,29 @@ class WeatherDetailFragment : Fragment() {
     }
 
 
-
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        requestLocation()
-        //initRecyclerView()
 
-        return inflater.inflate(R.layout.fragment_weather_details, container, false)
+        requestLocation()
+        val view = inflater.inflate(R.layout.fragment_weather_details, container, false)
+        return view
     }
 
     private fun requestLocation() {
-        val rxLocationManager   =  RxLocationManager(this.context!!);
+        val rxLocationManager = RxLocationManager(this.context!!);
         rxLocationManager.requestLocation(LocationManager.NETWORK_PROVIDER, LocationTime(15, TimeUnit.SECONDS))
-                .subscribe ({
-                        val geocoder = Geocoder(this.context, Locale.getDefault())
-                        val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                        //Log.e(TAG,"111111111"+address.get(0).getAddressLine(0))
-                        requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
+                .subscribe({
+//                    val geocoder = Geocoder(this.context, Locale.getDefault())
+//                    val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+//                    //Log.e(TAG,"111111111"+address.get(0).getAddressLine(0))
+//                    requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
+                    val geocoder = Geocoder(this.context, Locale.getDefault())
+                    val address = geocoder.getFromLocation(arguments!!.getDouble("lat"), arguments!!.getDouble("lon"), 1)
+                    //Log.e(TAG,"111111111"+address.get(0).getAddressLine(0))
+                    requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
+
 
                 }, {
-                    Log.e(TAG,"Error" + it.message)
+                    Log.e(TAG, "Error" + it.message)
                 })
 
     }

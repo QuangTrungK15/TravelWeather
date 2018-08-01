@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
 
-        table_user = database.getReference("user")
+        table_user = database.getReference("users")
 
 
         mAuth = FirebaseAuth.getInstance()

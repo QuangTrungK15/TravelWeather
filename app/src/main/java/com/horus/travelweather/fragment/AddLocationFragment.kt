@@ -21,9 +21,8 @@ class AddLocationFragment: Fragment() {
         view.btn_add_location.setOnClickListener {
             val intent = Intent(this.context, AddLocationActivity::class.java)
             startActivity(intent)
+            activity?.finish()
         }
-
-
         return view
     }
 }

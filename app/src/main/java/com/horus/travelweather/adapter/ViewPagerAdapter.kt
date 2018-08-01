@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import com.horus.travelweather.database.PlaceData
 import com.horus.travelweather.fragment.AddLocationFragment
 import com.horus.travelweather.fragment.WeatherDetailFragment
 
@@ -36,27 +37,28 @@ import com.horus.travelweather.fragment.WeatherDetailFragment
 //
 //}
 
-open class ViewPagerAdapter(fragmentManager: FragmentManager, var titles: List<String>) :
+open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : List<PlaceData>) :
         FragmentPagerAdapter(fragmentManager) {
     override fun getItem(position: Int): Fragment {
-        return newInstance(position,titles.size-1)
+        return newInstance(position,listPlaces)
     }
 
     override fun getCount(): Int {
-        return titles.size
+        return listPlaces.size+1
     }
 
-    override fun getPageTitle(position: Int): CharSequence? {
-        return titles.get(position)
-    }
+
+//    override fun getPageTitle(position: Int): CharSequence? {
+//        return listPlaces.get(position).id.toString()
+//    }
 
 
 
     companion object {
-        fun newInstance(position: Int, size: Int) : Fragment {
+        fun newInstance(position: Int, listPlaces : List<PlaceData>) : Fragment {
 
-            if(position!=size) {
-               return newInsWeather(position)
+            if(position!=listPlaces.size) {
+               return newInsWeather(position,listPlaces)
             }
             else {
                return newInsAddLocation(position)
@@ -64,10 +66,12 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var titles: List<S
 
 
         }
-        fun newInsWeather(position: Int): WeatherDetailFragment {
+        fun newInsWeather(position: Int,listPlaces : List<PlaceData>): WeatherDetailFragment {
             val fragment = WeatherDetailFragment()
             val args = Bundle()
             args.putInt("position", position)
+            args.putDouble("lat",listPlaces[position].latitude)
+            args.putDouble("lon",listPlaces[position].longitude)
             fragment.arguments = args
             return fragment
         }

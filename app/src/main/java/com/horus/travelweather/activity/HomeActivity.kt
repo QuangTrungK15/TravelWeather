@@ -19,7 +19,11 @@ import android.widget.TextView
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.ViewPagerAdapter
 import com.horus.travelweather.common.TWConstant
+import com.horus.travelweather.database.PlaceDatabase
 import com.tbruyelle.rxpermissions2.RxPermissions
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home.*
@@ -28,6 +32,9 @@ import kotlinx.android.synthetic.main.content_home.*
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val TAG = MainActivity::class.java.simpleName
+
+    private val compositeDisposable = CompositeDisposable()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,28 +58,24 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .subscribe { granted ->
                     if (granted) { // Always true pre-M
                         //Bind fragments on viewpager
-                        val titles = ArrayList<String>()
-                        titles.add("One")
-                        titles.add("Two")
-                        titles.add("Three")
-                        val adapter = ViewPagerAdapter(getSupportFragmentManager(), titles)
-                        view_pager.adapter = adapter
-
+                        val getAllPlace = PlaceDatabase.getInstance(this).placeDataDao()
+                        compositeDisposable.add(getAllPlace.getAll()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe({
+                                    val adapter = ViewPagerAdapter(getSupportFragmentManager(), it)
+                                    view_pager.adapter = adapter
+                                }, {
+                                    Log.e(TAG, "" + it.message)
+                                }))
 
                     } else {
                         // Oups permission denied
-                        Log.e(TAG,"Access fail")
+                        Log.e(TAG, "Access fail")
                     }
                 }
-
-
-
-
         val editName = headerView.findViewById<TextView>(R.id.txtName)
         editName.text = TWConstant.currentUser.name
-
-
-
         nav_view.setNavigationItemSelectedListener(this)
     }
 
@@ -120,8 +123,9 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    private fun enterProfileView(){
+    private fun enterProfileView() {
         val intent = Intent(this@HomeActivity, ProfileActivity::class.java)
         startActivity(intent)
     }
+
 }
