@@ -1,6 +1,7 @@
 package com.horus.travelweather.activity
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.location.LocationManager
 import android.os.Bundle
@@ -127,5 +128,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val intent = Intent(this@HomeActivity, ProfileActivity::class.java)
         startActivity(intent)
     }
+
+
 
 }

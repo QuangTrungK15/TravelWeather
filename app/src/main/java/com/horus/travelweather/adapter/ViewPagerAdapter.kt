@@ -56,13 +56,17 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : L
 
     companion object {
         fun newInstance(position: Int, listPlaces : List<PlaceData>) : Fragment {
-
-            if(position!=listPlaces.size) {
-               return newInsWeather(position,listPlaces)
+            if (listPlaces.isEmpty()||listPlaces.size == position){
+                return newInsAddLocation(position)
+            }else{
+                return newInsWeather(position,listPlaces)
             }
-            else {
-               return newInsAddLocation(position)
-            }
+//            if(position!=listPlaces.size) {
+//               return newInsWeather(position,listPlaces)
+//            }
+//            else {
+//               return newInsAddLocation(position)
+//            }
 
 
         }

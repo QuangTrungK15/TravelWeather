@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.MenuItem
 import com.horus.travelweather.R
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
@@ -35,8 +36,8 @@ class AddLocationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_location)
-        //val  getAllPlace = PlaceDatabase.getInstance(this).placeDataDao()
-        //val list : List<LocationDbO> = listOf(LocationDbO("TP Ho Chi Minh"), LocationDbO("Hai Phong"))
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         loadPlaces()
         btn_add_location.setOnClickListener {
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -98,12 +99,22 @@ class AddLocationActivity : AppCompatActivity() {
     }
 
 
-    override fun onBackPressed() {
-        super.onBackPressed()
+//    override fun onBackPressed() {
+//        super.onBackPressed()
+//
+//        startActivity(Intent(this@AddLocationActivity,HomeActivity::class.java))
+//        this.finish()
+//
+//    }
 
-        startActivity(Intent(this@AddLocationActivity,HomeActivity::class.java))
-        finish()
-
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id =   item?.itemId
+        if(id == android.R.id.home) {
+            var intent = Intent()
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     inner class insertPLace(): AsyncTask<PlaceData, Void, Void>() {
