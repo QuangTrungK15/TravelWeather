@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:text="Travel Weather"
+        android:text="@string/travel_weather"
         android:textAlignment="center"
         android:textSize="30sp" />
 
@@ -28,7 +28,7 @@
             android:id="@+id/txtEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:text="trung123@gmail.com"
             android:textColor="@android:color/white"
@@ -84,7 +84,7 @@
                 android:layout_height="50dp"
                 android:layout_centerHorizontal="true"
                 android:background="#D5E8D4"
-                android:text="Login" />
+                android:text="@string/login" />
         </com.andexert.library.RippleView>
 
         <Button
@@ -96,7 +96,7 @@
             android:layout_marginBottom="32dp"
             android:layout_marginTop="17dp"
             android:background="#D5E8D4"
-            android:text="Sign Up" />
+            android:text="@string/sign_up" />
 
     </RelativeLayout>
 </RelativeLayout>

@@ -20,7 +20,7 @@
             android:id="@+id/editEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:text="khang123@gmail.com"
             android:textColor="@android:color/white"
@@ -36,7 +36,7 @@
             android:id="@+id/editName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
+            android:hint="@string/name"
             android:inputType="text"
             android:text="Khang"
             android:textColor="@android:color/white"
@@ -53,7 +53,7 @@
             android:id="@+id/editPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Phone"
+            android:hint="@string/phone"
             android:inputType="phone"
             android:text="0123"
             android:textColor="@android:color/white"
@@ -70,7 +70,7 @@
             android:id="@+id/editPass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
+            android:hint="@string/password"
             android:inputType="textPassword"
             android:text="123456"
             android:textColor="@android:color/white"
@@ -94,7 +94,7 @@
         android:layout_marginBottom="32dp"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
-        android:text="Sign Up" />
+        android:text="@string/sign_up" />
 
 
 </RelativeLayout>

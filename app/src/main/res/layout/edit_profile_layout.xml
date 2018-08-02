@@ -14,7 +14,7 @@
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/editName"
-            android:hint="Name"
+            android:hint="@string/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@color/colorPrimary"
@@ -29,7 +29,7 @@
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/editPhone"
-            android:hint="Phone Number"
+            android:hint="@string/phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@color/colorPrimary"
@@ -44,7 +44,7 @@
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/editEmail"
-            android:hint="Email"
+            android:hint="@string/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@color/colorPrimary"

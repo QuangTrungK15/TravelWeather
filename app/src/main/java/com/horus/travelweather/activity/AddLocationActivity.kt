@@ -98,15 +98,6 @@ class AddLocationActivity : AppCompatActivity() {
         }
     }
 
-
-//    override fun onBackPressed() {
-//        super.onBackPressed()
-//
-//        startActivity(Intent(this@AddLocationActivity,HomeActivity::class.java))
-//        this.finish()
-//
-//    }
-
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id =   item?.itemId
         if(id == android.R.id.home) {

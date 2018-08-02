@@ -68,17 +68,8 @@ class   ProfileActivity : AppCompatActivity() {
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         val table_user : DatabaseReference = database.getReference("user")
 
-
-
-
-
         val mAuth : FirebaseAuth = FirebaseAuth.getInstance()
-
-
-
-
-
-        alterDialog.setPositiveButton("Update", { dialog, whichButton ->
+        alterDialog.setPositiveButton(getString(R.string.update), { dialog, whichButton ->
 
 
 
@@ -87,7 +78,7 @@ class   ProfileActivity : AppCompatActivity() {
             Log.e(TAG, "UPDATE");
 
         })
-        alterDialog.setNegativeButton("Cancel", { dialog, whichButton ->
+        alterDialog.setNegativeButton(getString(R.string.cancel), { dialog, whichButton ->
 
 
         })

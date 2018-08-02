@@ -52,53 +52,8 @@ class SignUpActivity : AppCompatActivity() {
 
 
         btnSignUp.setOnClickListener {
-
-
             createAccount(editEmail.text.toString(),editPass.text.toString())
-
-         /*   table_user.addValueEventListener(object : ValueEventListener{
-                override fun onCancelled(p0: DatabaseError) {
-                }
-
-                override fun onDataChange(p0: DataSnapshot) {
-
-                    if (p0.child(editEmail.text.toString()).exists()) {
-
-                        Toast.makeText(this@SignUpActivity, "Email already register ", Toast.LENGTH_SHORT).show()
-
-
-                    } else {
-
-                        //get value to elements
-                        val user = UserDbO(editName.text.toString(), editPass.text.toString())
-
-                        //Sign up user account
-                        table_user.child(editPhone.text.toString()).setValue(user)
-                        Toast.makeText(this@SignUpActivity, "Sign up successfull ! ", Toast.LENGTH_SHORT).show()
-                        finish()
-
-                    }
-
-
-                }
-
-
-            })*/
-
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
     }
 
 
@@ -115,13 +70,13 @@ class SignUpActivity : AppCompatActivity() {
                 Log.e(TAG, "createAccount: Success!");
                 val user : FirebaseUser = mAuth.currentUser!!
                 writeNewUser(user.uid,editName.text.toString(), user.email!!,editPhone.text.toString())
-                Toast.makeText(this@SignUpActivity, "Sign up successfull ! ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SignUpActivity, getString(R.string.sign_up_successfull), Toast.LENGTH_SHORT).show()
                 finish()
             }
             else
             {
                 //Log.e("AAA", "signUp: Fail!", it.getException())
-                Toast.makeText(this@SignUpActivity, "The email address is already in use", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@SignUpActivity, getString(R.string.already_in_use), Toast.LENGTH_SHORT).show()
 
             }
 

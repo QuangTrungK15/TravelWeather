@@ -42,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="76dp"
-                    android:text="Luu Quang Trung"
+                    android:text="@string/luu_quang_trung"
                     android:textColor="#000"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -133,7 +133,7 @@
         android:id="@+id/fabEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
+        android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:src="@drawable/ic_edit_black_24dp" />
 

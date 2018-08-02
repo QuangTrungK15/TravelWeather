@@ -11,4 +11,17 @@
     <string name="wind_speed">Wind speed : </string>
     <string name="cloud_coverage">Cloud coverage : </string>
     <string name="title_add_location" />
+    <string name="travel_weather">Travel Weather</string>
+    <string name="email">Email</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="name">Name</string>
+    <string name="phone">Phone</string>
+    <string name="password">Password</string>
+    <string name="luu_quang_trung">Lưu Quang Trung</string>
+    <string name="authentication_fail">Authentication failed!</string>
+    <string name="update">Update</string>
+    <string name="cancel">Cancel</string>
+    <string name="already_in_use">The email address is already in use</string>
+    <string name="sign_up_successfull">Sign up successfull !</string>
 </resources>

@@ -58,43 +58,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnLogin.setOnClickListener {
-
-            /*   // Attach a listener to read the data at our posts reference
-            table_user.addValueEventListener(object : ValueEventListener {
-                override fun onCancelled(p0: DatabaseError) {
-                }
-
-                override fun onDataChange(p0: DataSnapshot) {
-
-                    if(p0.child(editPhone.text.toString()).exists())
-                    {
-
-
-                        val user = p0.child(editPhone.text.toString()).getValue(UserDbO::class.java)
-
-                        //Log.e("AAA" , ""+ editPhone.text.toString())
-
-                        user!!.phone = editPhone.text.toString()
-
-                        if (user.password == editPassword.text.toString()) {
-                            val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
-                            TWConstant.currentUser = user
-                            startActivity(homeIntent)
-                            finish()
-
-                        } else {
-                            Toast.makeText(this@MainActivity, "Sign In failed !!!", Toast.LENGTH_SHORT).show()
-                        }
-
-                    }
-                    else
-                        Toast.makeText(this@MainActivity, "UserDbO not exits in database !!!", Toast.LENGTH_SHORT).show()
-
-                }
-            })
-
-*/
-
             signIn(editEmail.text.toString(), editPassword.text.toString())
         }
     }
@@ -120,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                                 val user = p0.child(u!!.uid).getValue(UserDbO::class.java)
                                 TWConstant.currentUser = user!!
                                 //Log.e(TAG,"11111111"+ TWConstant.currentUser.name)
+                                progress.dismiss()
                                 val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
                                 startActivity(homeIntent)
                                 finish()
@@ -128,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         progress.dismiss()
                         Log.e(TAG, "signIn: Fail!", task.getException())
-                        Toast.makeText(this@MainActivity, "Authentication failed!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, getString(R.string.authentication_fail), Toast.LENGTH_SHORT).show()
                     }
                 })
     }
