@@ -8,35 +8,6 @@ import com.horus.travelweather.database.PlaceData
 import com.horus.travelweather.fragment.AddLocationFragment
 import com.horus.travelweather.fragment.WeatherDetailFragment
 
-//
-//class ViewPagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(manager) {
-//
-//    private val mFragmentList = ArrayList<Fragment>()
-//    private val mFragmentTitleList = ArrayList<String>()
-//
-//
-//
-//    override fun getItem(position: Int): Fragment {
-//        return mFragmentList[position]
-//    }
-//
-//    override fun getCount(): Int {
-//        return mFragmentList.size
-//    }
-//
-//
-//    fun addFragment(fragment: Fragment, title: String) {
-//        mFragmentList.add(fragment)
-//        mFragmentTitleList.add(title)
-//    }
-//
-//    override fun getPageTitle(position: Int): CharSequence {
-//        return mFragmentTitleList[position]
-//    }
-//
-//
-//}
-
 open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : List<PlaceData>) :
         FragmentPagerAdapter(fragmentManager) {
     override fun getItem(position: Int): Fragment {
@@ -46,13 +17,6 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : L
     override fun getCount(): Int {
         return listPlaces.size+1
     }
-
-
-//    override fun getPageTitle(position: Int): CharSequence? {
-//        return listPlaces.get(position).id.toString()
-//    }
-
-
 
     companion object {
         fun newInstance(position: Int, listPlaces : List<PlaceData>) : Fragment {
@@ -83,5 +47,4 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : L
             return fragment
         }
     }
-
 }

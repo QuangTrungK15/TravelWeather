@@ -31,10 +31,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var btnSignUp: Button
     lateinit var editEmail: MaterialEditText
     lateinit var editPassword: MaterialEditText
-
-
     lateinit var mAuth: FirebaseAuth
-
 
     lateinit var table_user: DatabaseReference
 
@@ -47,18 +44,13 @@ class MainActivity : AppCompatActivity() {
 
         table_user = database.getReference("users")
 
-
         mAuth = FirebaseAuth.getInstance()
-
-
 
         btnLogin = findViewById(R.id.btnLogin)
         btnSignUp = findViewById(R.id.btnSignUp)
 
         editEmail = findViewById(R.id.txtEmail)
         editPassword = findViewById(R.id.txtPassword)
-
-
 
         btnSignUp.setOnClickListener {
             val signUpIntent = Intent(this@MainActivity, SignUpActivity::class.java)
@@ -103,13 +95,11 @@ class MainActivity : AppCompatActivity() {
 
 */
 
-            signIN(editEmail.text.toString(), editPassword.text.toString())
+            signIn(editEmail.text.toString(), editPassword.text.toString())
         }
-
     }
 
-
-    private fun signIN(email: String, password: String) {
+    private fun signIn(email: String, password: String) {
 
         if (!validateForm(email, password))
             return
@@ -125,6 +115,7 @@ class MainActivity : AppCompatActivity() {
                         table_user.addValueEventListener(object : ValueEventListener {
                             override fun onCancelled(p0: DatabaseError) {
                             }
+
                             override fun onDataChange(p0: DataSnapshot) {
                                 val user = p0.child(u!!.uid).getValue(UserDbO::class.java)
                                 TWConstant.currentUser = user!!

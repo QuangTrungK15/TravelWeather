@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,34 +9,31 @@
 
     <TextView
         android:id="@+id/txtTravelWeather"
-        android:text="Travel Weather"
-        android:textSize="30sp"
-        android:textAlignment="center"
-        android:layout_marginTop="100dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="Travel Weather"
+        android:textAlignment="center"
+        android:textSize="30sp" />
 
     <LinearLayout
         android:id="@+id/UserPass"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/txtTravelWeather"
         android:layout_marginTop="60dp"
-        android:layout_below="@id/txtTravelWeather">
-
+        android:orientation="vertical">
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/txtEmail"
-            android:hint="Email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="@android:color/white"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
             android:text="trung123@gmail.com"
             android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
             android:textSize="24dp"
-            android:inputType="textEmailAddress"
             app:met_baseColor="@android:color/white"
             app:met_floatingLabel="highlight"
             app:met_maxCharacters="30"
@@ -47,41 +43,40 @@
         <com.rengwuxian.materialedittext.MaterialEditText
 
             android:id="@+id/txtPassword"
-            android:hint="Password"
-            android:layout_below="@id/txtEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColorHint="@android:color/white"
+            android:layout_below="@id/txtEmail"
+            android:hint="Password"
+            android:inputType="textPassword"
             android:text="123456"
             android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
             android:textSize="24dp"
-            android:inputType="textPassword"
             app:met_baseColor="@android:color/white"
             app:met_floatingLabel="highlight"
             app:met_maxCharacters="11"
             app:met_primaryColor="@android:color/white"
-            app:met_singleLineEllipsis="true"
-            />
+            app:met_singleLineEllipsis="true" />
 
     </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/Button"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/UserPass">
+        android:layout_below="@id/UserPass"
+        android:orientation="vertical">
 
         <com.andexert.library.RippleView
             android:id="@+id/more"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_centerHorizontal="true"
-            app:rv_color="#9C27B0"
-            app:rv_type="simpleRipple"
-            android:layout_marginTop="8dp"
+            android:layout_marginLeft="120dp"
             android:layout_marginStart="120dp"
-            android:layout_marginLeft="120dp">
+            android:layout_marginTop="8dp"
+            app:rv_color="#9C27B0"
+            app:rv_type="simpleRipple">
 
             <Button
                 android:id="@+id/btnLogin"
@@ -94,23 +89,14 @@
 
         <Button
             android:id="@+id/btnSignUp"
-            android:background="#D5E8D4"
-            android:text="Sign Up"
-            android:layout_below="@id/more"
-            android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/more"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="32dp"
             android:layout_marginTop="17dp"
-            android:layout_marginBottom="32dp"/>
-
-
+            android:background="#D5E8D4"
+            android:text="Sign Up" />
 
     </RelativeLayout>
-
-
-
-
-
-
-
 </RelativeLayout>

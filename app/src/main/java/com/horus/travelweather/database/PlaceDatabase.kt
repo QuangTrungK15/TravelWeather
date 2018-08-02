@@ -9,13 +9,10 @@ import android.content.Context
 @Database(entities = arrayOf(PlaceData::class), version = 1)
 abstract class PlaceDatabase : RoomDatabase() {
 
-
     abstract fun placeDataDao(): PlaceDAO
-
 
     companion object {
         private var INSTANCE: PlaceDatabase? = null
-
 
         @Synchronized
         fun getInstance(context: Context): PlaceDatabase {
@@ -27,13 +24,10 @@ abstract class PlaceDatabase : RoomDatabase() {
             return INSTANCE as PlaceDatabase
         }
 
-
         fun create(context : Context) : PlaceDatabase{
             return Room.databaseBuilder(context,
                     PlaceDatabase::class.java, "Place_horus")
                     .build()
         }
-
     }
-
 }

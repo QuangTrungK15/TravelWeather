@@ -49,8 +49,6 @@ import java.util.concurrent.TimeUnit
 class WeatherDetailFragment : Fragment() {
 
     private val TAG = WeatherDetailFragment::class.java.simpleName
-
-
     private fun requestWeatherDetails(lat: Double, long: Double) {
 
         Repository.createService(ApiService::class.java).getWeatherDetailsCoordinates(lat, long, TWConstant.ACCESS_API_KEY)
@@ -68,7 +66,6 @@ class WeatherDetailFragment : Fragment() {
                         }
                 )
 
-
         Repository.createService(ApiService::class.java).getDailyWeatherCoordinates(lat, long, TWConstant.ACCESS_API_KEY)
                 .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
                 .subscribeOn(Schedulers.io())//chi dinh cho request lam viec tren I/O Thread(request to api ,  download a file,...)
@@ -83,7 +80,6 @@ class WeatherDetailFragment : Fragment() {
                             handlerErrorWeatherDetails(error)
                         }
                 )
-
     }
 
     private fun handlerErrorWeatherDetails(error: Throwable?) {
@@ -117,7 +113,6 @@ class WeatherDetailFragment : Fragment() {
         return temp
     }
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         requestLocation()
@@ -138,12 +133,8 @@ class WeatherDetailFragment : Fragment() {
                     //Log.e(TAG,"111111111"+address.get(0).getAddressLine(0))
                     requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
 
-
                 }, {
                     Log.e(TAG, "Error" + it.message)
                 })
-
     }
-
-
 }

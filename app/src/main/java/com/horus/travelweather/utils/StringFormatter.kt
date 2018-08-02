@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object StringFormatter {
-
     val unitPercentage = "%"
     val unitDegrees = "\u00b0"
     val unitsMetresPerSecond = "m/s"

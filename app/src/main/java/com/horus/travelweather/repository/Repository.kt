@@ -23,28 +23,13 @@ class Repository {
 
         private val httpClient = OkHttpClient.Builder()
 
-
         fun <S> createService(serviceClass: Class<S>): S {
             return createService(serviceClass, null)
         }
 
         fun <S> createService(serviceClass: Class<S>, authToken: Map<String, String>?): S {
 
-
             val interceptor = HttpLoggingInterceptor()
-
-
-            /* if (authToken != null) {
-                 var interceptor = AuthenticationInterceptor(authToken!!)
-                 if (!httpClient.interceptors().contains(interceptor)) {
-                     httpClient.addInterceptor(interceptor)
-                     builder.client(httpClient.build())
-                     retrofit = builder.build()
-
-                 }
-             }*/
-
-
             httpClient.addInterceptor(interceptor)
                     .addInterceptor(HttpLoggingInterceptor()
                             .apply {
@@ -54,14 +39,12 @@ class Repository {
                                     HttpLoggingInterceptor.Level.NONE
                             })
 
-
             builder.client(httpClient.build())
 
             retrofit = builder.build()
 
             return retrofit!!.create(serviceClass)
         }
-
     }
 
     class AuthenticationInterceptor(private val authToken: Map<String, String>) : Interceptor {

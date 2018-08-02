@@ -9,15 +9,11 @@
     tools:context=".activity.HomeActivity"
     tools:showIn="@layout/app_bar_home">
 
-
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@android:color/holo_orange_light">
-
 
         <android.support.v4.view.ViewPager
             android:id="@+id/view_pager"
@@ -25,8 +21,4 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
-
-
-
-
 </android.support.design.widget.CoordinatorLayout>

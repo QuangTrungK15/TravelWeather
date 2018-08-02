@@ -30,8 +30,5 @@ class LocationAdapter(private val listLocation : List<PlaceData>, private val on
             itemView.btn_delete_location.setOnClickListener { onItemClick(location.id) }
             itemView.txt_chose_location.text = location.name
         }
-
-
     }
-
 }

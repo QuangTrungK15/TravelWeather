@@ -11,54 +11,51 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:orientation="vertical">
-    <com.rengwuxian.materialedittext.MaterialEditText
-        android:id="@+id/editName"
-        android:hint="Name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColorHint="@color/colorPrimary"
-        android:text=""
-        android:textColor="@color/colorPrimary"
-        android:textSize="18sp"
-        android:inputType="text"
-        app:met_baseColor="@color/colorPrimary"
-        app:met_floatingLabel="highlight"
-        app:met_primaryColor="@color/colorPrimary"
-        app:met_singleLineEllipsis="true"
-        />
-    <com.rengwuxian.materialedittext.MaterialEditText
-        android:id="@+id/editPhone"
-        android:hint="Phone Number"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColorHint="@color/colorPrimary"
-        android:text=""
-        android:textColor="@color/colorPrimary"
-        android:textSize="18sp"
-        android:inputType="number"
-        app:met_baseColor="@color/colorPrimary"
-        app:met_floatingLabel="highlight"
-        app:met_primaryColor="@color/colorPrimary"
-        app:met_singleLineEllipsis="true"
-        />
-    <com.rengwuxian.materialedittext.MaterialEditText
-        android:id="@+id/editEmail"
-        android:hint="Email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColorHint="@color/colorPrimary"
-        android:text=""
-        android:textColor="@color/colorPrimary"
-        android:textSize="18sp"
-        android:inputType="textEmailAddress"
-        app:met_baseColor="@color/colorPrimary"
-        app:met_floatingLabel="highlight"
-        app:met_primaryColor="@color/colorPrimary"
-        app:met_singleLineEllipsis="true"
-        />
 
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/editName"
+            android:hint="Name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorPrimary"
+            android:text=""
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:inputType="text"
+            app:met_baseColor="@color/colorPrimary"
+            app:met_floatingLabel="highlight"
+            app:met_primaryColor="@color/colorPrimary"
+            app:met_singleLineEllipsis="true" />
 
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/editPhone"
+            android:hint="Phone Number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorPrimary"
+            android:text=""
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:inputType="number"
+            app:met_baseColor="@color/colorPrimary"
+            app:met_floatingLabel="highlight"
+            app:met_primaryColor="@color/colorPrimary"
+            app:met_singleLineEllipsis="true" />
 
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/editEmail"
+            android:hint="Email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorPrimary"
+            android:text=""
+            android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
+            android:inputType="textEmailAddress"
+            app:met_baseColor="@color/colorPrimary"
+            app:met_floatingLabel="highlight"
+            app:met_primaryColor="@color/colorPrimary"
+            app:met_singleLineEllipsis="true" />
 
     </LinearLayout>
 

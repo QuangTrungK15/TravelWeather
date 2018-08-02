@@ -2,7 +2,7 @@ package com.horus.travelweather.common
 
 import com.horus.travelweather.model.UserDbO
 
-class TWConstant {
+class Common {
 
     companion object {
         var currentUser : UserDbO = UserDbO("","","")

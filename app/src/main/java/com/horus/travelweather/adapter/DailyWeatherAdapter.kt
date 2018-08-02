@@ -36,7 +36,5 @@ class DailyWeatherAdapter (private val dailyWeather : List<WeatherDetailsRespons
             itemView.txt_daily_humidity.text = StringFormatter.convertToValueWithUnit(0, StringFormatter.unitPercentage, daily.temperature.humidity)
             itemView.txt_daily_temperature.text = StringFormatter.convertToValueWithUnit(0, StringFormatter.unitDegreesCelsius, convertKelvinToCelsius(daily.temperature.temp))
         }
-
-
     }
 }
