@@ -128,7 +128,7 @@ class WeatherDetailFragment : Fragment() {
 //                    val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
 //                    //Log.e(TAG,"111111111"+address.get(0).getAddressLine(0))
 //                    requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
-                    val geocoder = Geocoder(this.context, Locale.getDefault())
+                    val geocoder = Geocoder(activity, Locale.getDefault())
                     val address = geocoder.getFromLocation(arguments!!.getDouble("lat"), arguments!!.getDouble("lon"), 1)
                     //Log.e(TAG,"111111111"+address.get(0).getAddressLine(0))
                     requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
