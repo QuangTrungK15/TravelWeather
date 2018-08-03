@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.activity_profile.*
 class   ProfileActivity : AppCompatActivity() {
 
 
-    private val TAG : String = MainActivity::class.toString()
+    private val TAG : String = ProfileActivity::class.toString()
 
 
 
@@ -66,15 +66,14 @@ class   ProfileActivity : AppCompatActivity() {
 
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
-        val table_user : DatabaseReference = database.getReference("user")
+        val table_user : DatabaseReference = database.getReference("users")
 
         val mAuth : FirebaseAuth = FirebaseAuth.getInstance()
         alterDialog.setPositiveButton(getString(R.string.update), { dialog, whichButton ->
 
-
-
             val user = UserDbO(editName.text.toString(),editEmail.text.toString(),editPhone.text.toString())
             table_user.child(mAuth.uid!!).setValue(user)
+            startActivity(Intent(this,ProfileActivity::class.java))
             Log.e(TAG, "UPDATE");
 
         })

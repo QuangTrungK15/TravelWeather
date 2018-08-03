@@ -19,7 +19,6 @@ interface PlaceDAO {
     @Query("DELETE from placeData")
     fun deleteAll()
 
-
     @Query("DELETE FROM placeData WHERE id = :placeID")
     fun deleteByPlaceId(placeID : Int?)
 

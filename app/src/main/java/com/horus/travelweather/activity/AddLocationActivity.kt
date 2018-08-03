@@ -101,7 +101,7 @@ class AddLocationActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id =   item?.itemId
         if(id == android.R.id.home) {
-            var intent = Intent()
+            val intent = Intent()
             setResult(Activity.RESULT_OK, intent)
             finish()
         }

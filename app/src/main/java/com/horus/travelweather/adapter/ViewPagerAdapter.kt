@@ -25,12 +25,6 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : L
                 return newInsWeather(position,listPlaces)
             else
                 return newInsAddLocation(position)
-
-//            if (listPlaces.isEmpty()||listPlaces.size == position){
-//                return newInsAddLocation(position)
-//            }else{
-//                return newInsWeather(position,listPlaces)
-//            }
         }
         fun newInsWeather(position: Int,listPlaces : List<PlaceData>): WeatherDetailFragment {
             val fragment = WeatherDetailFragment()

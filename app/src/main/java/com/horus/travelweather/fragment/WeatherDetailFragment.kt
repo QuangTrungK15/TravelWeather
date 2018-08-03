@@ -29,6 +29,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.horus.travelweather.adapter.DailyWeatherAdapter
 import com.horus.travelweather.model.DailyWeatherDetailResponse
+import com.horus.travelweather.utils.StringFormatter.getCurrentTime
 import ru.solodovnikov.rx2locationmanager.LocationTime
 import ru.solodovnikov.rx2locationmanager.RxLocationManager
 import java.util.concurrent.TimeUnit
@@ -77,14 +78,15 @@ class WeatherDetailFragment : Fragment() {
     }
 
     private fun processResponseDataDaily(result: DailyWeatherDetailResponse?) {
-        Log.e(TAG, "111111111" + result!!.list[0].temperature.temp)
-        val adapter = DailyWeatherAdapter(result.list)
+        //Log.e(TAG, "111111111" + result!!.list[0].temperature.temp)
+        val adapter = DailyWeatherAdapter(result!!.list)
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this.context, LinearLayoutManager.HORIZONTAL, false)
         rv_hourly_weather_list.layoutManager = layoutManager
         rv_hourly_weather_list.adapter = adapter
     }
 
     private fun processResponseData(result: WeatherDetailsResponse) {
+        txt_current_time.text = getCurrentTime()
         txt_date_time.text = convertTimestampToDayAndHourFormat(result.dateTime)
         txt_city_name.text = result.nameCity.toString()
         txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp))

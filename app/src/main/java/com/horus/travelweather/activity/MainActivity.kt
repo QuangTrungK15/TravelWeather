@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                             override fun onDataChange(p0: DataSnapshot) {
                                 val user = p0.child(u!!.uid).getValue(UserDbO::class.java)
                                 TWConstant.currentUser = user!!
-                                //Log.e(TAG,"11111111"+ TWConstant.currentUser.name)
+                                Log.e(TAG,"Phone : "+ user.phone)
                                 progress.dismiss()
                                 val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
                                 startActivity(homeIntent)

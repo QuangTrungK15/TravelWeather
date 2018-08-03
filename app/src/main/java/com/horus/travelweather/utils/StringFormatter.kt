@@ -21,18 +21,26 @@ object StringFormatter {
     }
 
     fun convertTimestampToDayAndHourFormat(timestamp: Long): String{
-        val DAY_HOUR_MINUTE = "dd/MM/yyyy, HH:mm"
+        val DAY_HOUR_MINUTE = "dd/MM/yyyy"
         val formatter = SimpleDateFormat (DAY_HOUR_MINUTE, Locale.ENGLISH)
-        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        formatter.timeZone = TimeZone.getTimeZone("GMT+7:30")
         val dateFormat = formatter.format(Date(timestamp*1000))
+        return dateFormat
+    }
+
+    fun getCurrentTime() : String
+    {
+        val HOUR_MINUTE = "h:mm a"
+        val formatter = SimpleDateFormat (HOUR_MINUTE, Locale.ENGLISH)
+        val dateFormat = formatter.format(Calendar.getInstance().getTime())
         return dateFormat
     }
 
 
     fun convertTimestampHourFormat(timestamp: Long): String{
-        val DAY_HOUR_MINUTE = "HH:mm"
-        val formatter = SimpleDateFormat (DAY_HOUR_MINUTE, Locale.ENGLISH)
-        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        val HOUR_MINUTE = "HH:mm"
+        val formatter = SimpleDateFormat (HOUR_MINUTE, Locale.ENGLISH)
+        formatter.timeZone = TimeZone.getTimeZone("GMT")
         val dateFormat = formatter.format(Date(timestamp*1000))
         return dateFormat
     }
