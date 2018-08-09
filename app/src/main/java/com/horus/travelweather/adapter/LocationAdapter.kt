@@ -21,12 +21,12 @@ class LocationAdapter(private val listLocation : List<PlaceData>, private val on
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(listLocation[position],position)
+        holder.bind(listLocation[position])
     }
 
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(location : PlaceData, position: Int ) {
+        fun bind(location : PlaceData) {
             itemView.btn_delete_location.setOnClickListener { onItemClick(location.id) }
             itemView.txt_chose_location.text = location.name
         }

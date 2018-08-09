@@ -69,14 +69,13 @@ class   ProfileActivity : AppCompatActivity() {
         val table_user : DatabaseReference = database.getReference("users")
 
         val mAuth : FirebaseAuth = FirebaseAuth.getInstance()
-        alterDialog.setPositiveButton(getString(R.string.update), { dialog, whichButton ->
+        alterDialog.setPositiveButton(getString(R.string.update)) { dialog, _ ->
 
             val user = UserDbO(editName.text.toString(),editEmail.text.toString(),editPhone.text.toString())
             table_user.child(mAuth.uid!!).setValue(user)
-            startActivity(Intent(this,ProfileActivity::class.java))
             Log.e(TAG, "UPDATE");
 
-        })
+        }
         alterDialog.setNegativeButton(getString(R.string.cancel), { dialog, whichButton ->
 
 

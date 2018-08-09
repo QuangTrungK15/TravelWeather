@@ -116,11 +116,10 @@ class WeatherDetailFragment : Fragment() {
     private fun requestLocation() {
         val rxLocationManager = RxLocationManager(this.context!!);
         if(arguments!!.getInt("position")==0) {
-            rxLocationManager.requestLocation(LocationManager.NETWORK_PROVIDER, LocationTime(15, TimeUnit.SECONDS))
+            rxLocationManager.requestLocation(LocationManager.NETWORK_PROVIDER)
                     .subscribe({
                         val geocoder = Geocoder(this.context, Locale.getDefault())
                         val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                        //Log.e(TAG,"111111111"+address.get(0).getAddressLine(0))
                         requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
                     }, {
                         Log.e(TAG, "Error" + it.message)

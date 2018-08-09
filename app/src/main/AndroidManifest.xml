@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -29,6 +30,11 @@
         <activity
             android:name=".activity.AddLocationActivity"
             android:label="@string/title_add_location" />
+        <activity
+            android:name=".activity.FavouritePlaceActivity"
+            android:label="@string/title_favourite_place" />
+        <activity android:name=".activity.DetailMyPlace"
+            android:label="@string/detail_my_place"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

@@ -20,6 +20,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_location.*
+import com.google.android.gms.location.places.AutocompleteFilter
+
+
 
 
 class AddLocationActivity : AppCompatActivity() {
@@ -30,7 +33,7 @@ class AddLocationActivity : AppCompatActivity() {
 
     private  val compositeDisposable = CompositeDisposable()
 
-    private lateinit var adapter :LocationAdapter
+    private lateinit var adapter : LocationAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,13 +43,15 @@ class AddLocationActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         loadPlaces()
         btn_add_location.setOnClickListener {
+            val typeFilter = AutocompleteFilter.Builder()
+                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
+                    .build()
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                    .setFilter(typeFilter)
                     .build(this)
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
         }
     }
-
-
     private fun loadPlaces()
     {
         val  getAllPlace = PlaceDatabase.getInstance(this).placeDataDao()
@@ -59,7 +64,6 @@ class AddLocationActivity : AppCompatActivity() {
                         Log.e(TAG,""+ it.message)
                 }))
     }
-
     private fun implementLoad(list : List<PlaceData>) {
 
         adapter = LocationAdapter(list,{
@@ -73,17 +77,13 @@ class AddLocationActivity : AppCompatActivity() {
 
 
     }
-
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
         //autocompleteFragment.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
-                Log.e(TAG, "Lat:" + place.latLng.latitude)
-                Log.e(TAG, "Lon:" + place.latLng.longitude)
-//                val placeDB = PlaceData(0,place.name.toString(),place.latLng.latitude,place.latLng.longitude)
+                Log.e(TAG, "Place ID:" + place.id)
                 val placeDB = PlaceData()
                 placeDB.name = place.name.toString()
                 placeDB.latitude = place.latLng.latitude
@@ -97,7 +97,6 @@ class AddLocationActivity : AppCompatActivity() {
             }
         }
     }
-
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id =   item?.itemId
         if(id == android.R.id.home) {
@@ -107,27 +106,18 @@ class AddLocationActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
     inner class insertPLace(): AsyncTask<PlaceData, Void, Void>() {
         override fun doInBackground(vararg params: PlaceData): Void? {
                 PlaceDatabase.getInstance(this@AddLocationActivity).placeDataDao().insert(params[0])
             return null
         }
     }
-
-
-
     inner class deletePLace(): AsyncTask<Int, Void, Void>() {
         override fun doInBackground(vararg params: Int?): Void? {
             PlaceDatabase.getInstance(this@AddLocationActivity).placeDataDao().deleteByPlaceId(params[0])
            return null
         }
     }
-
-
-
-
-
     inner class deleteAllPLace(): AsyncTask<Void, Void, Void>() {
         override fun doInBackground(vararg params: Void?): Void? {
             PlaceDatabase.getInstance(this@AddLocationActivity).placeDataDao().deleteAll()
@@ -135,6 +125,4 @@ class AddLocationActivity : AppCompatActivity() {
         }
 
     }
-
-
 }

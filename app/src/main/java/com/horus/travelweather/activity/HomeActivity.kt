@@ -108,7 +108,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 enterProfileView()
             }
             R.id.nav_places -> {
-
+                enterMyPlaces()
             }
             R.id.nav_notification -> {
 
@@ -117,6 +117,11 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    private fun enterMyPlaces() {
+        val intent = Intent(this@HomeActivity, FavouritePlaceActivity::class.java)
+        startActivity(intent)
     }
 
     private fun enterProfileView() {
