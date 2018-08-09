@@ -1,3 +1,6 @@
 package com.horus.travelweather.model
 
-data class PlaceDbO (var name : String= "", var uri : String="")
+import java.io.Serializable
+
+
+data class PlaceDbO (var placeId : String="", var name : String= "", var uri : String="") : Serializable

@@ -15,7 +15,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.locaiton_item.view.*
 import kotlinx.android.synthetic.main.my_places_layout.view.*
 
-class FavouritePlaceAdapter( options: FirebaseRecyclerOptions<PlaceDbO>,private val onItemPopupClick : (Context,TextView,Int)-> Unit)
+class FavouritePlaceAdapter( options: FirebaseRecyclerOptions<PlaceDbO>,private val onItemPopupClick : (Context,TextView,Int)-> Unit,private val onItemClick : (PlaceDbO)-> Unit)
     : FirebaseRecyclerAdapter<PlaceDbO, FavouritePlaceAdapter.PlaceViewHolder>(options) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.my_places_layout, parent, false)
@@ -32,6 +32,9 @@ class FavouritePlaceAdapter( options: FirebaseRecyclerOptions<PlaceDbO>,private 
             itemView.my_place_name.text = place.name
             itemView.txt_option_menu.setOnClickListener {
                 onItemPopupClick(itemView.context,itemView.txt_option_menu,adapterPosition)
+            }
+            itemView.img_my_place.setOnClickListener {
+                onItemClick(place)
             }
         }
 

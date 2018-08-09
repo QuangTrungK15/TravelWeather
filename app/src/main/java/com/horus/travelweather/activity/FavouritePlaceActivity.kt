@@ -7,7 +7,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.google.android.gms.location.places.*
 import com.google.android.gms.tasks.OnCompleteListener
-import kotlinx.android.synthetic.main.activity_detail_my_place.*
+import kotlinx.android.synthetic.main.activity_favourite_my_place.*
 import java.io.ByteArrayOutputStream
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.OnFailureListener
@@ -45,7 +45,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_detail_my_place)
+        setContentView(R.layout.activity_favourite_my_place)
         mAuth = FirebaseAuth.getInstance()
         u = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
@@ -66,9 +66,17 @@ class FavouritePlaceActivity : AppCompatActivity() {
                 .build()
         adapter = FavouritePlaceAdapter(options, { context, textView, i ->
             showPopup(context, textView, i)
+        },{
+            openDetailPlace(it)
         })
         rv_my_places.layoutManager = LinearLayoutManager(this)
         rv_my_places.adapter = adapter
+    }
+
+    private fun openDetailPlace(it: PlaceDbO) {
+        val intent = Intent(this@FavouritePlaceActivity, DetailMyPlace::class.java)
+        intent.putExtra("MyPlace",it)
+        startActivity(intent)
     }
 
     private fun showPopup(context: Context, textView: TextView, position: Int) {
@@ -87,6 +95,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
+                placeDb.placeId = place.id
                 placeDb.name = place.name.toString()
                 getPhoto(place.id)
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
