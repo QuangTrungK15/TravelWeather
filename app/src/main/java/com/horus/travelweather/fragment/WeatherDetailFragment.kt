@@ -1,5 +1,6 @@
 package com.horus.travelweather.fragment
 
+import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -27,13 +28,18 @@ import java.util.*
 import android.location.LocationManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import com.google.android.gms.location.LocationRequest
 import com.horus.travelweather.adapter.DailyWeatherAdapter
 import com.horus.travelweather.model.DailyWeatherDetailResponse
 import com.horus.travelweather.utils.StringFormatter.getCurrentTime
+import com.patloew.rxlocation.RxLocation
 import ru.solodovnikov.rx2locationmanager.LocationTime
 import ru.solodovnikov.rx2locationmanager.RxLocationManager
 import java.util.concurrent.TimeUnit
 import ru.solodovnikov.rx2locationmanager.LocationRequestBuilder
+import io.reactivex.internal.operators.single.SingleInternalHelper.toObservable
+
+
 
 
 
@@ -113,26 +119,31 @@ class WeatherDetailFragment : Fragment() {
         return view
     }
 
+
     private fun requestLocation() {
-        val rxLocationManager = RxLocationManager(this.context!!);
+        val rxLocationManager = context?.let { RxLocationManager(it) };
         if(arguments!!.getInt("position")==0) {
-            rxLocationManager.requestLocation(LocationManager.NETWORK_PROVIDER)
-                    .subscribe({
-                        val geocoder = Geocoder(this.context, Locale.getDefault())
-                        val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                        requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
-                    }, {
-                        Log.e(TAG, "Error" + it.message)
-                    })
+            if (rxLocationManager != null) {
+                rxLocationManager.requestLocation(LocationManager.NETWORK_PROVIDER)
+                        .subscribe({
+                            val geocoder = Geocoder(context, Locale.getDefault())
+                            val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+                            requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
+                        }, {
+                            Log.e(TAG, "Error" + it.message)
+                        })
+            }
         }
         else {
             val geocoder = Geocoder(activity, Locale.getDefault())
             val address = geocoder.getFromLocation(arguments!!.getDouble("lat"), arguments!!.getDouble("lon"), 1)
             requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
         }
-
-
     }
+
+
+
+
 
 
 }

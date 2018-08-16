@@ -9,7 +9,7 @@ import com.horus.travelweather.database.PlaceData
 import com.horus.travelweather.model.LocationDbO
 import kotlinx.android.synthetic.main.locaiton_item.view.*
 
-class LocationAdapter(private val listLocation : List<PlaceData>, private val onItemClick : (Int)-> Unit )
+class LocationAdapter(private val listLocation : List<PlaceData>, private val onItemClick : (String)-> Unit )
     : RecyclerView.Adapter<LocationAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.locaiton_item, parent, false)

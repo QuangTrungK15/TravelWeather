@@ -26,7 +26,7 @@ import com.horus.travelweather.model.PlaceDbO
 import com.firebase.ui.database.*;
 import com.google.firebase.auth.FirebaseUser
 import com.horus.travelweather.adapter.FavouritePlaceAdapter
-import com.horus.travelweather.common.Common.Companion.REMOVE_PLACE
+import com.horus.travelweather.common.TWConstant.Companion.REMOVE_PLACE
 import java.util.*
 
 
@@ -85,7 +85,6 @@ class FavouritePlaceActivity : AppCompatActivity() {
         popup.getMenu().add(0, position, 0, REMOVE_PLACE);
         popup.setOnMenuItemClickListener({ item ->
             deleteFavouritePlace(adapter.getRef(position).key!!)
-//                    Log.e(TAG,"Item Id : "+item.itemId)
             true
         })
         popup.show()

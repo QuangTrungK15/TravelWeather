@@ -20,6 +20,9 @@ interface PlaceDAO {
     fun deleteAll()
 
     @Query("DELETE FROM placeData WHERE id = :placeID")
-    fun deleteByPlaceId(placeID : Int?)
+    fun deleteByPlaceId(placeID : String?)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllPlace(placeList : ArrayList<PlaceData>)
 
 }

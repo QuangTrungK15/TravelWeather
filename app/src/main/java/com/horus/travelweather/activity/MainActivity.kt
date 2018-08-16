@@ -20,7 +20,9 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.auth.AuthResult
 import com.google.android.gms.tasks.OnCompleteListener
 import android.app.ProgressDialog
+import android.os.AsyncTask
 import com.horus.travelweather.R
+import com.horus.travelweather.database.PlaceDatabase
 
 
 class MainActivity : AppCompatActivity() {
@@ -78,15 +80,14 @@ class MainActivity : AppCompatActivity() {
                         table_user.addValueEventListener(object : ValueEventListener {
                             override fun onCancelled(p0: DatabaseError) {
                             }
-
                             override fun onDataChange(p0: DataSnapshot) {
                                 val user = p0.child(u!!.uid).getValue(UserDbO::class.java)
                                 TWConstant.currentUser = user!!
                                 Log.e(TAG,"Phone : "+ user.phone)
                                 progress.dismiss()
+                                deleteAllPLace().execute()
                                 val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
                                 startActivity(homeIntent)
-                                finish()
                             }
                         })
                     } else {
@@ -96,7 +97,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
     }
-
 
     private fun validateForm(email: String, password: String): Boolean {
 
@@ -117,6 +117,12 @@ class MainActivity : AppCompatActivity() {
 
         return true
     }
+    inner class deleteAllPLace(): AsyncTask<Void, Void, Void>() {
+        override fun doInBackground(vararg params: Void?): Void? {
+            PlaceDatabase.getInstance(this@MainActivity).placeDataDao().deleteAll()
+            return null
+        }
 
+    }
 
 }

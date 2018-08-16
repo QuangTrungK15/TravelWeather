@@ -13,6 +13,7 @@ import com.horus.travelweather.R
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
+import com.google.android.gms.common.internal.service.Common
 import com.horus.travelweather.database.PlaceData
 import com.horus.travelweather.database.PlaceDatabase
 import com.horus.travelweather.adapter.LocationAdapter
@@ -21,19 +22,22 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_location.*
 import com.google.android.gms.location.places.AutocompleteFilter
-
-
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.horus.travelweather.common.TWConstant.Companion.currentUser
 
 
 class AddLocationActivity : AppCompatActivity() {
 
     private val TAG = AddLocationActivity::class.java.simpleName
-
     var PLACE_AUTOCOMPLETE_REQUEST_CODE = 1
-
     private  val compositeDisposable = CompositeDisposable()
-
     private lateinit var adapter : LocationAdapter
+    lateinit var database: FirebaseDatabase
+    lateinit var place_list: DatabaseReference
+    lateinit var mAuth: FirebaseAuth
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +46,9 @@ class AddLocationActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         loadPlaces()
+        database = FirebaseDatabase.getInstance()
+        mAuth = FirebaseAuth.getInstance()
+        place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
         btn_add_location.setOnClickListener {
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
@@ -65,16 +72,15 @@ class AddLocationActivity : AppCompatActivity() {
                 }))
     }
     private fun implementLoad(list : List<PlaceData>) {
-
         adapter = LocationAdapter(list,{
             id ->
             deletePLace().execute(id)
+            place_list.child(id).removeValue()
             adapter.notifyDataSetChanged()
         })
         val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         rv_location.adapter = adapter
         rv_location.layoutManager = layoutManager
-
 
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -88,17 +94,20 @@ class AddLocationActivity : AppCompatActivity() {
                 placeDB.name = place.name.toString()
                 placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
+                placeDB.id = place.id
                 insertPLace().execute(placeDB)
+                place_list.child(place.id).setValue(placeDB)
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(this, data)
-                Log.e(TAG, status.statusMessage)
+                Log.e(TAG, ""+status)
             } else if (resultCode == Activity.RESULT_CANCELED) {
 
             }
         }
     }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        val id =   item?.itemId
+        val id = item?.itemId
         if(id == android.R.id.home) {
             val intent = Intent()
             setResult(Activity.RESULT_OK, intent)
@@ -112,17 +121,10 @@ class AddLocationActivity : AppCompatActivity() {
             return null
         }
     }
-    inner class deletePLace(): AsyncTask<Int, Void, Void>() {
-        override fun doInBackground(vararg params: Int?): Void? {
+    inner class deletePLace(): AsyncTask<String, Void, Void>() {
+        override fun doInBackground(vararg params: String?): Void? {
             PlaceDatabase.getInstance(this@AddLocationActivity).placeDataDao().deleteByPlaceId(params[0])
            return null
         }
-    }
-    inner class deleteAllPLace(): AsyncTask<Void, Void, Void>() {
-        override fun doInBackground(vararg params: Void?): Void? {
-            PlaceDatabase.getInstance(this@AddLocationActivity).placeDataDao().deleteAll()
-            return null
-        }
-
     }
 }
