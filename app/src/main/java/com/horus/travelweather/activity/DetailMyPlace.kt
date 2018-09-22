@@ -2,6 +2,7 @@ package com.horus.travelweather.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.ArrayAdapter
@@ -27,6 +28,20 @@ class DetailMyPlace : AppCompatActivity() {
         val place = intent.getSerializableExtra("MyPlace") as PlaceDbO
         Log.e(TAG,"ABC : "+place.name)
         getPhoto(place.placeId)
+
+        sliding_view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {
+            }
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            }
+
+            override fun onPageSelected(position: Int) {
+                pageIndicatorView.setSelection(position);
+            }
+
+        })
+
     }
 
     // Request photos and metadata for the specified place.
@@ -56,7 +71,9 @@ class DetailMyPlace : AppCompatActivity() {
             }
             adapterSliding = SlidingImageAdapter(this,arraySliding)
             sliding_view_pager.adapter = adapterSliding
-            titles.setViewPager(sliding_view_pager)
+            pageIndicatorView.count = arraySliding.size
+            pageIndicatorView.setViewPager(sliding_view_pager)
+//            titles.setViewPager(sliding_view_pager)
         })
     }
 

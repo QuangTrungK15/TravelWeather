@@ -145,8 +145,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }))
     }
 
-
-
     private fun enterMyPlaces() {
         val intent = Intent(this@HomeActivity, FavouritePlaceActivity::class.java)
         startActivity(intent)

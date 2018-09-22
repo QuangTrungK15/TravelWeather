@@ -122,7 +122,6 @@ class MainActivity : AppCompatActivity() {
             PlaceDatabase.getInstance(this@MainActivity).placeDataDao().deleteAll()
             return null
         }
-
     }
 
 }
