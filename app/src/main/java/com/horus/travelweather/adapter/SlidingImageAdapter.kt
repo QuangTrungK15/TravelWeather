@@ -3,15 +3,15 @@ package com.horus.travelweather.adapter
 import android.content.Context
 import android.graphics.Bitmap
 import android.support.v4.view.PagerAdapter
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RatingBar
 import com.horus.travelweather.R
 import com.horus.travelweather.activity.DetailMyPlace
 
-class SlidingImageAdapter(private val context: Context,private val listImage : List<Bitmap>) : PagerAdapter() {
+class SlidingImageAdapter(private val context: Context, private val listImage: List<Bitmap>): PagerAdapter() {
 
     private val TAG = DetailMyPlace::class.java.simpleName
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
@@ -24,7 +24,10 @@ class SlidingImageAdapter(private val context: Context,private val listImage : L
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val imageLayout = LayoutInflater.from(context).inflate(R.layout.sliding_images_layout, container, false)
-        val imageView = imageLayout.findViewById(R.id.image) as ImageView
+        val imageView = imageLayout.findViewById<View>(R.id.image) as ImageView
+        //val ratingBar = imageLayout.findViewById<View>(R.id.rating_bar) as RatingBar
+
+        //ratingBar.rating=ratingNumber
         imageView.setImageBitmap(listImage[position])
         container.addView(imageLayout, 0)
         return imageLayout

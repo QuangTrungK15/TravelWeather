@@ -35,7 +35,7 @@ class SignUpActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sign_up)
 
 
-        val database: FirebaseDatabase = FirebaseDatabase.getInstance()
+        /*val database: FirebaseDatabase = FirebaseDatabase.getInstance()
 
         table_user = database.getReference("user")
 
@@ -53,11 +53,11 @@ class SignUpActivity : AppCompatActivity() {
 
         btnSignUp.setOnClickListener {
             createAccount(editEmail.text.toString(),editPass.text.toString())
-        }
+        }*/
     }
 
 
-    private fun createAccount(email : String , password : String)
+    /*private fun createAccount(email : String , password : String)
     {
         if (!validateForm(email, password)) {
             return;
@@ -114,7 +114,7 @@ class SignUpActivity : AppCompatActivity() {
         }
 
         return true
-    }
+    }*/
 
 
 

@@ -52,7 +52,9 @@ class FavouritePlaceActivity : AppCompatActivity() {
         favourite_list = database.getReference("favouriteplace")
         btn_add_my_place.setOnClickListener {
             val typeFilter = AutocompleteFilter.Builder()
-                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
+                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
+                    .setCountry("VN")
                     .build()
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                     .setFilter(typeFilter)

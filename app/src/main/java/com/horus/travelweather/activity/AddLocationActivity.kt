@@ -51,7 +51,8 @@ class AddLocationActivity : AppCompatActivity() {
         place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
         btn_add_location.setOnClickListener {
             val typeFilter = AutocompleteFilter.Builder()
-                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
+                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
                     .build()
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                     .setFilter(typeFilter)
