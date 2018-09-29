@@ -5,6 +5,9 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="colorBackground">#0099CC</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorGold">#ffd700</color>
 
     <color name="overlayBackground">#7f333639</color>
+
 </resources>

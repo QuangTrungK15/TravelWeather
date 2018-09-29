@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //setContentView(R.layout.temp_login)
 
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
