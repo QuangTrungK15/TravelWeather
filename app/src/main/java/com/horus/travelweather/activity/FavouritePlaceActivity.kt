@@ -77,14 +77,6 @@ class FavouritePlaceActivity : AppCompatActivity() {
         rv_my_places.adapter = adapter
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        val id = item?.itemId
-        if(id == android.R.id.home) {
-            this.finish()
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     private fun openDetailPlace(it: PlaceDbO) {
         val intent = Intent(this@FavouritePlaceActivity, DetailMyPlace::class.java)
         intent.putExtra("MyPlace",it)
