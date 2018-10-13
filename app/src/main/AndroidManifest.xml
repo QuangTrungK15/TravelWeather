@@ -33,12 +33,20 @@
         <activity
             android:name=".activity.FavouritePlaceActivity"
             android:label="@string/title_favourite_place" />
-        <activity android:name=".activity.DetailMyPlace"
-            android:label="@string/detail_my_place"/>
+        <activity
+            android:name=".activity.DetailMyPlace"
+            android:label="@string/detail_my_place" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBv2srja-fflBOYUDDHSsKSgDZnHkgIzc0" />
+            android:value="AIzaSyBN9AYTxujt1U2yTpWIFh2dyWBqtq5ptxo" />
+
+        <activity
+            android:name=".activity.MapsActivity"
+            android:label="@string/title_activity_maps" />
+
     </application>
 
 </manifest>
+
+<!-- android:value="AIzaSyBv2srja-fflBOYUDDHSsKSgDZnHkgIzc0" -->

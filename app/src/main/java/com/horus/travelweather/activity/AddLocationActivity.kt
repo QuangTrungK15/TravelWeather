@@ -50,16 +50,21 @@ class AddLocationActivity : AppCompatActivity() {
         mAuth = FirebaseAuth.getInstance()
         place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
         btn_add_location.setOnClickListener {
+            //Filter results by place type (by address: get full address, by establisment: get business address)
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
                     .build()
+            //Use an intent to launch the autocomplete activity (fullscreen mode)
+            //https://developers.google.com/places/android-sdk/autocomplete
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                     .setFilter(typeFilter)
                     .build(this)
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
         }
     }
+
+    //Load user's available places in database room -> recycleviewer rv_location
     private fun loadPlaces()
     {
         val  getAllPlace = PlaceDatabase.getInstance(this).placeDataDao()
@@ -72,6 +77,9 @@ class AddLocationActivity : AppCompatActivity() {
                         Log.e(TAG,""+ it.message)
                 }))
     }
+
+    // As LocationAdapter, input: list & id (by one click), if we click btn_delete_location on recycleviewer
+    // (it was set a onclicklistener) of any place, it removed by call implementLoad().
     private fun implementLoad(list : List<PlaceData>) {
         adapter = LocationAdapter(list,{
             id ->
@@ -84,6 +92,8 @@ class AddLocationActivity : AppCompatActivity() {
         rv_location.layoutManager = layoutManager
 
     }
+
+    //Use an intent to launch the autocomplete activity
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
         //autocompleteFragment.onActivityResult(requestCode, resultCode, data);
@@ -107,6 +117,10 @@ class AddLocationActivity : AppCompatActivity() {
         }
     }
 
+    //Press home button
+    //Call this when your activity is done and should be closed.  The
+    //* ActivityResult is propagated back to whoever launched you via (thông qua)
+    //* onActivityResult().
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id = item?.itemId
         if(id == android.R.id.home) {
@@ -116,6 +130,7 @@ class AddLocationActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
     inner class insertPLace(): AsyncTask<PlaceData, Void, Void>() {
         override fun doInBackground(vararg params: PlaceData): Void? {
                 PlaceDatabase.getInstance(this@AddLocationActivity).placeDataDao().insert(params[0])

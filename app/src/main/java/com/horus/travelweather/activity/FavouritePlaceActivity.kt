@@ -50,6 +50,8 @@ class FavouritePlaceActivity : AppCompatActivity() {
         u = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
         favourite_list = database.getReference("favouriteplace")
+
+        //Use Autocomplete to search place to add favorite places
         btn_add_my_place.setOnClickListener {
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
@@ -62,6 +64,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
         }
 
+        //Use FirebaseRecyclerOptions to put favoriteplace list in rv_my_places
         val options = FirebaseRecyclerOptions.Builder<PlaceDbO>()
                 .setQuery(favourite_list.child(u!!.uid), PlaceDbO::class.java)
                 .setLifecycleOwner(this)
@@ -75,22 +78,27 @@ class FavouritePlaceActivity : AppCompatActivity() {
         rv_my_places.adapter = adapter
     }
 
+    //CLick any img
     private fun openDetailPlace(it: PlaceDbO) {
         val intent = Intent(this@FavouritePlaceActivity, DetailMyPlace::class.java)
         intent.putExtra("MyPlace",it)
         startActivity(intent)
     }
 
+    //Click popup menu of any img
     private fun showPopup(context: Context, textView: TextView, position: Int) {
         var popup: PopupMenu? = null
         popup = PopupMenu(context, textView)
+        //Add only option (remove) of per img
         popup.getMenu().add(0, position, 0, REMOVE_PLACE);
         popup.setOnMenuItemClickListener({ item ->
-            deleteFavouritePlace(adapter.getRef(position).key!!)
+            deleteFavouritePlace(adapter.getRef(position).key!!) //get position id of rv_my_places
             true
         })
         popup.show()
     }
+
+    //Carry on with AUTOCOMPLETE
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
@@ -107,8 +115,10 @@ class FavouritePlaceActivity : AppCompatActivity() {
             }
         }
     }
-
+    //Use PLACE PHOTOS of GG MAP API (AS`)
     // Request photos and metadata for the specified place.
+    // mGeoDataClient - is to get detail of that place and then to move the marker (đánh dấu)
+    // of the map to its co-ordinates (các tọa độ).
     private fun getPhoto(placeId: String) {
         //val placeId = "ChIJa147K9HX3IAR-lwiGIQv9i4"
         val mGeoDataClient = Places.getGeoDataClient(this)
@@ -122,6 +132,8 @@ class FavouritePlaceActivity : AppCompatActivity() {
             val photoMetadata = photoMetadataBuffer.get(0)
             // Get a full-size bitmap for the photo.
             val photoResponse = mGeoDataClient.getPhoto(photoMetadata)
+
+            //Listener Event compeleted itselt, update to firebase's storage
             photoResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoResponse> { task ->
                 val photo = task.result
                 val bitmap = photo.bitmap
@@ -130,6 +142,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
         })
     }
 
+    //Add that place's photos to storage & that place to firebase
     private fun upLoadBitmapToStorage(bitmap: Bitmap) {
         val storage = FirebaseStorage.getInstance()
         val storageReference = storage.getReference("images")
@@ -139,6 +152,8 @@ class FavouritePlaceActivity : AppCompatActivity() {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
         val uploadTask = imageFolder.putBytes(data)
+
+        //after add photos to storage, update that place's uri to placeDb -> add to firebase by uploadDatabase()
         uploadTask.addOnFailureListener(OnFailureListener {
             // Handle unsuccessful uploads
         }).addOnSuccessListener(OnSuccessListener<Any> { taskSnapshot ->

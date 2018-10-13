@@ -21,6 +21,7 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : L
     companion object {
         fun newInstance(position: Int, listPlaces : List<PlaceData>) : Fragment {
 
+            //Vuốt khi nào hết các placelist fragment của user đó thì nó sẽ hiển thị add location fragment
             if(position >= 0 && position < (listPlaces.size+1))
                 return newInsWeather(position,listPlaces)
             else
@@ -28,6 +29,8 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : L
         }
         fun newInsWeather(position: Int,listPlaces : List<PlaceData>): WeatherDetailFragment {
             val fragment = WeatherDetailFragment()
+            //use Bundle() to exchange among intent
+            //this activity receives "position" from getDataFromLocal() of HomeActivity
             val args = Bundle()
             args.putInt("position", position)
             if(position!=0) {
