@@ -16,6 +16,7 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
+import android.view.MenuItem
 import android.widget.TextView
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.firebase.auth.FirebaseAuth
@@ -46,6 +47,8 @@ class FavouritePlaceActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_favourite_my_place)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mAuth = FirebaseAuth.getInstance()
         u = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
@@ -73,6 +76,14 @@ class FavouritePlaceActivity : AppCompatActivity() {
         })
         rv_my_places.layoutManager = LinearLayoutManager(this)
         rv_my_places.adapter = adapter
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item?.itemId
+        if(id == android.R.id.home) {
+            this.finish()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun openDetailPlace(it: PlaceDbO) {

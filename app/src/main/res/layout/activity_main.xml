@@ -11,7 +11,6 @@
         android:id="@+id/txtTravelWeather"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
         android:text="@string/travel_weather"
         android:textAlignment="center"
         android:textSize="30sp" />
@@ -20,8 +19,8 @@
         android:id="@+id/UserPass"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/txtTravelWeather"
-        android:layout_marginTop="60dp"
+        android:layout_centerInParent="true"
+        android:layout_margin="16dp"
         android:orientation="vertical">
 
         <com.rengwuxian.materialedittext.MaterialEditText
@@ -60,43 +59,31 @@
 
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/UserPass"
+        android:layout_marginRight="48dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginTop="18dp"
         android:orientation="vertical">
 
-        <com.andexert.library.RippleView
-            android:id="@+id/more"
+        <Button
+            android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginLeft="120dp"
-            android:layout_marginStart="120dp"
-            android:layout_marginTop="8dp"
-            app:rv_color="#9C27B0"
-            app:rv_type="simpleRipple">
-
-            <Button
-                android:id="@+id/btnLogin"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:background="#D5E8D4"
-                android:text="@string/login" />
-        </com.andexert.library.RippleView>
+            android:background="@drawable/bg_login__sign_up"
+            android:text="@string/login" />
 
         <Button
             android:id="@+id/btnSignUp"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/more"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="32dp"
-            android:layout_marginTop="17dp"
-            android:background="#D5E8D4"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_login__sign_up"
             android:text="@string/sign_up" />
-
-    </RelativeLayout>
+    </LinearLayout>
 </RelativeLayout>
