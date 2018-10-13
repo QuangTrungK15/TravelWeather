@@ -1,11 +1,12 @@
 package com.horus.travelweather.activity
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.RatingBar
@@ -31,8 +32,6 @@ class DetailMyPlace : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail_my_place)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val place = intent.getSerializableExtra("MyPlace") as PlaceDbO
         Log.e(TAG,"ABC : "+place.name)
 
@@ -48,15 +47,16 @@ class DetailMyPlace : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 pageIndicatorView.setSelection(position);
             }
-        })
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        val id = item?.itemId
-        if(id == android.R.id.home) {
-            this.finish()
+        })
+
+        val fab_directions = this.findViewById<View>(R.id.fab_directions) as FloatingActionButton
+        fab_directions.setOnClickListener {
+            val directionsIntent = Intent(this@DetailMyPlace, MapsActivity::class.java)
+            directionsIntent.putExtra("MyPlace",place)
+            startActivity(directionsIntent)
         }
-        return super.onOptionsItemSelected(item)
+
     }
 
     // Request photos and metadata for the specified place.
@@ -66,8 +66,9 @@ class DetailMyPlace : AppCompatActivity() {
         //val ratingBar = this.findViewById<View>(R.id.rating_bar) as RatingBar
 
         val mGeoDataClient = Places.getGeoDataClient(this)
+
         val photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId)
-        photoMetadataResponse.addOnCompleteListener( { task ->
+        photoMetadataResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoMetadataResponse> { task ->
             // Get the list of photos.
             val photos = task.result
             // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).

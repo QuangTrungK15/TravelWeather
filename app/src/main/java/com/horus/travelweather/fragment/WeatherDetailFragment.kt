@@ -119,7 +119,7 @@ class WeatherDetailFragment : Fragment() {
         return view
     }
 
-
+    //Now Location
     private fun requestLocation() {
         val rxLocationManager = context?.let { RxLocationManager(it) };
         if(arguments!!.getInt("position")==0) {

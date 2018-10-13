@@ -15,12 +15,14 @@ import kotlinx.android.synthetic.main.fragment_add_location.view.*
 
 class AddLocationFragment: Fragment() {
 
+    //Creating view, return view is a view (xml) as fragment
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         val view  = inflater.inflate(R.layout.fragment_add_location, container, false)
 
         view.btn_add_location.setOnClickListener {
             val intent = Intent(this.context, AddLocationActivity::class.java)
+            //after successlly addlocation -> refer to HomeAcrivity (code: 1234)
             startActivityForResult(intent, 1234)
         }
         return view
@@ -28,9 +30,10 @@ class AddLocationFragment: Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1234){
+        if (requestCode == 1234){ //way to start Kotlin activity
             if (resultCode == Activity.RESULT_OK){
-                val intent = Intent(context, HomeActivity::class.java)
+                val intent = Intent(context, HomeActivity::class.java) //this activity will be this fragment's father
+                //update fragments of HomeActivity
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }

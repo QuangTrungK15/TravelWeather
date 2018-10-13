@@ -21,6 +21,7 @@ import com.google.firebase.auth.AuthResult
 import com.google.android.gms.tasks.OnCompleteListener
 import android.app.ProgressDialog
 import android.os.AsyncTask
+import android.widget.EditText
 import com.horus.travelweather.R
 import com.horus.travelweather.database.PlaceDatabase
 
@@ -31,16 +32,16 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var btnLogin: Button
     lateinit var btnSignUp: Button
-    lateinit var editEmail: MaterialEditText
-    lateinit var editPassword: MaterialEditText
+    lateinit var editEmail: EditText
+    lateinit var editPassword: EditText
     lateinit var mAuth: FirebaseAuth
 
     lateinit var table_user: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        //setContentView(R.layout.temp_login)
+        //setContentView(R.layout.activity_main)
+        setContentView(R.layout.temp_login)
 
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
@@ -50,15 +51,15 @@ class MainActivity : AppCompatActivity() {
         mAuth = FirebaseAuth.getInstance()
 
         btnLogin = findViewById(R.id.btnLogin)
-        btnSignUp = findViewById(R.id.btnSignUp)
+        //btnSignUp = findViewById(R.id.btnSignUp)
 
         editEmail = findViewById(R.id.txtEmail)
         editPassword = findViewById(R.id.txtPassword)
 
-        btnSignUp.setOnClickListener {
+        /*btnSignUp.setOnClickListener {
             val signUpIntent = Intent(this@MainActivity, SignUpActivity::class.java)
             startActivity(signUpIntent)
-        }
+        }*/
 
         btnLogin.setOnClickListener {
             signIn(editEmail.text.toString(), editPassword.text.toString())
@@ -118,6 +119,8 @@ class MainActivity : AppCompatActivity() {
 
         return true
     }
+
+    //Clear it before this activity refers to HomeActivity (in this activity, firebase data will put all place data in dbRoom)
     inner class deleteAllPLace(): AsyncTask<Void, Void, Void>() {
         override fun doInBackground(vararg params: Void?): Void? {
             PlaceDatabase.getInstance(this@MainActivity).placeDataDao().deleteAll()

@@ -59,7 +59,7 @@
         android:drawableLeft="@drawable/shape_02"
         android:drawablePadding="16dp"
         android:ems="10"
-        android:hint="jennifer.wilson88@gmail.com"
+        android:hint="trung123@gmail.com"
         android:inputType="textEmailAddress"
         android:maxLines="1"
         android:paddingLeft="10dp"
@@ -84,7 +84,7 @@
         android:drawablePadding="16dp"
         android:ems="10"
         android:hint="*  *  *  *  *  *  *  *  *  *  *  *  *  *"
-        android:inputType="textEmailAddress"
+        android:inputType="textPassword"
         android:maxLines="1"
         android:paddingLeft="10dp"
         android:textColorHint="#fff"
@@ -111,7 +111,6 @@
         android:textSize="18sp" />
 
     <TextView
-
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"

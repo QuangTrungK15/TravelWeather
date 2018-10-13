@@ -51,11 +51,12 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
         fab.setOnClickListener { view ->
         }
+        //add ActionBarDrawerToggle
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-
+        //nav_view into ActionBarDrawerToggle
         val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
         val headerView = navigationView.getHeaderView(0)
         val rxPermissions = RxPermissions(this)
@@ -63,6 +64,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .request(Manifest.permission.ACCESS_FINE_LOCATION)
                 .subscribe { granted ->
                     if (granted) {
+                        //to read firebase date, we need ValueEventListener
                         place_list.addListenerForSingleValueEvent(object : ValueEventListener{
                             override fun onCancelled(p0: DatabaseError) {
                                 Log.e(TAG,"Error : "+p0.message)
@@ -87,25 +89,29 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         Log.e(TAG, "Access fail")
                     }
                 }
+        //put user info into persional info activity
         val editName = headerView.findViewById<TextView>(R.id.txtName)
         editName.text = TWConstant.currentUser.name
         nav_view.setNavigationItemSelectedListener(this)
     }
 
+    //Nút quay lại ở góc trái, tức hiện ẩn drawer_layout
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
         } else {
-            super.onBackPressed()
+            super.onBackPressed() //hàm trở lại của fragment
         }
     }
 
+    //Add this optionsmenu to action bar of this activity if it present
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.home, menu)
         return true
     }
 
+    //Press optionsmenu icon -> show "setting" sub-option
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_settings -> return true
@@ -133,11 +139,22 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun getDataFromLocal()
     {
+        // RxJava là thư viện mã nguồn mở implement ReactiveX trên Java. Có 2 lớp chính là Observable và Subscriber:
+        // Observable là một lớp đưa ra dòng dữ liệu hoặc sự kiện (event). Flow của Observable là đưa ra một
+        // hoặc nhiều các items, sau đó gọi kết thúc thành công hoặc lỗi.
+        // Subscriber lắng nghe flow, thực thi các hành động trên dòng dữ liệu hoặc sự kiện được đưa ra bởi Observable
+
+        //get all places from database room
         val getAllPlace = PlaceDatabase.getInstance(this@HomeActivity).placeDataDao()
+
+        // Probably, you already know that all UI code is done on Android Main thread.
+        // RxJava is java library and it does not know about Android Main thread. That is the reason why we use RxAndroid.
+        // RxAndroid gives us the possibility to choose Android Main thread as the thread where our code will be executed.
+        // Obviously, our Observer should operate on Android Main thread.
         compositeDisposable.add(getAllPlace.getAll()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
+                .subscribe({ //excute event
                     val adapter = ViewPagerAdapter(getSupportFragmentManager(),it)
                     view_pager.adapter = adapter
                 }, {

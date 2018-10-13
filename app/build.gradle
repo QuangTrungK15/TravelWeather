@@ -1,4 +1,3 @@
-
 apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
@@ -81,13 +80,22 @@ dependencies {
     kapt "android.arch.persistence.room:compiler:1.1.1"
     implementation 'android.arch.persistence.room:rxjava2:1.1.1'
     implementation 'io.reactivex:rxandroid:1.2.1'
+
     //Google place api
     implementation 'com.google.android.gms:play-services-places:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
+    compile 'com.google.maps:google-maps-services:0.1.20'
+    compile 'com.google.maps.android:android-maps-utils:0.5'
+    testCompile 'junit:junit:4.12'
 
     implementation 'com.github.JakeWharton:ViewPagerIndicator:2.4.1'
 
     implementation 'com.romandanylyk:pageindicatorview:1.0.2'
+
+
+    //implementation 'com.google.android.gms:play-services-maps:11.8.0'
+    //implementation 'com.google.android.gms:play-services-location:11.8.0'
+
 
 }
 
