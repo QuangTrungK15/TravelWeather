@@ -113,9 +113,9 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //Press optionsmenu icon -> show "setting" sub-option
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_settings -> return true
-            else -> return super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.action_settings -> true
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -155,7 +155,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ //excute event
-                    val adapter = ViewPagerAdapter(getSupportFragmentManager(),it)
+                    val adapter = ViewPagerAdapter(supportFragmentManager,it)
                     view_pager.adapter = adapter
                 }, {
                     Log.e(TAG, "" + it.message)
@@ -174,7 +174,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     private fun enterLoginPage() {
         val intent = Intent(this@HomeActivity, MainActivity::class.java)
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
     }
 

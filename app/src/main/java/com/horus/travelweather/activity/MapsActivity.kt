@@ -61,7 +61,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         //private const val REQUEST_CHECK_SETTINGS = 2 // (RLU) is used as the request code passed to onActivityResult
     }
-    private fun setUpMap() {
+    /*private fun setUpMap() {
         //The code above checks if the app has been granted the ACCESS_FINE_LOCATION permission. If it hasn’t, then request it from the user.
         //Add a call to setUpMap() at the end of onMapReady().
         //Build and run; click “Allow” to grant permission
@@ -83,12 +83,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // 3
             if (location != null) {
                 lastLocation = location
-                val currentLatLng = LatLng(location.latitude, location.longitude)
-                placeMarkerOnMap(currentLatLng) //to place marker above your current location
-                //the zoom level of the map isn’t right, as it’s fully zoomed out.
-                //zoom level of 12 is a nice in-between value that shows enough detail without getting crazy-close.
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14.5f)) //move to camera
-
 
                 val geocoder = Geocoder(this, Locale.getDefault())
                 try
@@ -104,6 +98,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                         }
                         start_location=addresses.get(0).getAddressLine(0)
+                        Log.e("start location: ",addresses.get(0).getAddressLine(0))
                     }
                     else
                     {
@@ -119,7 +114,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-    }
+    }*/
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,13 +149,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         setupGoogleMapScreenSettings(googleMap)
 
-        setUpMap()
-
-        val place = intent.getSerializableExtra("MyPlace") as PlaceDbO
-        end_location=place.name
-        //Log.e("CurrentLocation : ",start_location)
-        //Log.e("YourLocation : ",end_location)
-
+        //setUpMap()
+        //Get current location
+        //The code above checks if the app has been granted the ACCESS_FINE_LOCATION permission. If it hasn’t, then request it from the user.
+        //Add a call to setUpMap() at the end of onMapReady().
+        //Build and run; click “Allow” to grant permission
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -179,12 +172,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // 3
             if (location != null) {
                 lastLocation = location
-                val currentLatLng = LatLng(location.latitude, location.longitude)
-                placeMarkerOnMap(currentLatLng) //to place marker above your current location
-                //the zoom level of the map isn’t right, as it’s fully zoomed out.
-                //zoom level of 12 is a nice in-between value that shows enough detail without getting crazy-close.
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14.5f)) //move to camera
-
 
                 val geocoder = Geocoder(this, Locale.getDefault())
                 try
@@ -199,10 +186,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         {
                             strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                         }
-                        Log.e("start location11: ",addresses.get(0).getAddressLine(0))
+                        start_location=addresses[0].getAddressLine(0)
+                        Log.e("start location: ",addresses[0].getAddressLine(0))
 
-                        start_location=addresses.get(0).getAddressLine(0)
-                        Log.e("start location22: ","___________"+start_location)
+                        val place = intent.getSerializableExtra("MyPlace") as PlaceDbO
+                        //end_location=place.name
+                        Log.e("CurrentLocation : ",start_location)
+                        Log.e("YourLocation : ",place.name)
+
+                        //val results = getDirectionsDetails("483 George St, Sydney NSW 2000, Australia", "182 Church St, Parramatta NSW 2150, Australia", TravelMode.DRIVING)
+                        val results = getDirectionsDetails(start_location, place.name, TravelMode.DRIVING)
+                        if (results != null) {
+                            addPolyline(results, googleMap)
+                            positionCamera(results.routes[overview], googleMap)
+                            addMarkersToMap(results, googleMap)
+                        }
                     }
                     else
                     {
@@ -217,21 +215,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
-
-        //val results = getDirectionsDetails(lastLocation.toString(), place.name, TravelMode.DRIVING)
-        val results = getDirectionsDetails(start_location, end_location, TravelMode.DRIVING)
-        if (results != null) {
-            addPolyline(results, googleMap)
-            positionCamera(results.routes[overview], googleMap)
-            addMarkersToMap(results, googleMap)
-        }
-
-        //Here you enable the zoom controls on the map and declare MapsActivity as the callback triggered when the user clicks a marker on this map
-        /*mMap.getUiSettings().setZoomControlsEnabled(true)
-        mMap.setOnMarkerClickListener(this)
-
-        setUpMap()*/
-
     }
 
     //Using DirectionAPI class to get direction from original location to destinational location
@@ -245,6 +228,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .origin(origin)
                     .destination(destination)
                     .departureTime(now)
+                    .region("ea")
+                    .language("vietnamese")
                     .await()     //making a synchronous call to the web service and return us a DirectionsResult object.
         }
         catch (e: ApiException) {
@@ -395,7 +380,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }*/
 
     //to place marker above your current location (default: <marker color: red, shape: drop of water>)
-    private fun placeMarkerOnMap(location: LatLng) {
+    /*private fun placeMarkerOnMap(location: LatLng) {
         // 1
         val markerOptions = MarkerOptions().position(location)
         //Get current location address to show above marker
@@ -407,7 +392,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // 2
         mMap.addMarker(markerOptions)
 
-    }
+    }*/
     /*
     //Show address above marker by Geocoder class
     private fun getAddress(latLng: LatLng): String {

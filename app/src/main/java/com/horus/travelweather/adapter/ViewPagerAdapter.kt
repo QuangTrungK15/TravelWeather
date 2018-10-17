@@ -8,7 +8,7 @@ import com.horus.travelweather.database.PlaceData
 import com.horus.travelweather.fragment.AddLocationFragment
 import com.horus.travelweather.fragment.WeatherDetailFragment
 
-open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : List<PlaceData>) :
+open class ViewPagerAdapter(fragmentManager: FragmentManager, private var listPlaces : List<PlaceData>) :
         FragmentPagerAdapter(fragmentManager) {
     override fun getItem(position: Int): Fragment {
         return newInstance(position,listPlaces)
@@ -22,12 +22,12 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : L
         fun newInstance(position: Int, listPlaces : List<PlaceData>) : Fragment {
 
             //Vuốt khi nào hết các placelist fragment của user đó thì nó sẽ hiển thị add location fragment
-            if(position >= 0 && position < (listPlaces.size+1))
-                return newInsWeather(position,listPlaces)
+            return if(position >= 0 && position < (listPlaces.size+1))
+                newInsWeather(position,listPlaces)
             else
-                return newInsAddLocation(position)
+                newInsAddLocation(position)
         }
-        fun newInsWeather(position: Int,listPlaces : List<PlaceData>): WeatherDetailFragment {
+        private fun newInsWeather(position: Int, listPlaces : List<PlaceData>): WeatherDetailFragment {
             val fragment = WeatherDetailFragment()
             //use Bundle() to exchange among intent
             //this activity receives "position" from getDataFromLocal() of HomeActivity
@@ -40,7 +40,7 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, var listPlaces : L
             fragment.arguments = args
             return fragment
         }
-        fun newInsAddLocation(position: Int): AddLocationFragment {
+        private fun newInsAddLocation(position: Int): AddLocationFragment {
             val fragment = AddLocationFragment()
             val args = Bundle()
             args.putInt("position", position)
