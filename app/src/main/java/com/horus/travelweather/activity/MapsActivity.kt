@@ -1,64 +1,54 @@
 package com.horus.travelweather.activity
 
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.location.Geocoder
 import android.location.Location
-import android.support.v7.app.AppCompatActivity
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.FragmentActivity
 import android.util.Log
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.location.*
-
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.places.Places
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.horus.travelweather.R
-import java.io.IOException
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.maps.DirectionsApi;
-import com.google.maps.GeoApiContext;
-import com.google.maps.android.PolyUtil;
-import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.TravelMode;
 import com.horus.travelweather.model.PlaceDbO
-
-import org.joda.time.DateTime;
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.*
-import java.util.concurrent.TimeUnit;
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : FragmentActivity(), OnMapReadyCallback {
+        /*GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {*/
 
     private lateinit var mMap: GoogleMap
 
-    private val overview = 0
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     //Getting current location
     private lateinit var lastLocation: Location
 
-    private lateinit var start_location: String
 
-    private lateinit var end_location: String
-    /*
-    // Receiving location updates - when u click anywhere, marker will move to there (RLU)
-    private lateinit var locationCallback: LocationCallback
-    private lateinit var locationRequest: LocationRequest
-    private var locationUpdateState = false
-
-    */
-    //called when a marker is clicked or tapped
-    //override fun onMarkerClick(p0: Marker?) = false
-
+    private lateinit var markerPoints:ArrayList<LatLng>
+    private lateinit var mGoogleApiClient:GoogleApiClient
+    private lateinit var mLastLocation:Location
+    private var mCurrLocationMarker: Marker? = null
+    private lateinit var mLocationRequest:LocationRequest
 
     //add a companion object with the code to request location permission
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+        //val MY_PERMISSIONS_REQUEST_LOCATION = 99
         //private const val REQUEST_CHECK_SETTINGS = 2 // (RLU) is used as the request code passed to onActivityResult
     }
     /*private fun setUpMap() {
@@ -121,25 +111,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
+/*
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            checkLocationPermission()
+        }
+
+*/
+        // Initializing
+        markerPoints = ArrayList<LatLng>()
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        start_location=""
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        /*
-        //Update current location
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(p0: LocationResult) {
-                super.onLocationResult(p0)
-                //update current location with new location when u click others
-                lastLocation = p0.lastLocation
-                //then updating the maps with new location coordinates
-                placeMarkerOnMap(LatLng(lastLocation.latitude, lastLocation.longitude))
-            }
-        }
-        createLocationRequest() //Your app is now set to receive location update*/
+
     }
 
 
@@ -161,264 +148,390 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
+        //Initialize Google Play Services
+       /* if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            if ((ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
+            {
+                buildGoogleApiClient()
+                mMap.isMyLocationEnabled = true
+            }
+        }
+        else
+        {
+            buildGoogleApiClient()
+            mMap.isMyLocationEnabled = true
+        }
+*/
         //Get your current location
         // isMyLocationEnabled = true enables the my-location layer which draws a light blue dot on the user’s location.
         // It also adds a button to the map that, when tapped, centers the map on the user’s location.
         mMap.isMyLocationEnabled = true
 
+
+        var currentlocation = LatLng(10.762622, 106.660172)
+        var destlocation = LatLng(10.762622, 106.660172)
+
         // fusedLocationClient.getLastLocation() gives you the most recent location currently available.
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+
             // Got last known location. In some rare situations this can be null.
             // 3
             if (location != null) {
                 lastLocation = location
 
                 val geocoder = Geocoder(this, Locale.getDefault())
-                try
-                {
-                    val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                try {
+                    val addresses = geocoder.getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
 
-                    if (addresses != null)
-                    {
-                        val returnedAddress = addresses.get(0)
+                    if (addresses != null) {
+                        val returnedAddress = addresses[0]
                         val strReturnedAddress = StringBuilder("Address:\n")
-                        for (i in 0 until returnedAddress.getMaxAddressLineIndex())
-                        {
+                        for (i in 0 until returnedAddress.maxAddressLineIndex) {
                             strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                         }
-                        start_location=addresses[0].getAddressLine(0)
-                        Log.e("start location: ",addresses[0].getAddressLine(0))
 
+                        currentlocation = LatLng(addresses[0].latitude, addresses[0].longitude)
+
+                        Log.e("start location: ", currentlocation.toString())
+
+                        //Get Latlng of destinational location (MyPlace from favoritePlaceAvtivity)
                         val place = intent.getSerializableExtra("MyPlace") as PlaceDbO
-                        //end_location=place.name
-                        Log.e("CurrentLocation : ",start_location)
-                        Log.e("YourLocation : ",place.name)
+                        val mGeoDataClient = Places.getGeoDataClient(this)
+                        mGeoDataClient.getPlaceById(place.placeId).addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
 
-                        //val results = getDirectionsDetails("483 George St, Sydney NSW 2000, Australia", "182 Church St, Parramatta NSW 2150, Australia", TravelMode.DRIVING)
-                        val results = getDirectionsDetails(start_location, place.name, TravelMode.DRIVING)
-                        if (results != null) {
-                            addPolyline(results, googleMap)
-                            positionCamera(results.routes[overview], googleMap)
-                            addMarkersToMap(results, googleMap)
+                                val places = task.result
+                                val myPlace = places.get(0)
+                                destlocation = myPlace.latLng
+                                Log.e("end location: ", destlocation.toString())
+
+                                //Add marker -> location
+                                markerPoints.add(currentlocation)
+                                markerPoints.add(destlocation)
+
+                                // Creating MarkerOptions
+                                val options = MarkerOptions()
+                                // Setting the position of the marker
+                                options.position(currentlocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                                mMap.addMarker(options).title = (addresses[0].getAddressLine(0))
+                                options.position(destlocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                                mMap.addMarker(options).title = (myPlace.address.toString())
+
+                                /**
+                                 * For the start location, the color of marker is GREEN and
+                                 * for the end location, the color of marker is RED.
+                                 */
+                                /**
+                                 * For the start location, the color of marker is GREEN and
+                                 * for the end location, the color of marker is RED.
+                                 */
+                                // Add new marker to the Google Map Android API V2
+
+
+                                // Getting URL to the Google Directions API
+                                val url = getUrl(currentlocation, destlocation)
+                                //val url = getUrl(LatLng(addresses[0].longitude, addresses[0].latitude), myPlace.latLng)
+                                Log.d("onMapClick: ", url)
+                                val fetchUrl = FetchUrl()
+                                Log.d("fetchUrl: ", fetchUrl.toString())
+                                // Start downloading json data from Google Directions API
+                                fetchUrl.execute(url)
+                                //move map camera
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(currentlocation))
+                                mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
+
+                                places.release()
+                                return@addOnCompleteListener
+                            } else {
+                                Log.e("Notice: ", "Place not found.")
+                            }
                         }
-                    }
-                    else
-                    {
-                        Log.d("a","No Address returned! : ")
 
+                    } else {
+                        Log.d("a", "No Address returned! : ")
                     }
-                }
-                catch (e:IOException) {
+                } catch (e: IOException) {
                     // TODO Auto-generated catch block
                     e.printStackTrace()
-                    Log.d("a","Canont get Address!")
+                    Log.d("a", "Canont get Address!")
                 }
             }
         }
+
+
     }
 
-    //Using DirectionAPI class to get direction from original location to destinational location
-    //TravelMode just support: walking, driving and bicycling directions
-    private fun getDirectionsDetails(origin:String, destination:String, mode:TravelMode): DirectionsResult? {
-        val now = DateTime()
-        try
-        {
-            return DirectionsApi.newRequest(getGeoContext())
-                    .mode(mode)
-                    .origin(origin)
-                    .destination(destination)
-                    .departureTime(now)
-                    .region("ea")
-                    .language("vietnamese")
-                    .await()     //making a synchronous call to the web service and return us a DirectionsResult object.
+    private fun getUrl(origin:LatLng, dest:LatLng):String {
+        // Origin of route
+        val strOrigin = "origin=" + origin.latitude + "," + origin.longitude
+        // Destination of route
+        val strDest = "destination=" + dest.latitude + "," + dest.longitude
+        // Sensor enabled
+        val sensor = "sensor=false"
+        // Building the parameters to the web service
+        val parameters = "${strOrigin.trim()}&${strDest.trim()}&$sensor"
+        // Output format
+        val output = "json"
+        val apikey="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
+        // Building the url to the web service
+        val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&mode=DRIVING&key=$apikey"
+        return url
+    }
+
+    // Fetches data from url passed
+    private inner class FetchUrl:AsyncTask<String, Void, String>() {
+        override fun doInBackground(vararg url:String):String {
+            // For storing data from web service
+            var data = ""
+            try
+            {
+                // Fetching the data from web service
+                data = downloadUrl(url[0])
+                Log.d("Background Task data", data.toString())
+            }
+            catch (e:Exception) {
+                Log.d("Background Task", e.toString())
+            }
+            return data
         }
-        catch (e: ApiException) {
-            e.printStackTrace()
-            return null
+        override fun onPostExecute(result:String) {
+            Log.d("onPostExecue resute", result.toString())
+            super.onPostExecute(result)
+            var parserTask = ParserTask()
+            // Invokes the thread for parsing the JSON data
+            parserTask.execute(result)
         }
-        catch (e:InterruptedException) {
-            e.printStackTrace()
-            return null
+    }
+
+    /**
+     * A method to download json data from url
+     */
+    @Throws(IOException::class)
+    private fun downloadUrl(strUrl: String): String {
+        var data = ""
+        var iStream: InputStream? = null
+        var urlConnection: HttpURLConnection? = null
+        try {
+            val url = URL(strUrl)
+
+            // Creating an http connection to communicate with url
+            urlConnection = url.openConnection() as HttpURLConnection
+            Log.d("url connection: ", urlConnection.toString())
+
+            // Connecting to url
+            urlConnection.connect()
+
+            // Reading data from url
+            iStream = urlConnection.inputStream
+            Log.d("iStream: ", iStream.toString())
+
+            data = iStream.bufferedReader().use(BufferedReader::readText)
+
+            iStream.bufferedReader().close()
+
+        } catch (e: Exception) {
+            Log.d("Exception downloadUrl", e.toString())
+        } finally {
+            iStream!!.close()
+            urlConnection!!.disconnect()
         }
-        catch (e:IOException) {
-            e.printStackTrace()
-            return null
+        return data
+    }
+    /**
+     * A class to parse the Google Places in JSON format
+     */
+    private inner class ParserTask : AsyncTask<String, Int, List<List<HashMap<String, String>>>>() {
+
+        // Parsing the data in non-ui thread
+        override fun doInBackground(vararg jsonData: String): List<List<HashMap<String, String>>>  {
+
+            val jObject: JSONObject?
+
+            try {
+                jObject = JSONObject(jsonData[0])
+
+                Log.d("ParserTask", jsonData[0])
+                val parser = DataParser()
+                Log.d("ParserTask", parser.toString())
+
+                // Starts parsing data
+                var routes: List<List<HashMap<String, String>>>  = parser.parse(jObject)
+                Log.d("ParserTask", "Executing routes")
+                Log.d("ParserTask", routes.toString())
+                return routes
+
+            } catch (e: Exception) {
+                Log.d("ParserTask", e.toString())
+                e.printStackTrace()
+            }
+
+            val r:List<List<HashMap<String, String>>> = ArrayList<ArrayList<HashMap<String, String>>>()
+            return r
+        }
+
+        // Executes in UI thread, after the parsing process
+        override fun onPostExecute(result: List<List<HashMap<String, String>>>) {
+            var points: ArrayList<LatLng>
+            var lineOptions: PolylineOptions? = null
+
+            // Traversing through all the routes
+            for (i in result.indices) {
+                points = ArrayList<LatLng>()
+                lineOptions = PolylineOptions()
+
+                // Fetching i-th route
+                val path = result[i]
+
+                // Fetching all the points in i-th route
+                for (j in path.indices) {
+                    val point = path[j]
+
+                    val lat = java.lang.Double.parseDouble(point["lat"])
+                    val lng = java.lang.Double.parseDouble(point["lng"])
+                    val position = LatLng(lat, lng)
+
+                    points.add(position)
+                }
+
+                // Adding all the points in the route to LineOptions
+                lineOptions.addAll(points)
+                lineOptions.width(12f)
+                lineOptions.color(Color.rgb(70, 155, 253))
+
+                Log.d("onPostExecute", "onPostExecute lineoptions decoded")
+
+            }
+
+            // Drawing polyline in the Google Map for the i-th route
+            if (lineOptions != null) {
+                mMap.addPolyline(lineOptions)
+            } else {
+                Log.d("onPostExecute", "without Polylines drawn")
+            }
         }
     }
 
     private fun setupGoogleMapScreenSettings(mMap:GoogleMap) {
-        mMap.setBuildingsEnabled(true)               //Turns the 3D buildings layer on
-        mMap.setIndoorEnabled(true)                  //Sets whether indoor maps should be enabled.
-        mMap.setTrafficEnabled(true)                 //Turns the traffic layer on or off.
-        val mUiSettings = mMap.getUiSettings()
-        mUiSettings.setZoomControlsEnabled(true)     //it can be zoom control
-        mUiSettings.setCompassEnabled(true)          //....compass (la ban)
-        mUiSettings.setMyLocationButtonEnabled(true) //Enables or disables the my-location layer.
-        mUiSettings.setScrollGesturesEnabled(true)   //....cử chỉ scroll
-        mUiSettings.setZoomGesturesEnabled(true)     //...zoom
-        mUiSettings.setTiltGesturesEnabled(true)     //...Tilt (nghiêng)
-        mUiSettings.setRotateGesturesEnabled(true)   //...Rotate
+        mMap.isBuildingsEnabled = true               //Turns the 3D buildings layer on
+        mMap.isIndoorEnabled = true                  //Sets whether indoor maps should be enabled.
+        //mMap.isTrafficEnabled = true                 //Turns the traffic layer on or off.
+        mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+        val mUiSettings = mMap.uiSettings
+        mUiSettings.isZoomControlsEnabled = true     //it can be zoom control
+        mUiSettings.isCompassEnabled = true          //....compass (la ban)
+        mUiSettings.isMyLocationButtonEnabled = true //Enables or disables the my-location layer.
+        mUiSettings.isScrollGesturesEnabled = true   //....cử chỉ scroll
+        mUiSettings.isZoomGesturesEnabled = true     //...zoom
+        mUiSettings.isTiltGesturesEnabled = true     //...Tilt (nghiêng)
+        mUiSettings.isRotateGesturesEnabled = true   //...Rotate
+        mUiSettings.isMapToolbarEnabled = true       // It ain't working, CHECKKKKKK
     }
 
-    //Add marker & display address title for starlocation and endlocation
-    //A route is array of DirectionsRoute[], each element includes original location & destinational location coordinates/address/placeid
-    //A leg is array of DirectionsLeg[] each element includes that coordinate info (latitude, longitude, duration, distance...)
-    private fun addMarkersToMap(results:DirectionsResult, mMap:GoogleMap) {
-        mMap.addMarker(MarkerOptions().position(LatLng(results.routes[overview].legs[overview].startLocation.lat, results.routes[overview].legs[overview].startLocation.lng)).title(results.routes[overview].legs[overview].startAddress))
-        mMap.addMarker(MarkerOptions().position(LatLng(results.routes[overview].legs[overview].endLocation.lat, results.routes[overview].legs[overview].endLocation.lng)).title(results.routes[overview].legs[overview].startAddress).snippet(getEndLocationTitle(results)))
+   /* @Synchronized private fun buildGoogleApiClient() {
+        mGoogleApiClient = GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build()
+        mGoogleApiClient.connect()
     }
-    //moveCamera by each leg
-    //the zoom level of the map isn’t right, as it’s fully zoomed out.
-    //zoom level of 12 is a nice in-between value that shows enough detail without getting crazy-close.
-    private fun positionCamera(route:DirectionsRoute, mMap:GoogleMap) {
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(route.legs[overview].startLocation.lat, route.legs[overview].startLocation.lng), 12f))
+    override fun onConnected(bundle:Bundle?) {
+        mLocationRequest = LocationRequest()
+        mLocationRequest.interval = 1000
+        mLocationRequest.fastestInterval = 1000
+        mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        if ((ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
+        {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
+        }
     }
-    //Polyline by routes (not legs)
-    //A polyline is a list of points, where line segments are drawn between consecutive points
-    //(tức các phân đoạn đường đc vẽ trên maps (có thể set width, color.....))
-    private fun addPolyline(results:DirectionsResult, mMap:GoogleMap) {
-        val decodedPath = PolyUtil.decode(results.routes[overview].overviewPolyline.getEncodedPath())
-        mMap.addPolyline(PolylineOptions().addAll(decodedPath))
+    override fun onConnectionSuspended(i:Int) {
     }
-    //Show distance & duration on destinational location by leg
-    private fun getEndLocationTitle(results:DirectionsResult):String {
-        return "Time :" + results.routes[overview].legs[overview].duration.humanReadable + " Distance :" + results.routes[overview].legs[overview].distance.humanReadable
+    override fun onLocationChanged(location:Location) {
+        mLastLocation = location
+        lastLocation = location
+        if (mCurrLocationMarker != null)
+        {
+            mCurrLocationMarker!!.remove()
+        }
+        //Place current location marker
+        val latLng = LatLng(location.latitude, location.longitude)
+        val markerOptions = MarkerOptions()
+        markerOptions.position(latLng)
+        markerOptions.title("Current Position")
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
+        mCurrLocationMarker = mMap.addMarker(markerOptions)
+        //move map camera
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(11F))
+        //stop location updates
+        if (mGoogleApiClient != null)
+        {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this)
+        }
     }
-
-    // Before using directionsAPI class we will need to create a GeoApiContext object
-    // (This object is where we will set our API key and some restrictions (han che))
-    // to request direction information. This newRequest method takes a GeoApiContext
-    // as an argument, which then returns us a DirectionsApiRequest.
-    private fun getGeoContext():GeoApiContext {
-        val geoApiContext = GeoApiContext()
-        return geoApiContext
-                .setQueryRateLimit(3)        // The maximum number of queries that will be executed during a 1 second intervals.
-                .setApiKey(getString(R.string.directionsApiKey))
-                .setConnectTimeout(1, TimeUnit.SECONDS)  // The default connect timeout for new connections.
-                .setReadTimeout(1, TimeUnit.SECONDS)     // The default read timeout for new connections.
-                .setWriteTimeout(1, TimeUnit.SECONDS)    // The default write timeout for new connections.
+    override fun onConnectionFailed(connectionResult:ConnectionResult) {
     }
-
-
-
-    ///// Receiving Location Updates (updating current location when u click others)
-    // 1
-    // Override AppCompatActivity’s onActivityResult() method and start the update request if it has a RESULT_OK result for a REQUEST_CHECK_SETTINGS request.
-    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CHECK_SETTINGS) {
-            if (resultCode == Activity.RESULT_OK) {
-                locationUpdateState = true
-                startLocationUpdates()
+    private fun checkLocationPermission():Boolean {
+        if ((ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) !== PackageManager.PERMISSION_GRANTED))
+        {
+            // Asking user if explanation is needed
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION))
+            {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        DirectionsActivity.MY_PERMISSIONS_REQUEST_LOCATION)
             }
+            else
+            {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        DirectionsActivity.MY_PERMISSIONS_REQUEST_LOCATION)
+            }
+            return false
+        }
+        else
+        {
+            return true
         }
     }
-    // 2
-    // Override onPause() to stop location update request
-    override fun onPause() {
-        super.onPause()
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-    // 3
-    // Override onResume() to restart the location update request.
-    public override fun onResume() {
-        super.onResume()
-        if (!locationUpdateState) {
-            startLocationUpdates()
-        }
-    }
-    //4
-    private fun createLocationRequest() {
-        // 1
-        locationRequest = LocationRequest()
-        // 2
-        locationRequest.interval = 10000
-        // 3
-        locationRequest.fastestInterval = 5000
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-
-        val builder = LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest)
-
-        // 4
-        val client = LocationServices.getSettingsClient(this)
-        val task = client.checkLocationSettings(builder.build())
-
-        // 5
-        task.addOnSuccessListener {
-            locationUpdateState = true
-            startLocationUpdates()
-        }
-        task.addOnFailureListener { e ->
-            // 6
-            if (e is ResolvableApiException) {
-                // Location settings are not satisfied, but this can be fixed
-                // by showing the user a dialog.
-                try {
-                    // Show the dialog by calling startResolutionForResult(),
-                    // and check the result in onActivityResult().
-                    e.startResolutionForResult(this@MapsActivity,
-                            REQUEST_CHECK_SETTINGS)
-                } catch (sendEx: IntentSender.SendIntentException) {
-                    // Ignore the error.
+    override fun onRequestPermissionsResult(requestCode:Int,
+                                            permissions:Array<String>, grantResults:IntArray) {
+        when (requestCode) {
+            DirectionsActivity.MY_PERMISSIONS_REQUEST_LOCATION -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED))
+                {
+                    // permission was granted. Do the
+                    // contacts-related task you need to do.
+                    if ((ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
+                    {
+                        if (mGoogleApiClient == null)
+                        {
+                            buildGoogleApiClient()
+                        }
+                        mMap.isMyLocationEnabled = true
+                    }
                 }
-            }
-        }
-    }
-    private fun startLocationUpdates() {
-        //In startLocationUpdates(), if the ACCESS_FINE_LOCATION permission has not been granted, request it now and return.
-        // If there is permission, request for location updates.
-        if (ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                    LOCATION_PERMISSION_REQUEST_CODE)
-            return
-        }
-        //2
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null *//* Looper *//*)
-    }*/
-
-    //to place marker above your current location (default: <marker color: red, shape: drop of water>)
-    /*private fun placeMarkerOnMap(location: LatLng) {
-        // 1
-        val markerOptions = MarkerOptions().position(location)
-        //Get current location address to show above marker
-        //val titleStr = getAddress(location)
-        //markerOptions.title(titleStr)
-        //but We can set your marker with different shape - current location
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(
-                BitmapFactory.decodeResource(resources, R.mipmap.ic_user_location)))
-        // 2
-        mMap.addMarker(markerOptions)
-
-    }*/
-    /*
-    //Show address above marker by Geocoder class
-    private fun getAddress(latLng: LatLng): String {
-        // 1
-        val geocoder = Geocoder(this)
-        val addresses: List<Address>?
-        val address: Address?
-        var addressText = ""
-
-        try {
-            // 2
-            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-            // 3
-            if (null != addresses && !addresses.isEmpty()) {
-                address = addresses[0]
-                for (i in 0 until address.maxAddressLineIndex) {
-                    addressText += if (i == 0) address.getAddressLine(i) else "\n" + address.getAddressLine(i)
+                else
+                {
+                    // Permission denied, Disable the functionality that depends on this permission.
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
                 }
+                return
             }
-        } catch (e: IOException) {
-            Log.e("MapsActivity", e.localizedMessage)
-        }
-
-        return addressText
+        }// other 'case' lines to check for other permissions this app might request.
+        // You can add here other case statements according to your requirement.
     }*/
-
-
-
 }

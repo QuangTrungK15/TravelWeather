@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.RatingBar
 import com.horus.travelweather.R
 import com.horus.travelweather.activity.DetailMyPlace
 
@@ -26,7 +25,7 @@ class SlidingImageAdapter(private val context: Context, private val listImage: L
         val imageLayout = LayoutInflater.from(context).inflate(R.layout.sliding_images_layout, container, false)
         val imageView = imageLayout.findViewById<View>(R.id.image) as ImageView
         //val ratingBar = imageLayout.findViewById<View>(R.id.rating_bar) as RatingBar
-
+       // imageView.measure(imageView.measuredWidth, imageView.measuredHeight)
         //ratingBar.rating=ratingNumber
         imageView.setImageBitmap(listImage[position])
         container.addView(imageLayout, 0)

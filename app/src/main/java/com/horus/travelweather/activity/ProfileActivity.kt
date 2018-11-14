@@ -1,6 +1,5 @@
 package com.horus.travelweather.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -8,12 +7,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import com.horus.travelweather.R
-import com.horus.travelweather.common.TWConstant
-import com.horus.travelweather.model.UserDbO
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.horus.travelweather.R
+import com.horus.travelweather.common.TWConstant
+import com.horus.travelweather.model.UserDbO
 import com.rengwuxian.materialedittext.MaterialEditText
 import kotlinx.android.synthetic.main.activity_profile.*
 
@@ -34,7 +33,7 @@ class   ProfileActivity : AppCompatActivity() {
         txt_phone_number.text = TWConstant.currentUser.phone
         txt_email_user.text = TWConstant.currentUser.email
         fabEdit.setOnClickListener {
-            showDialog();
+            showDialog()
         }
     }
 

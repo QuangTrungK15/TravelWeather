@@ -8,7 +8,6 @@ import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.RatingBar
 import android.widget.TextView
 import com.google.android.gms.location.places.PlacePhotoMetadataResponse
@@ -16,11 +15,9 @@ import com.google.android.gms.location.places.PlacePhotoResponse
 import com.google.android.gms.location.places.Places
 import com.google.android.gms.tasks.OnCompleteListener
 import com.horus.travelweather.R
-import com.horus.travelweather.R.id.pageIndicatorView
 import com.horus.travelweather.adapter.SlidingImageAdapter
 import com.horus.travelweather.model.PlaceDbO
 import kotlinx.android.synthetic.main.activity_detail_my_place.*
-import org.w3c.dom.Text
 
 class DetailMyPlace : AppCompatActivity() {
 
@@ -45,7 +42,7 @@ class DetailMyPlace : AppCompatActivity() {
             }
 
             override fun onPageSelected(position: Int) {
-                pageIndicatorView.setSelection(position);
+                pageIndicatorView.selection = position;
             }
 
         })
@@ -75,7 +72,7 @@ class DetailMyPlace : AppCompatActivity() {
             val photoMetadataBuffer = photos.photoMetadata
             Log.e(TAG,"ABC : "+photoMetadataBuffer.count)
             // Get the first photo in the list.
-            for(i in 0..photoMetadataBuffer.count-1)
+            for(i in 0 until photoMetadataBuffer.count)
             {
                 val photoMetadata = photoMetadataBuffer.get(i)
                 // Get a full-size bitmap for the photo.

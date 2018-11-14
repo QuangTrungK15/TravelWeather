@@ -33,4 +33,5 @@
     <string name="detail_my_place">Detail Place</string>
     <string name="remove_place">Remove Place</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_directions">Map</string>
 </resources>

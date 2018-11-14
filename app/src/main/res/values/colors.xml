@@ -9,5 +9,13 @@
     <color name="colorGold">#ffd700</color>
 
     <color name="overlayBackground">#7f333639</color>
+<!--
+    <color name="color9">#00cc99</color>
+-->
+    <color name="color9">#4285f4</color>
+
+    <color name="colorWhite">#fff</color>
+    <color name="colorSliver">#ededed</color>
+
 
 </resources>
