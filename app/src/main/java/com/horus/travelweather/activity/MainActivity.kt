@@ -1,29 +1,23 @@
 package com.horus.travelweather.activity
 
-import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
-import android.widget.Button
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.rengwuxian.materialedittext.MaterialEditText
-import com.google.firebase.database.DatabaseError
-import android.widget.Toast
+import android.app.ProgressDialog
 import android.content.Intent
+import android.os.AsyncTask
+import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.util.Log
-import com.horus.travelweather.common.TWConstant
-import com.horus.travelweather.model.UserDbO
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.ValueEventListener
-
-import com.google.firebase.auth.AuthResult
-import com.google.android.gms.tasks.OnCompleteListener
-import android.app.ProgressDialog
-import android.os.AsyncTask
+import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import com.horus.travelweather.R
+import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.database.PlaceDatabase
+import com.horus.travelweather.model.UserDbO
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +35,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_main)
-        setContentView(R.layout.temp_login)
+        setContentView(R.layout.activity_main)
 
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
@@ -51,15 +45,15 @@ class MainActivity : AppCompatActivity() {
         mAuth = FirebaseAuth.getInstance()
 
         btnLogin = findViewById(R.id.btnLogin)
-        //btnSignUp = findViewById(R.id.btnSignUp)
+        btnSignUp = findViewById(R.id.btnSignUp)
 
         editEmail = findViewById(R.id.txtEmail)
         editPassword = findViewById(R.id.txtPassword)
 
-        /*btnSignUp.setOnClickListener {
+        btnSignUp.setOnClickListener {
             val signUpIntent = Intent(this@MainActivity, SignUpActivity::class.java)
             startActivity(signUpIntent)
-        }*/
+        }
 
         btnLogin.setOnClickListener {
             signIn(editEmail.text.toString(), editPassword.text.toString())
@@ -94,11 +88,17 @@ class MainActivity : AppCompatActivity() {
                         })
                     } else {
                         progress.dismiss()
-                        Log.e(TAG, "signIn: Fail!", task.getException())
+                        Log.e(TAG, "signIn: Fail!", task.exception)
                         Toast.makeText(this@MainActivity, getString(R.string.authentication_fail), Toast.LENGTH_SHORT).show()
                     }
                 })
     }
+
+    //Move to another activity, close this activity
+    /*override fun onPause() {
+        super.onPause()
+        finish()
+    }*/
 
     private fun validateForm(email: String, password: String): Boolean {
 

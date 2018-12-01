@@ -1,223 +1,224 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-xmlns:app="http://schemas.android.com/apk/res-auto">
-
-
-<android.support.design.widget.AppBarLayout
-    android:id="@+id/app_bar_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    android:fitsSystemWindows="true">
-    <android.support.design.widget.CollapsingToolbarLayout
-        android:id="@+id/collapsing"
+    android:layout_height="match_parent">
+
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        app:layout_scrollFlags="scroll|exitUntilCollapsed"
-        app:contentScrim="#0e0d0e"
-        app:expandedTitleTextAppearance="@android:color/transparent">
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsing"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:orientation="vertical">
-            <android.support.v4.view.ViewPager
-                android:id="@+id/sliding_view_pager"
+            android:layout_height="180dp"
+            android:fitsSystemWindows="true"
+            app:contentScrim="#0e0d0e"
+            app:expandedTitleTextAppearance="@android:color/transparent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:background="@android:color/background_dark">
-            </android.support.v4.view.ViewPager>
-            <com.rd.PageIndicatorView
-                android:id="@+id/pageIndicatorView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="168dp"
-                android:layout_centerHorizontal="true"
-                app:piv_animationType="scale"
-                app:piv_dynamicCount="true"
-                app:piv_interactiveAnimation="true"
-                app:piv_selectedColor="@color/colorAccent"
-                app:piv_unselectedColor="@color/colorPrimary" />
-        </RelativeLayout>
-    </android.support.design.widget.CollapsingToolbarLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-</android.support.design.widget.AppBarLayout>
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/sliding_view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:background="@android:color/background_dark"></android.support.v4.view.ViewPager>
+
+                <com.rd.PageIndicatorView
+                    android:id="@+id/pageIndicatorView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="168dp"
+                    app:piv_animationType="scale"
+                    app:piv_dynamicCount="true"
+                    app:piv_interactiveAnimation="true"
+                    app:piv_selectedColor="@color/colorAccent"
+                    app:piv_unselectedColor="@color/colorPrimary" />
+            </RelativeLayout>
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+    </android.support.design.widget.AppBarLayout>
 
 
-
-
-<android.support.v4.widget.NestedScrollView
-    android:clipToPadding="false"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    <LinearLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:layout_margin="@dimen/activity_vertical_margin">
-
-        <TextView
-            android:id="@+id/txt_place_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tra Sua Ahihi"
-            android:textColor="@color/colorBlack"
-            android:textSize="24dp"
-            android:layout_gravity="left"
-            />
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rating: "
-                android:layout_gravity="left"/>
-
-            <RatingBar
-                android:id="@+id/rating_bar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="?android:attr/ratingBarStyleSmall"
-                android:progressTint="@color/colorGold"
-                android:rating="4"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="("/>
-
-            <TextView
-                android:id="@+id/rating_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="7"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=")"/>
-        </LinearLayout>
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-
-            android:layout_marginTop="16dp"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/activity_vertical_margin"
+            android:gravity="center"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/card1"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/txt_place_name"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:elevation="5dp">
+                android:layout_gravity="left"
+                android:text="Tra Sua Ahihi"
+                android:textColor="@color/colorBlack"
+                android:textSize="24dp" />
 
-                <ImageView
-                    android:id="@+id/imgView_address"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="#fff"
-                    android:src="@drawable/icon48address" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/txt_address"
-                    android:layout_width="fill_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="48dp"
-                    android:layout_marginStart="48dp"
-                    android:background="#fff"
-                    android:clickable="true"
-                    android:padding="16dp"
-                    android:textColor="@color/colorBlack"
-                    android:text="1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Hồ Chí Minh, Việt Nam"
-                    android:textSize="16dp" />
-
-            </android.support.v7.widget.CardView>
-
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/card1"
-                android:layout_marginTop="10dp"
-                android:elevation="5dp">
-
-                <ImageView
-                    android:id="@+id/imgView_phone"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="#fff"
-                    android:src="@drawable/icon48address" />
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="Rating: " />
+
+                <RatingBar
+                    android:id="@+id/rating_bar"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:progressTint="@color/colorGold"
+                    android:rating="4" />
 
                 <TextView
-                    android:id="@+id/txt_phonenumber"
-                    android:layout_width="fill_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="48dp"
-                    android:layout_marginStart="48dp"
-                    android:background="#fff"
-                    android:clickable="true"
-                    android:padding="16dp"
-                    android:textColor="@color/colorBlack"
-                    android:text="0971792492"
-                    android:textSize="16dp" />
-
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/card2"
-                android:layout_marginTop="10dp"
-                android:elevation="5dp">
-
-                <ImageView
-                    android:id="@+id/imgView_weburi"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="#fff"
-                    android:src="@drawable/icon48address" />
+                    android:layout_height="wrap_content"
+                    android:text="(" />
 
                 <TextView
-                    android:id="@+id/txt_weburi"
-                    android:layout_width="fill_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="48dp"
-                    android:layout_marginStart="48dp"
-                    android:background="#fff"
-                    android:clickable="true"
-                    android:padding="16dp"
-                    android:textColor="@color/colorBlack"
-                    android:text="hcmute.edu.vn"
-                    android:textSize="16dp" />
+                    android:id="@+id/rating_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="7" />
 
-            </android.support.v7.widget.CardView>
-        </RelativeLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=")" />
+            </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_my_places"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </android.support.v7.widget.RecyclerView>
-    </LinearLayout>
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
 
-</android.support.v4.widget.NestedScrollView>
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/card1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:elevation="5dp">
+
+                    <ImageView
+                        android:id="@+id/imgView_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="#fff"
+                        android:src="@drawable/icon48address" />
+
+                    <TextView
+                        android:id="@+id/txt_address"
+                        android:layout_width="fill_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="32dp"
+                        android:layout_marginStart="32dp"
+                        android:background="#fff"
+                        android:clickable="true"
+                        android:padding="16dp"
+                        android:text="1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Hồ Chí Minh, Việt Nam"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="16dp" />
+
+                </android.support.v7.widget.CardView>
+
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/card2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/card1"
+                    android:layout_marginTop="10dp"
+                    android:elevation="5dp">
+
+                    <ImageView
+                        android:id="@+id/imgView_phone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="#fff"
+                        android:src="@drawable/icon48phone" />
+
+                    <TextView
+                        android:id="@+id/txt_phonenumber"
+                        android:layout_width="fill_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="32dp"
+                        android:layout_marginStart="32dp"
+                        android:background="#fff"
+                        android:clickable="true"
+                        android:padding="16dp"
+                        android:text="0971792492"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="16dp" />
+
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/card2"
+                    android:layout_marginTop="10dp"
+                    android:elevation="5dp">
+
+                    <ImageView
+                        android:id="@+id/imgView_weburi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="#fff"
+                        android:src="@drawable/icon48weburi" />
+
+                    <TextView
+                        android:id="@+id/txt_weburi"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="32dp"
+                        android:layout_marginStart="32dp"
+                        android:background="#fff"
+                        android:clickable="true"
+                        android:padding="16dp"
+                        android:text="hcmute.edu.vn"
+                        android:textColor="@color/colorBlack"
+                        android:textSize="16dp" />
+
+                </android.support.v7.widget.CardView>
+            </RelativeLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_my_places"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_directions"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="454dp"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-        app:fabSize="normal"
         android:backgroundTint="#fff"
-        android:src="@drawable/directions_icon" />
+        android:src="@drawable/directionsicon"
+        app:fabSize="normal" />
 </android.support.design.widget.CoordinatorLayout>

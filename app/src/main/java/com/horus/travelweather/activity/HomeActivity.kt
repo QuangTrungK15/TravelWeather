@@ -1,7 +1,6 @@
 package com.horus.travelweather.activity
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
@@ -28,7 +27,6 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.content_home.*
-import com.google.firebase.database.DataSnapshot
 
 
 
@@ -72,7 +70,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             override fun onDataChange(dataSnapshot : DataSnapshot) {
                                 val placeList = ArrayList<PlaceData>()
                                 // Result will be holded Here
-                                for (dsp in dataSnapshot.getChildren()) {
+                                for (dsp in dataSnapshot.children) {
                                     //add result into array list
                                     val item : PlaceData? = dsp.getValue(PlaceData::class.java)
                                     if (item != null) {
@@ -113,9 +111,9 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //Press optionsmenu icon -> show "setting" sub-option
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_settings -> return true
-            else -> return super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.action_settings -> true
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -128,6 +126,12 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_places -> {
                 enterMyPlaces()
+            }
+            R.id.nav_directions -> {
+                enterDirections()
+            }
+            R.id.nav_history -> {
+                enterHistory()
             }
             R.id.exit -> {
                 enterLoginPage()
@@ -155,11 +159,21 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ //excute event
-                    val adapter = ViewPagerAdapter(getSupportFragmentManager(),it)
+                    val adapter = ViewPagerAdapter(supportFragmentManager,it)
                     view_pager.adapter = adapter
                 }, {
                     Log.e(TAG, "" + it.message)
                 }))
+    }
+
+    private fun enterHistory() {
+        //val intent = Intent(this@HomeActivity, MapsActivity2::class.java)
+        //startActivity(intent)
+    }
+
+    private fun enterDirections() {
+        val intent = Intent(this@HomeActivity, DirectionsActivity::class.java)
+        startActivity(intent)
     }
 
     private fun enterMyPlaces() {
@@ -172,7 +186,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     private fun enterLoginPage() {
         val intent = Intent(this@HomeActivity, MainActivity::class.java)
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         startActivity(intent)
     }
 

@@ -1,17 +1,12 @@
 package com.horus.travelweather.activity
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.text.TextUtils
-import android.util.Log
+import android.support.v7.app.AppCompatActivity
 import android.widget.Button
-import com.google.firebase.database.*
-import com.rengwuxian.materialedittext.MaterialEditText
-import android.widget.Toast
-import com.horus.travelweather.R
-import com.horus.travelweather.model.UserDbO
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
+import com.horus.travelweather.R
+import com.rengwuxian.materialedittext.MaterialEditText
 
 
 class SignUpActivity : AppCompatActivity() {
@@ -32,7 +27,7 @@ class SignUpActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sign_up)
+        setContentView(R.layout.org_dest_input)
 
 
         /*val database: FirebaseDatabase = FirebaseDatabase.getInstance()

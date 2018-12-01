@@ -34,7 +34,8 @@ class AddLocationFragment: Fragment() {
             if (resultCode == Activity.RESULT_OK){
                 val intent = Intent(context, HomeActivity::class.java) //this activity will be this fragment's father
                 //update fragments of HomeActivity
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                //Tao bỏ FLAG_ACTIVITY_CLEAR_TASK để tránh lỗi thêm vị trí xong về lại homeactivity đc 1 lúc bị out ra nha
                 startActivity(intent)
             }
         }

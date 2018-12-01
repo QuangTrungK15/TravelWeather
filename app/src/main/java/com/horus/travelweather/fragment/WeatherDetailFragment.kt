@@ -126,8 +126,8 @@ class WeatherDetailFragment : Fragment() {
             if (rxLocationManager != null) {
                 rxLocationManager.requestLocation(LocationManager.NETWORK_PROVIDER)
                         .subscribe({
-                            val geocoder = Geocoder(context, Locale.getDefault())
-                            val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+                            val geocode = Geocoder(context, Locale.getDefault())
+                            val address = geocode.getFromLocation(it.latitude, it.longitude, 1)
                             requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
                         }, {
                             Log.e(TAG, "Error" + it.message)
@@ -135,8 +135,8 @@ class WeatherDetailFragment : Fragment() {
             }
         }
         else {
-            val geocoder = Geocoder(activity, Locale.getDefault())
-            val address = geocoder.getFromLocation(arguments!!.getDouble("lat"), arguments!!.getDouble("lon"), 1)
+            val geocode = Geocoder(activity, Locale.getDefault())
+            val address = geocode.getFromLocation(arguments!!.getDouble("lat"), arguments!!.getDouble("lon"), 1)
             requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
         }
     }

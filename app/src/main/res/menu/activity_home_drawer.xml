@@ -13,9 +13,9 @@
             android:icon="@drawable/ic_place_black_24dp"
             android:title="Places" />
         <item
-            android:id="@+id/nav_notification"
+            android:id="@+id/nav_directions"
             android:icon="@drawable/ic_notifications_black_24dp"
-            android:title="Notification" />
+            android:title="Directions" />
         <item
             android:id="@+id/nav_history"
             android:icon="@drawable/ic_history_black_24dp"
