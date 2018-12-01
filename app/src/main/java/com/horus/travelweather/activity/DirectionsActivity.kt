@@ -2,21 +2,27 @@ package com.horus.travelweather.activity
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.PointF
 import android.location.Location
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.LinearSmoothScroller
 import android.support.v7.widget.RecyclerView
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
@@ -32,8 +38,10 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.horus.travelweather.R
+import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
 import com.horus.travelweather.adapter.TransportationAdapter
 import com.horus.travelweather.database.PlaceData
+import com.horus.travelweather.model.DirectionsStepDbO
 import com.horus.travelweather.model.TransportationDbO
 import kotlinx.android.synthetic.main.activity_directions.*
 import org.json.JSONArray
@@ -45,13 +53,14 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private val TAG = DirectionsActivity::class.java.simpleName
-    private var arrayTransportation : ArrayList<HashMap<String,String>> = arrayListOf()
     private lateinit var adapterTransportation : TransportationAdapter
+    private lateinit var adapterStepbyStepDirections : StepbyStepDirectionsAdapter
     var PLACE_AUTOCOMPLETE_REQUEST_CODE = 1
     var PLACE_AUTOCOMPLETE_REQUEST_CODE2 = 2
 
@@ -63,11 +72,15 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     private lateinit var mLocationRequest:LocationRequest
 
     var transList = ArrayList<TransportationDbO>()
+    var stepsList = ArrayList<DirectionsStepDbO>()
+
+    private var count: Int = 1
 
 
     var currentlocation = LatLng(10.762622, 106.660172)
     var destlocation = LatLng(10.762622, 106.660172)
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_directions)
@@ -87,12 +100,44 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
         val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
         val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
+        val btn_steps = this.findViewById<View>(R.id.btn_steps) as Button
+
+        //val recyclerView = this.findViewById<View>(R.id.rv_directionsSteps) as RecyclerView
+
+//        val behavior = BottomSheetBehavior.from(recyclerView)
 
         //val transList = ArrayList<TransportationDbO>()
         transList.add(TransportationDbO("driving",""))
         transList.add(TransportationDbO("walking",""))
         transList.add(TransportationDbO("transit",""))
         implementLoad(transList)
+
+        stepsList.add(DirectionsStepDbO("head","s","s","3243","432"))
+        loadingStepbyStep(stepsList)
+
+
+        btn_steps.setOnClickListener{
+            if(count%2 != 0)
+            {
+                rv_directionsSteps.visibility = View.VISIBLE
+                linear_orgindest.visibility = View.GONE
+                rv_transportations.visibility = View.GONE
+            }
+            else{
+                rv_directionsSteps.visibility = View.GONE
+                linear_orgindest.visibility = View.VISIBLE
+                rv_transportations.visibility = View.VISIBLE
+            }
+           /* if (behavior.state === BottomSheetBehavior.STATE_COLLAPSED)
+            {
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED)
+            }
+            else
+            {
+                behavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
+            }*/
+            count++
+        }
 
         edt_orgin.setOnClickListener {
             //Filter results by place type (by address: get full address, by establisment: get business address)
@@ -197,7 +242,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
              */
             /**
              * For the start location, the color of marker is GREEN and
-             * for the end location, the color of marker is RED.
+             * for the end location, the color of marker is RED7.
              */
             if (markerPoints.size == 1) {
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
@@ -271,6 +316,76 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rv_transportations.adapter = adapterTransportation
         rv_transportations.layoutManager = layoutManager
+        //rv_directionsSteps.setHasFixedSize(true)
+    }
+
+
+    private fun loadingStepbyStep(list : List<DirectionsStepDbO>) {
+        adapterStepbyStepDirections = StepbyStepDirectionsAdapter(list,{
+            id ->
+
+
+        })
+        val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        rv_directionsSteps.adapter = adapterStepbyStepDirections
+        rv_directionsSteps.layoutManager = layoutManager2
+        //rv_directionsSteps.smoothScrollToPosition(rv_directionsSteps.top)
+
+
+        /*val smoothScroller:RecyclerView.SmoothScroller = object:LinearSmoothScroller(rv_directionsSteps.context) {
+            override fun getVerticalSnapPreference(): Int {
+                return LinearSmoothScroller.SNAP_TO_START
+            }
+        }
+
+        smoothScroller.targetPosition = rv_directionsSteps.top
+        layoutManager2.startSmoothScroll(smoothScroller)*/
+
+        //rv_directionsSteps.smoothScrollToPosition(rv_directionsSteps.top)
+        //rv_directionsSteps.setHasFixedSize(true)
+        //rv_directionsSteps.itemAnimator = SlideInUpAnimator()
+        //rv_directionsSteps.smoothScrollToPosition(rv_directionsSteps.top)
+        //rv_directionsSteps.isNestedScrollingEnabled = true
+        /*rv_directionsSteps.addOnScrollListener(object:RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView:RecyclerView, dx:Int, dy:Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 0)
+                {
+                    // Scrolling up
+                    Log.e("Tang: ","1")
+                    rv_directionsSteps.layoutParams.height+=20
+                }
+                else
+                {
+                    // Scrolling down
+                    Log.e("Giam: ","1")
+                    rv_directionsSteps.layoutParams.height-=20
+                }
+            }
+            override fun onScrollStateChanged(recyclerView:RecyclerView, newState:Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING)
+                {
+                    // Do something
+                }
+                else if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
+                {
+                    // Do something
+                }
+                else
+                {
+                    // Do something
+                }
+            }
+        })
+*/
+        //rv_directionsSteps.setHasFixedSize(true)
+
+        //val lp = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 500)
+        //rv_directionsSteps.layoutParams = lp
+
+
+
     }
 
     private fun AddMarker(currentlocation: LatLng, destlocation: LatLng){
@@ -311,7 +426,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         val output = "json"
         val apikey="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
         // Building the url to the web service
-        val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&mode=driving&key=$apikey"
+        val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&language=vi&mode=driving&key=$apikey"
 
         return url
     }
@@ -329,7 +444,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         val output = "json"
         val apikey="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
         // Building the url to the web service
-        val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&mode=walking&key=$apikey"
+        val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&language=vi&mode=walking&key=$apikey"
 
         return url
     }
@@ -347,12 +462,13 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         val output = "json"
         val apikey="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
         // Building the url to the web service
-        val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&mode=transit&transit_mode=bus&key=$apikey"
+        val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&language=vi&mode=transit&transit_mode=bus&key=$apikey"
 
         return url
     }
 
-    //Step by step
+    @RequiresApi(Build.VERSION_CODES.M)
+//Step by step
     fun StepByStep(jObject: JSONObject) {
 
         //val routes = ArrayList<List<HashMap<String, String>>>()
@@ -361,6 +477,10 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         var jSteps: JSONArray
         var jDuration: JSONObject
         var jDistance: JSONObject
+        var maneuver = ""
+        var instructions = ""
+        var distance = ""
+        var duration = ""
 
         try {
 
@@ -383,25 +503,112 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                     jSteps = (jLegs.get(j) as JSONObject).getJSONArray("steps")
 
                     /** Traversing all steps  */
-                    var maneuver = ""
-                    var instructions = ""
-                    var distance = ""
-                    var duration = ""
+
+                    stepsList.clear()
                     for (k in 0 until jSteps.length()) {
-                        Log.e("Step", k.toString())
-                        instructions = ((jSteps.get(k) as JSONObject).get("html_instructions")) as String
-                        Log.e("Step instructions: ",  instructions)
 
                         maneuver = if(((jSteps.get(k) as JSONObject).has("maneuver")) ){
                             ((jSteps.get(k) as JSONObject).get("maneuver")) as String
                         } else "Head "
                         Log.e("Step maneuver: ", maneuver)
 
-                        /*distance = ((jSteps.get(k) as JSONObject).get("distance") as JSONObject).get("text") as String
+                        instructions = ((jSteps.get(k) as JSONObject).get("html_instructions")) as String
+
+                        Log.e("Step-0 instructions: ",  instructions)
+
+                        //Divide instructions string to instruction9 & attention
+                        var instructions9 = instructions
+                        var attention = ""           // just additional info about that step
+                        var flag = false
+                        var j = 0
+                        var end = instructions.length - 1
+
+                        while (j <= end){
+                            //
+                            if(instructions[j] == '<' && instructions[j+1] == 'd'){
+                                attention = instructions.substring(j,end+1)
+                                instructions9 = instructions.substring(0,j)
+                                Log.e("Step1 instructions9: ",  instructions9)
+                                Log.e("Step1 attention: ",  attention)
+                                break
+                            }
+                            j++
+                        }
+
+                        Log.e("Step1 instructions9: ",  instructions9)
+                        Log.e("Step1 attention: ",  attention)
+
+
+                        var start = 0
+                        var i = 0
+                        while(i < instructions9.length){
+
+                            if (instructions9[i] == '<') { start = i }
+
+                            if(instructions9[i] == '&' && instructions9[i+1] == 'a' && instructions9[i+2] == 'm'
+                                    && instructions9[i+3] == 'p' && instructions9[i+4] == ';')
+                            {
+                                val first = instructions9.substring(0,i+1)
+                                val last = instructions9.substring(i+5,instructions9.length)
+                                instructions9 = first + last
+                            }
+
+                            if (instructions9[i] == '>')
+                            {
+                                val first = instructions9.substring(0,start)
+                                val last = instructions9.substring(i+1)
+                                val newins = first + last
+
+                                instructions9 = newins
+
+                                i=0
+                                start = 0
+                            }
+                            i++
+                        }
+
+
+                        var start2 = 0
+                        var i2 = 0
+                        while(i2 < attention.length){
+                            if (attention[i2] == '&' || attention[i2] == '<') { start2 = i2 }
+                            if (attention[i2] == ';' || attention[i2] == '>')
+                            {
+                                var spot = ""
+
+                                if(attention[i2 - 1] == 'v') spot = ". "
+
+                                val first = attention.substring(0,start2)
+                                val last = attention.substring(i2+1)
+                                val newins = first + spot + last
+
+                                Log.e("Step last: ",  last.toString())
+
+                                attention = newins
+
+                                i2=0
+                                Log.e("Step ins: ",  i2.toString())
+
+                                start2 = 0
+                            }
+                            i2++
+                        }
+
+                        Log.e("Step instructions: ",  instructions9)
+
+                        distance = ((jSteps.get(k) as JSONObject).get("distance") as JSONObject).get("text") as String
                         Log.e("Step distance: ", distance)
 
                         duration = ((jSteps.get(k) as JSONObject).get("duration") as JSONObject).get("text") as String
-                        Log.e("Step duration: ", duration)*/
+                        Log.e("Step duration: ", duration)
+
+                        stepsList.add(DirectionsStepDbO("head",instructions9,attention,duration,distance))
+
+                        runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged()
+                            //rv_directionsSteps.smoothScrollToPosition(0)
+                            //rv_directionsSteps.setHasFixedSize(true)
+                            //rv_directionsSteps.itemAnimator = SlideInUpAnimator()
+                        }
 
                     }
                 }
@@ -610,6 +817,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         val draw_Polyline = draw_polyline
 
         // Parsing the data in non-ui thread
+        @RequiresApi(Build.VERSION_CODES.M)
         override fun doInBackground(vararg jsonData: String): List<List<HashMap<String, String>>>  {
 
             val jObject: JSONObject?
@@ -847,5 +1055,57 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     }
     companion object {
         val MY_PERMISSIONS_REQUEST_LOCATION = 99
+    }
+}
+
+class LinearLayoutManagerWithSmoothScroller:LinearLayoutManager {
+    constructor(context: Context) : super(context, VERTICAL, false) {}
+    constructor(context:Context, orientation:Int, reverseLayout:Boolean) : super(context, orientation, reverseLayout) {}
+    override fun smoothScrollToPosition(recyclerView:RecyclerView, state:RecyclerView.State,
+                                        position:Int) {
+        val smoothScroller = TopSnappedSmoothScroller(recyclerView.getContext())
+        smoothScroller.setTargetPosition(position)
+        startSmoothScroll(smoothScroller)
+    }
+    private inner class TopSnappedSmoothScroller(context:Context): LinearSmoothScroller(context) {
+        //protected val verticalSnapPreference:Int
+        override fun getVerticalSnapPreference(): Int {
+            return SNAP_TO_START
+        }
+
+        override fun computeScrollVectorForPosition(targetPosition:Int): PointF {
+            return this@LinearLayoutManagerWithSmoothScroller
+                    .computeScrollVectorForPosition(targetPosition)
+        }
+    }
+}
+
+class SmoothLinearLayoutManager : LinearLayoutManager {
+
+    private val millisecondsPreInch = 45f //default is 25f (bigger = slower)
+
+    constructor(context: Context) : super(context, LinearLayoutManager.VERTICAL, false)
+
+    constructor(context: Context, orientation: Int, reverseLayout: Boolean) : super(context, orientation, reverseLayout)
+
+    override fun smoothScrollToPosition(recyclerView: RecyclerView, state: RecyclerView.State?,
+                                        position: Int) {
+        val smoothScroller = SmoothScroller(recyclerView.context)
+        smoothScroller.targetPosition = position
+        startSmoothScroll(smoothScroller)
+    }
+
+    private inner class SmoothScroller(context: Context) : LinearSmoothScroller(context) {
+
+        override fun computeScrollVectorForPosition(targetPosition: Int): PointF? {
+            return this@SmoothLinearLayoutManager.computeScrollVectorForPosition(targetPosition)
+        }
+
+        override fun calculateSpeedPerPixel(displayMetrics: DisplayMetrics?): Float {
+            displayMetrics?.densityDpi?.let {
+                return millisecondsPreInch / it
+            }
+            return super.calculateSpeedPerPixel(displayMetrics)
+        }
     }
 }

@@ -16,6 +16,7 @@
 
     <color name="colorWhite">#fff</color>
     <color name="colorSliver">#ededed</color>
+    <color name="colorLightBack">#9f9f9f</color>
 
 
 </resources>
