@@ -65,7 +65,7 @@ class DetailMyPlace : AppCompatActivity() {
         val mGeoDataClient = Places.getGeoDataClient(this)
 
         val photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId)
-        photoMetadataResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoMetadataResponse> { task ->
+        photoMetadataResponse.addOnCompleteListener{ task ->
             // Get the list of photos.
             val photos = task.result
             // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
@@ -77,19 +77,19 @@ class DetailMyPlace : AppCompatActivity() {
                 val photoMetadata = photoMetadataBuffer.get(i)
                 // Get a full-size bitmap for the photo.
                 val photoResponse = mGeoDataClient.getPhoto(photoMetadata)
-                photoResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoResponse> { task ->
+                photoResponse.addOnCompleteListener{ task ->
                     val photo = task.result
                     val bitmap = photo.bitmap
                     Log.e(TAG,""+bitmap)
                     arraySliding.add(bitmap)
                     adapterSliding.notifyDataSetChanged()
-                })
+                }
             }
             adapterSliding = SlidingImageAdapter(this,arraySliding)
             sliding_view_pager.adapter = adapterSliding
             pageIndicatorView.count = arraySliding.size
             pageIndicatorView.setViewPager(sliding_view_pager)
-        })
+        }
 
         mGeoDataClient.getPlaceById(placeId).addOnCompleteListener { task ->
             if (task.isSuccessful) {

@@ -18,8 +18,8 @@ import com.google.firebase.database.*
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.ViewPagerAdapter
 import com.horus.travelweather.common.TWConstant
-import com.horus.travelweather.database.PlaceData
-import com.horus.travelweather.database.PlaceDatabase
+import com.horus.travelweather.database.PlaceEntity
+import com.horus.travelweather.database.TravelWeatherDB
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -33,9 +33,9 @@ import kotlinx.android.synthetic.main.content_home.*
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private val TAG = MainActivity::class.java.simpleName
+    private val TAG = HomeActivity::class.java.simpleName
     private val compositeDisposable = CompositeDisposable()
-    private val menu : MutableList<PlaceData> = mutableListOf()
+    private val menu : MutableList<PlaceEntity> = mutableListOf()
     lateinit var database: FirebaseDatabase
     lateinit var place_list: DatabaseReference
     lateinit var mAuth: FirebaseAuth
@@ -68,11 +68,11 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 Log.e(TAG,"Error : "+p0.message)
                             }
                             override fun onDataChange(dataSnapshot : DataSnapshot) {
-                                val placeList = ArrayList<PlaceData>()
+                                val placeList = ArrayList<PlaceEntity>()
                                 // Result will be holded Here
                                 for (dsp in dataSnapshot.children) {
                                     //add result into array list
-                                    val item : PlaceData? = dsp.getValue(PlaceData::class.java)
+                                    val item : PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
                                     if (item != null) {
                                         placeList.add(item)
                                     }
@@ -149,7 +149,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Subscriber lắng nghe flow, thực thi các hành động trên dòng dữ liệu hoặc sự kiện được đưa ra bởi Observable
 
         //get all places from database room
-        val getAllPlace = PlaceDatabase.getInstance(this@HomeActivity).placeDataDao()
+        val getAllPlace = TravelWeatherDB.getInstance(this@HomeActivity).placeDataDao()
 
         // Probably, you already know that all UI code is done on Android Main thread.
         // RxJava is java library and it does not know about Android Main thread. That is the reason why we use RxAndroid.
@@ -190,9 +190,9 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         startActivity(intent)
     }
 
-    inner class insertAllPlace() : AsyncTask<ArrayList<PlaceData>, Void, Void>() {
-        override fun doInBackground(vararg params : ArrayList<PlaceData>): Void? {
-            PlaceDatabase.getInstance(this@HomeActivity).placeDataDao().insertAllPlace(params[0])
+    inner class insertAllPlace() : AsyncTask<ArrayList<PlaceEntity>, Void, Void>() {
+        override fun doInBackground(vararg params : ArrayList<PlaceEntity>): Void? {
+            TravelWeatherDB.getInstance(this@HomeActivity).placeDataDao().insertAllPlace(params[0])
             getDataFromLocal()
             return null
         }

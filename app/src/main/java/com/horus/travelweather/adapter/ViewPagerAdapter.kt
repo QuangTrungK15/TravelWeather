@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import com.horus.travelweather.database.PlaceData
+import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.fragment.AddLocationFragment
 import com.horus.travelweather.fragment.WeatherDetailFragment
 
-open class ViewPagerAdapter(fragmentManager: FragmentManager, private var listPlaces : List<PlaceData>) :
+open class ViewPagerAdapter(fragmentManager: FragmentManager, private var listPlaces : List<PlaceEntity>) :
         FragmentPagerAdapter(fragmentManager) {
     override fun getItem(position: Int): Fragment {
         return newInstance(position,listPlaces)
@@ -19,7 +19,7 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, private var listPl
     }
 
     companion object {
-        fun newInstance(position: Int, listPlaces : List<PlaceData>) : Fragment {
+        fun newInstance(position: Int, listPlaces : List<PlaceEntity>) : Fragment {
 
             //Vuốt khi nào hết các placelist fragment của user đó thì nó sẽ hiển thị add location fragment
             return if(position >= 0 && position < (listPlaces.size+1))
@@ -27,7 +27,7 @@ open class ViewPagerAdapter(fragmentManager: FragmentManager, private var listPl
             else
                 newInsAddLocation(position)
         }
-        private fun newInsWeather(position: Int, listPlaces : List<PlaceData>): WeatherDetailFragment {
+        private fun newInsWeather(position: Int, listPlaces : List<PlaceEntity>): WeatherDetailFragment {
             val fragment = WeatherDetailFragment()
             //use Bundle() to exchange among intent
             //this activity receives "position" from getDataFromLocal() of HomeActivity

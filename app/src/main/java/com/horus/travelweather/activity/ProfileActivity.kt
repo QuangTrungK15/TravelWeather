@@ -52,17 +52,12 @@ class   ProfileActivity : AppCompatActivity() {
         val inflater : LayoutInflater = LayoutInflater.from(this)
         val dialogView =    inflater.inflate(R.layout.edit_profile_layout,null)
         alterDialog.setView(dialogView)
-
-
         val editName  = dialogView.findViewById<View>(R.id.editName) as MaterialEditText
         val editPhone = dialogView.findViewById<View>(R.id.editPhone) as MaterialEditText
         val editEmail = dialogView.findViewById<View>(R.id.editEmail) as MaterialEditText
-
-
         editName.setText(TWConstant.currentUser.name)
         editPhone.setText(TWConstant.currentUser.phone)
         editEmail.setText(TWConstant.currentUser.email)
-
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         val table_user : DatabaseReference = database.getReference("users")

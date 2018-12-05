@@ -11,10 +11,10 @@ import io.reactivex.Flowable
 interface PlaceDAO {
 
     @Query("SELECT * from placeData")
-    fun getAll() : Flowable<List<PlaceData>>
+    fun getAll() : Flowable<List<PlaceEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(placeData : PlaceData)
+    fun insert(placeEntity : PlaceEntity)
 
     @Query("DELETE from placeData")
     fun deleteAll()
@@ -23,6 +23,6 @@ interface PlaceDAO {
     fun deleteByPlaceId(placeID : String?)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllPlace(placeList : ArrayList<PlaceData>)
+    fun insertAllPlace(placeList : ArrayList<PlaceEntity>)
 
 }

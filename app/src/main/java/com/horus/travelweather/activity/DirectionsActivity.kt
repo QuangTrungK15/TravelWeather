@@ -40,7 +40,7 @@ import com.google.android.gms.maps.model.*
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
 import com.horus.travelweather.adapter.TransportationAdapter
-import com.horus.travelweather.database.PlaceData
+import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.model.DirectionsStepDbO
 import com.horus.travelweather.model.TransportationDbO
 import kotlinx.android.synthetic.main.activity_directions.*
@@ -223,7 +223,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
         }
 
-        //When u click anywhere on maps
+        //When myuser click anywhere on maps
         mMap.setOnMapClickListener { point ->
             // Already two locations
             if (markerPoints.size > 1) {
@@ -628,7 +628,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
                 Log.e(TAG, "Place ID:" + place.id)
-                val placeDB = PlaceData()
+                val placeDB = PlaceEntity()
                 placeDB.name = place.address.toString()
                 /*placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
@@ -647,7 +647,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
                 Log.e(TAG, "Place ID:" + place.id)
-                val placeDB = PlaceData()
+                val placeDB = PlaceEntity()
                 placeDB.name = place.address.toString()
                 /*placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
