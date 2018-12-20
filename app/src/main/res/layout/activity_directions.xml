@@ -3,6 +3,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/directionsID"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -19,101 +20,160 @@
                     android:id="@+id/linear_orgindest"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="6dp"
+                    android:padding="8dp"
                     android:orientation="horizontal"
                     >
 
-                    <ImageButton
+                    <android.support.v7.widget.AppCompatImageButton
                         android:layout_weight="7"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
-                        android:background="@mipmap/back_icon"
-                        />
+                        android:backgroundTint="@color/color9"
+                        app:srcCompat="@drawable/ic24_back" />
 
                     <RelativeLayout
-                        android:layout_weight="2"
+                        android:layout_weight="1"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:orientation="vertical">
 
-                        <android.support.v7.widget.CardView
+                        <LinearLayout
                             android:id="@+id/card1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:cardBackgroundColor="@color/color9"
-                            app:cardCornerRadius="@dimen/nav_header_vertical_spacing">
+                            android:background="@color/color9"
+                            android:orientation="horizontal">
 
-                            <ImageView
-                                android:id="@+id/imgView_orgin"
+                            <FrameLayout
+                                android:layout_weight="1"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_margin="4dp"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/originpoint_icon24" />
+                                android:layout_height="wrap_content">
+
+                                <android.support.v7.widget.AppCompatImageView
+                                    android:id="@+id/imgView_orgin"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="14dp"
+                                    android:layout_marginBottom="14dp"
+                                    android:layout_marginLeft="8dp"
+                                    android:layout_marginRight="8dp"
+                                    android:layout_gravity="center"
+                                    app:srcCompat="@drawable/ic16_origin9" />
+
+                            </FrameLayout>
+
 
                             <EditText
+                                android:layout_weight="50"
                                 android:id="@+id/edt_orgin"
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="32dp"
-                                android:layout_marginStart="32dp"
                                 android:background="@drawable/radius_border"
-                                android:paddingTop="4dp"
-                                android:paddingBottom="4dp"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp"
+                                android:paddingLeft="14dp"
+                                android:paddingRight="14dp"
                                 android:inputType="text"
                                 android:textStyle="normal"
                                 android:text="01976fdsfdsfdsf93"
-                                android:textColor="@color/colorWhite"
+                                android:textColor="@color/colorBlack"
                                 android:textSize="16sp" />
 
-                        </android.support.v7.widget.CardView>
-
-
-                        <android.support.v7.widget.CardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/card1"
-                            app:cardBackgroundColor="@color/color9"
-                            app:cardCornerRadius="@dimen/nav_header_vertical_spacing"
-                            android:layout_marginTop="10dp">
-
-                            <ImageView
-                                android:id="@+id/imgView_destination"
+                            <android.support.v7.widget.AppCompatImageButton
+                                android:layout_weight="1"
+                                android:id="@+id/imgView_orgin2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_margin="4dp"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/destpoint_icon24" />
+                                android:scaleType="fitCenter"
+                                android:backgroundTint="@color/color9"
+                                app:srcCompat="@drawable/ic16_verticalmenu9" />
+                        </LinearLayout>
 
-                            <EditText
-                                android:id="@+id/edt_destination"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginLeft="32dp"
-                                android:layout_marginStart="32dp"
-                                android:background="@drawable/radius_border"
-                                android:paddingTop="4dp"
-                                android:paddingBottom="4dp"
-                                android:inputType="text"
-                                android:textStyle="normal"
-                                android:text="01976321893"
-                                android:textColor="@color/colorWhite"
-                                android:textSize="16sp"  />
-
-                        </android.support.v7.widget.CardView>
-                    </RelativeLayout>
-
-                    <ImageButton
-                        android:layout_weight="7"
+                    <LinearLayout
+                        android:layout_weight="1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@color/color9"
+                        android:orientation="horizontal"
+                        android:layout_below="@id/card1"
+                        android:layout_marginTop="10dp">
+
+                        <FrameLayout
+                            android:layout_weight="1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                        <android.support.v7.widget.AppCompatImageView
+                            android:id="@+id/imgView_destination"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:layout_marginBottom="14dp"
+                            android:layout_marginLeft="8dp"
+                            android:layout_marginRight="8dp"
+                            android:layout_gravity="center"
+                            app:srcCompat="@drawable/ic16_marker9" />
+
+                        </FrameLayout>
+
+                            <EditText
+                                android:layout_weight="50"
+                                android:id="@+id/edt_destination"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/radius_border"
+                                android:paddingTop="10dp"
+                                android:paddingBottom="10dp"
+                                android:paddingLeft="14dp"
+                                android:paddingRight="14dp"
+                                android:inputType="text"
+                                android:textStyle="normal"
+                                android:text="01976fdsfdsfdsf93"
+                                android:textColor="@color/colorBlack"
+                                android:textSize="16sp" />
+
+                            <android.support.v7.widget.AppCompatImageButton
+                                android:layout_weight="1"
+                                android:id="@+id/imgbtn_updown"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:scaleType="fitCenter"
+                                android:backgroundTint="@color/color9"
+                                app:srcCompat="@drawable/ic16_updown9" />
+                        </LinearLayout>
+                    </RelativeLayout>
+
+
+                    <!--<LinearLayout
+                        android:layout_weight="7"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:adjustViewBounds="true"
                         android:cropToPadding="true"
-                        android:background="@mipmap/ic_updownarrow"
-                        />
+                        android:scaleType="fitXY"
+                        android:src="@drawable/ic16-updown" />
+
+                        <ImageView
+                            android:layout_weight="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:adjustViewBounds="true"
+                            android:cropToPadding="true"
+                            android:scaleType="fitXY"
+                            android:src="@drawable/ic16-updown"
+                            />
+                    </LinearLayout>-->
+
 
                 </LinearLayout>
 
@@ -121,8 +181,8 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rv_transportations"
                     android:layout_width="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
 
                 <fragment
                     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -136,194 +196,40 @@
             </LinearLayout>
 
 
-    <!--<android.support.design.widget.AppBarLayout
-        android:id="@+id/app_bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing"
-            android:layout_width="match_parent"
-            android:layout_height="136dp"
-            android:fitsSystemWindows="true"
-            app:contentScrim="#0e0d0e"
-            app:expandedTitleTextAppearance="@android:color/transparent"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <LinearLayout android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:orientation="vertical"
-                android:background="@color/color9"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="98dp"
-                    android:padding="6dp"
-                    android:orientation="horizontal"
-                    >
-
-                    <ImageButton
-                        android:layout_weight="7"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top"
-                        android:background="@mipmap/back_icon"
-                        />
-
-                    <RelativeLayout
-                        android:layout_weight="2"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="vertical">
-
-                        <android.support.v7.widget.CardView
-                            android:id="@+id/card1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:cardBackgroundColor="@color/color9"
-                            app:cardCornerRadius="@dimen/nav_header_vertical_spacing">
-
-                            <ImageView
-                                android:id="@+id/imgView_orgin"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_margin="4dp"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/originpoint_icon24" />
-
-                            <EditText
-                                android:id="@+id/edt_orgin"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginLeft="32dp"
-                                android:layout_marginStart="32dp"
-                                android:background="@drawable/radius_border"
-                                android:paddingTop="4dp"
-                                android:paddingBottom="4dp"
-                                android:inputType="text"
-                                android:textStyle="normal"
-                                android:text="01976fdsfdsfdsf93"
-                                android:textColor="@color/colorWhite"
-                                android:textSize="16sp" />
-
-                        </android.support.v7.widget.CardView>
-
-
-                        <android.support.v7.widget.CardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/card1"
-                            app:cardBackgroundColor="@color/color9"
-                            app:cardCornerRadius="@dimen/nav_header_vertical_spacing"
-                            android:layout_marginTop="10dp">
-
-                            <ImageView
-                                android:id="@+id/imgView_destination"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_margin="4dp"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/destpoint_icon24" />
-
-                            <EditText
-                                android:id="@+id/edt_destination"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginLeft="32dp"
-                                android:layout_marginStart="32dp"
-                                android:background="@drawable/radius_border"
-                                android:paddingTop="4dp"
-                                android:paddingBottom="4dp"
-                                android:inputType="text"
-                                android:textStyle="normal"
-                                android:text="01976321893"
-                                android:textColor="@color/colorWhite"
-                                android:textSize="16sp"  />
-
-                        </android.support.v7.widget.CardView>
-                    </RelativeLayout>
-
-                    <ImageButton
-                        android:layout_weight="7"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:adjustViewBounds="true"
-                        android:cropToPadding="true"
-                        android:background="@mipmap/ic_updownarrow"
-                        />
-
-                </LinearLayout>
-
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_transportations"
-                    android:layout_width="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-
-    </android.support.design.widget.AppBarLayout>
-    <LinearLayout
-        android:id="@+id/linear_map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context="com.horus.travelweather.activity.DirectionsActivity" />
-
-    </LinearLayout>
-    -->
-
-
-
-
     <RelativeLayout
         android:id="@+id/scroll_directionsdetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fillViewport="true"
         android:orientation="vertical"
-        android:layout_gravity="bottom"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:background="@color/color9"
+        android:layout_gravity="bottom">
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/clicksteps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:isScrollContainer="true"
-                android:orientation="horizontal"
-                android:background="@color/colorWhite">
+                android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/stepsicon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
                     android:background="@mipmap/ic_listicon"/>
                 <Button
                     android:id="@+id/btn_steps"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/stepsicon"
                     android:textColor="@color/colorBlack"
-                    android:background="@color/colorWhite"
+                    android:background="@color/color9"
                     android:gravity="center_vertical"
                     android:padding="8dp"
-                    android:text="Cac Buoc"/>
-            </LinearLayout>
+                    android:textSize="16sp"
+                    android:text="Các Bước"/>
+            </RelativeLayout>
 
 
             <android.support.v7.widget.RecyclerView
@@ -333,8 +239,6 @@
                 android:minHeight="@dimen/nav_header_vertical_spacing"
                 android:visibility="gone"
                 android:scrollbars="vertical"
-                android:overScrollMode="always"
-
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 android:layout_below="@+id/clicksteps"
                 tools:ignore="NotSibling" />
@@ -354,7 +258,8 @@
         android:layout_height="454dp"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-        app:backgroundTint="@color/colorWhite"
+        app:elevation="10dp"
+        app:backgroundTint="@color/colorSliver"
         android:src="@drawable/directionsicon"
         app:fabSize="normal" />
 </android.support.design.widget.CoordinatorLayout>
