@@ -1,89 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+    android:background="@drawable/bg_combine_color"
     tools:context=".activity.MainActivity">
-
-    <TextView
-        android:id="@+id/txtTravelWeather"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/travel_weather"
-        android:textAlignment="center"
-        android:textSize="30sp" />
-
-    <LinearLayout
-        android:id="@+id/UserPass"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_margin="16dp"
-        android:orientation="vertical">
-
-        <com.rengwuxian.materialedittext.MaterialEditText
-            android:id="@+id/txtEmail"
+        android:layout_height="match_parent">
+        <View
+            android:id="@+id/line_center_login"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="200dp"
+            android:background="@color/transparent" />
+        <LinearLayout
+            android:layout_below="@id/line_center_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/email"
-            android:inputType="textEmailAddress"
-            android:text="trung123@gmail.com"
-            android:textColor="@android:color/white"
-            android:textColorHint="@android:color/white"
-            android:textSize="24dp"
-            app:met_baseColor="@android:color/white"
-            app:met_floatingLabel="highlight"
-            app:met_maxCharacters="30"
-            app:met_primaryColor="@android:color/white"
-            app:met_singleLineEllipsis="true" />
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:orientation="vertical">
+            <EditText
+                android:id="@+id/txtEmail"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:inputType="text"
+                android:paddingLeft="24dp"
+                android:textColor="@color/white"
+                android:text="trung123@gmail.com"
+                android:hint="Email"
+                android:textColorHint="@android:color/white"
+                android:background="@drawable/bg_login_password"/>
 
-        <com.rengwuxian.materialedittext.MaterialEditText
+            <EditText
+                android:id="@+id/txtPassword"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:inputType="textPassword"
+                android:paddingLeft="24dp"
+                android:layout_marginTop="32dp"
+                android:textColor="@color/white"
+                android:text="123456"
+                android:hint="@string/password"
+                android:textColorHint="@android:color/white"
+                android:background="@drawable/bg_login_password"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/forgot_password"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/white"
+                android:gravity="center"/>
 
-            android:id="@+id/txtPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/txtEmail"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:text="123456"
-            android:textColor="@android:color/white"
-            android:textColorHint="@android:color/white"
-            android:textSize="24dp"
-            app:met_baseColor="@android:color/white"
-            app:met_floatingLabel="highlight"
-            app:met_maxCharacters="11"
-            app:met_primaryColor="@android:color/white"
-            app:met_singleLineEllipsis="true" />
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_login__sign_up"
+                android:text="@string/login"
+                android:textColor="@color/white"
+                android:layout_marginTop="24dp"/>
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/btnSignUp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/bg_login__sign_up"
+                android:text="@string/sign_up"
+                android:textColor="@color/white"/>
 
-    <LinearLayout
-        android:id="@+id/Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/UserPass"
-        android:layout_marginRight="48dp"
-        android:layout_marginLeft="48dp"
-        android:layout_marginTop="18dp"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/bg_login__sign_up"
-            android:text="@string/login" />
-
-        <Button
-            android:id="@+id/btnSignUp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_login__sign_up"
-            android:text="@string/sign_up" />
-    </LinearLayout>
-</RelativeLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
