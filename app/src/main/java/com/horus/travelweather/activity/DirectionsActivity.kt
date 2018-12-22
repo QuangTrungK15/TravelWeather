@@ -1,6 +1,7 @@
 package com.horus.travelweather.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -21,8 +22,10 @@ import android.support.v7.widget.LinearSmoothScroller
 import android.support.v7.widget.RecyclerView
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
@@ -73,6 +76,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
     var transList = ArrayList<TransportationDbO>()
     var stepsList = ArrayList<DirectionsStepDbO>()
+    var stepsList_temp = ArrayList<DirectionsStepDbO>()
 
     private var count: Int = 1
 
@@ -80,6 +84,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     var currentlocation = LatLng(10.762622, 106.660172)
     var destlocation = LatLng(10.762622, 106.660172)
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +105,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
         val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
         val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
+        //This btn shows direction (org -> dest) steps
         val btn_steps = this.findViewById<View>(R.id.btn_steps) as Button
 
         //val recyclerView = this.findViewById<View>(R.id.rv_directionsSteps) as RecyclerView
@@ -112,11 +118,55 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         transList.add(TransportationDbO("transit",""))
         implementLoad(transList)
 
-        stepsList.add(DirectionsStepDbO("head","s","s","3243","432"))
+        stepsList.add(DirectionsStepDbO(0,"head","s","s","3243","432", currentlocation))
         loadingStepbyStep(stepsList)
 
+        clicksteps.setOnClickListener{
+            numberofclick++
 
-        btn_steps.setOnClickListener{
+            /*if(numberofclick == 1){
+                layoutParams_temp = scroll_directionsdetail.layoutParams as RelativeLayout.LayoutParams
+
+                Log.e("ACTION stop=: ",layoutParams_temp!!.topMargin.toString())
+                numberofclick++
+            }*/
+
+            if(count%2 != 0)
+            {
+                rv_directionsSteps.visibility = View.VISIBLE
+
+                linear_orgindest.animate()
+                        .translationY(linear_orgindest.height.toFloat())
+                        .alpha(0.0f)
+                        .duration = 800
+                rv_transportations.animate()
+                        .translationY(rv_transportations.height.toFloat())
+                        .alpha(0.0f)
+                        .duration = 800
+
+                clicksteps.setOnTouchListener(onTouchListener())
+
+                linear_orgindest.visibility = View.GONE
+                rv_transportations.visibility = View.GONE
+            }
+            else{
+                rv_directionsSteps.visibility = View.GONE
+
+                linear_orgindest.animate()
+                        .translationY(0F)
+                        .alpha(1.0f)
+                        .duration = 200
+                rv_transportations.animate()
+                        .translationY(0F)
+                        .alpha(1.0f)
+                        .duration = 200
+
+                linear_orgindest.visibility = View.VISIBLE
+                rv_transportations.visibility = View.VISIBLE
+            }
+            count++
+        }
+        /*stepsicon.setOnClickListener{
             if(count%2 != 0)
             {
                 rv_directionsSteps.visibility = View.VISIBLE
@@ -128,16 +178,10 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                 linear_orgindest.visibility = View.VISIBLE
                 rv_transportations.visibility = View.VISIBLE
             }
-           /* if (behavior.state === BottomSheetBehavior.STATE_COLLAPSED)
-            {
-                behavior.setState(BottomSheetBehavior.STATE_EXPANDED)
-            }
-            else
-            {
-                behavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
-            }*/
             count++
-        }
+        }*/
+
+
 
         edt_orgin.setOnClickListener {
             //Filter results by place type (by address: get full address, by establisment: get business address)
@@ -164,6 +208,145 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                     .setFilter(typeFilter)
                     .build(this)
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE2)
+        }
+    }
+
+    private fun distance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
+        val dx = x1 - x2
+        val dy = y1 - y2
+        val distanceInPx = Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
+        return pxToDp(distanceInPx)
+    }
+
+    private fun pxToDp(px: Float): Float {
+        return px / resources.displayMetrics.density
+    }
+    //MotionEvent.ACTION_UP means you touch sensor fist time
+    //MotionEvent.ACTION_DOWN means that touch sensor does not detect anymore
+    //for example MotionEvent.ACTION_MOVE means that sensor detects some moves (like swipe, scroll etc.)
+    //When u move clicksteps (that top bar above direction steps list)
+    private var xDelta:Int = 0
+    private var yDelta:Int = 0
+    //private val CLICK_ACTION_THRESHHOLD = 200
+
+    //to determind click event when touchevent is running
+    private val MAX_CLICK_DURATION = 400
+    private val MAX_CLICK_DISTANCE = 5
+    private var startClickTime: Long = 0
+    private var stayedWithinClickDistance:Boolean = false
+    private var x1: Float = 0.toFloat()
+    private var y1: Float = 0.toFloat()
+    private var dx: Float = 0.toFloat()
+    private var dy: Float = 0.toFloat()
+    private var firstclick:Boolean = false
+    private var numberofclick:Int = 0
+    var layoutParams_temp: RelativeLayout.LayoutParams? = null
+
+    private fun onTouchListener(): View.OnTouchListener {
+        return View.OnTouchListener { view, event ->
+            val mainLayout = findViewById<View>(R.id.clicksteps) as RelativeLayout
+            val x = event.rawX.toInt()
+            val y = event.rawY.toInt()
+            val lParams = view.layoutParams as RelativeLayout.LayoutParams
+
+            when (event.action and MotionEvent.ACTION_MASK) {
+                MotionEvent.ACTION_DOWN -> {
+                    if(clicksteps.bottom != directionsID.bottom) {
+
+                        xDelta = x - lParams.leftMargin
+                        yDelta = y - lParams.topMargin
+                        //to determind click event
+                        x1 = event.x
+                        y1 = event.y
+                        startClickTime = System.currentTimeMillis()
+                        stayedWithinClickDistance = true
+                        firstclick = true
+                    }
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    //if(clicksteps.top != directionsID.top) {
+
+                      //  yDelta = y + lParams.topMargin
+
+                        val clickDuration = Calendar.getInstance().timeInMillis - startClickTime
+                        dx = event.x - x1
+                        dy = event.y - y1
+                        if (clickDuration < MAX_CLICK_DURATION && dx < MAX_CLICK_DISTANCE && dy < MAX_CLICK_DISTANCE) {
+                            Log.v("", "On Item Clicked:: ")
+                            view.performClick()
+                        }
+
+                       // firstclick = true
+                    //}
+                    /* if (pressDuration < MAX_CLICK_DURATION && stayedWithinClickDistance) {
+                         // Click event has occurred
+                         view.performClick()
+                     }*/
+
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+
+                    val layoutParams = view.layoutParams as RelativeLayout.LayoutParams
+
+                    //if(clicksteps.bottom != directionsID.bottom){
+                    if (firstclick == true) {
+                        layoutParams.topMargin = y - yDelta
+                        layoutParams.rightMargin = 0
+                        layoutParams.bottomMargin = 0
+                        //layoutParams_temp = view.layoutParams as RelativeLayout.LayoutParams
+                        view.layoutParams = layoutParams
+
+                        Log.e("topmargin: ", (directionsID.bottom).toString())
+                        Log.e("topmargin2: ", (clicksteps.bottom).toString())
+                        firstclick = false
+                    }
+                    //}
+                    /*else if (clicksteps.bottom == directionsID.bottom){
+
+                        Log.e("ACTION =: ","false")
+
+                        *//*val row = findViewById<View>(R.id.scroll_directionsdetail) as RelativeLayout
+                        val rv_directionsSteps_temp = findViewById<View>(R.id.rv_directionsSteps) as RecyclerView
+                        val clicksteps_temp = findViewById<View>(R.id.clicksteps) as RelativeLayout
+
+                        row.removeView(clicksteps_temp)
+                        row.removeView(rv_directionsSteps_temp)
+                        row.addView(clicksteps_temp)
+                        row.addView(rv_directionsSteps_temp)
+                        row.invalidate()*//*
+
+
+
+                        val params = RelativeLayout.LayoutParams(
+                                RelativeLayout.LayoutParams.MATCH_PARENT,
+                                RelativeLayout.LayoutParams.WRAP_CONTENT)
+                        params.addRule(RelativeLayout.VISIBLE)
+                        params.addRule(RelativeLayout.ALIGN_BOTTOM,directionsID.bottom)
+                        //clicksteps.top = 900
+                        //params.addRule(RelativeLayout.BELOW, R.id.clicksteps)
+
+                        rv_directionsSteps.layoutParams = params
+
+                        Log.e("ACTION stop1=: ",clicksteps.top.toString())
+                        Log.e("ACTION stop3=: ",rv_directionsSteps.top.toString())
+
+                        Log.e("ACTION stop2=: ",rv_directionsSteps.top.toString())
+                        Log.e("ACTION stop4=: ",rv_directionsSteps.bottom.toString())
+
+
+                        //nhan dang touch len de update chạy code nhu tren, sau do van check tiep de han che dung thanh bottom
+                   }*/
+                    stayedWithinClickDistance = false
+
+                }
+
+            }
+            // Because we call this from onTouchEvent, this code will be executed for both
+            // normal touch events and for when the system calls this using Accessibility
+            mainLayout.invalidate()
+            true
         }
     }
 
@@ -324,68 +507,14 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         adapterStepbyStepDirections = StepbyStepDirectionsAdapter(list,{
             id ->
 
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(stepsList[id.toInt()].latLng))
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(14F))
 
+            adapterStepbyStepDirections.notifyDataSetChanged()
         })
         val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         rv_directionsSteps.adapter = adapterStepbyStepDirections
         rv_directionsSteps.layoutManager = layoutManager2
-        //rv_directionsSteps.smoothScrollToPosition(rv_directionsSteps.top)
-
-
-        /*val smoothScroller:RecyclerView.SmoothScroller = object:LinearSmoothScroller(rv_directionsSteps.context) {
-            override fun getVerticalSnapPreference(): Int {
-                return LinearSmoothScroller.SNAP_TO_START
-            }
-        }
-
-        smoothScroller.targetPosition = rv_directionsSteps.top
-        layoutManager2.startSmoothScroll(smoothScroller)*/
-
-        //rv_directionsSteps.smoothScrollToPosition(rv_directionsSteps.top)
-        //rv_directionsSteps.setHasFixedSize(true)
-        //rv_directionsSteps.itemAnimator = SlideInUpAnimator()
-        //rv_directionsSteps.smoothScrollToPosition(rv_directionsSteps.top)
-        //rv_directionsSteps.isNestedScrollingEnabled = true
-        /*rv_directionsSteps.addOnScrollListener(object:RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView:RecyclerView, dx:Int, dy:Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (dy > 0)
-                {
-                    // Scrolling up
-                    Log.e("Tang: ","1")
-                    rv_directionsSteps.layoutParams.height+=20
-                }
-                else
-                {
-                    // Scrolling down
-                    Log.e("Giam: ","1")
-                    rv_directionsSteps.layoutParams.height-=20
-                }
-            }
-            override fun onScrollStateChanged(recyclerView:RecyclerView, newState:Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING)
-                {
-                    // Do something
-                }
-                else if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL)
-                {
-                    // Do something
-                }
-                else
-                {
-                    // Do something
-                }
-            }
-        })
-*/
-        //rv_directionsSteps.setHasFixedSize(true)
-
-        //val lp = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 500)
-        //rv_directionsSteps.layoutParams = lp
-
-
-
     }
 
     private fun AddMarker(currentlocation: LatLng, destlocation: LatLng){
@@ -482,6 +611,20 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         var distance = ""
         var duration = ""
 
+        //Transit mdoe
+        var travelmode = ""
+        var arrival_stop = "" //get name & location
+        var arrival_time = "" //get text (text is time)
+        var departure_stop = "" //get name & location
+        var departure_time = "" //get text (text is time)
+        var line_busnumber = "" //get line->name (example "name": 19 - Bến Thành - KCX Linh Trung - ĐH Quốc Gia)
+        var num_stops = "" //get num_stops (number of stops)
+
+        //Coordinator of each step
+        var start_location_lat = ""
+        var start_location_lng = ""
+        var count = 0
+
         try {
 
             jRoutes = jObject.getJSONArray("routes")
@@ -505,11 +648,12 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                     /** Traversing all steps  */
 
                     stepsList.clear()
+                    count = 0
                     for (k in 0 until jSteps.length()) {
 
                         maneuver = if(((jSteps.get(k) as JSONObject).has("maneuver")) ){
                             ((jSteps.get(k) as JSONObject).get("maneuver")) as String
-                        } else "Head "
+                        } else "Head"
                         Log.e("Step maneuver: ", maneuver)
 
                         instructions = ((jSteps.get(k) as JSONObject).get("html_instructions")) as String
@@ -602,13 +746,35 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                         duration = ((jSteps.get(k) as JSONObject).get("duration") as JSONObject).get("text") as String
                         Log.e("Step duration: ", duration)
 
-                        stepsList.add(DirectionsStepDbO("head",instructions9,attention,duration,distance))
+                        start_location_lat = (((jSteps.get(k) as JSONObject).get("start_location") as JSONObject).get("lat") as Double).toString()
+                        Log.e("Step duration: ", start_location_lat)
 
-                        runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged()
-                            //rv_directionsSteps.smoothScrollToPosition(0)
-                            //rv_directionsSteps.setHasFixedSize(true)
-                            //rv_directionsSteps.itemAnimator = SlideInUpAnimator()
+                        start_location_lng = (((jSteps.get(k) as JSONObject).get("start_location") as JSONObject).get("lng") as Double).toString()
+                        Log.e("Step duration: ", start_location_lng)
+
+                        Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()).toString())
+
+                        travelmode = ((jSteps.get(k) as JSONObject).get("travel_mode")) as String
+                        if (travelmode == "TRANSIT"){
+                            departure_stop = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("departure_stop") as JSONObject).get("name") as String
+                            departure_time = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("departure_time") as JSONObject).get("text") as String
+                            arrival_stop = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("arrival_stop") as JSONObject).get("name") as String
+                            arrival_time = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("arrival_time") as JSONObject).get("text") as String
+
+                            line_busnumber = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("line") as JSONObject).get("name") as String
+                            num_stops = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject).get("num_stops") as Int).toString()
+
+                        } else if(travelmode == "WALKING"){
+
                         }
+
+                        stepsList.add(DirectionsStepDbO(count++,maneuver,instructions9,attention,duration,distance, LatLng(start_location_lat.toDouble(),start_location_lng.toDouble())))
+                        runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
 
                     }
                 }

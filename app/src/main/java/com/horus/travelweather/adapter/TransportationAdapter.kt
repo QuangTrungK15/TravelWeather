@@ -1,10 +1,10 @@
 package com.horus.travelweather.adapter
 
+import android.support.v7.widget.AppCompatImageView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import com.horus.travelweather.R
 import com.horus.travelweather.activity.DirectionsActivity
@@ -34,7 +34,7 @@ class TransportationAdapter (private var listTransportation : List<Transportatio
 
     //This class controls views better, avoiding findViewByID too time
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val imgView_transportation = itemView.findViewById<View>(R.id.imgView_transportation) as ImageView
+        private val imgView_transportation = itemView.findViewById<View>(R.id.imgView_transportation) as AppCompatImageView
         private val tv_duration = itemView.findViewById<View>(R.id.tv_duration) as TextView
         fun bind(transkind : TransportationDbO) {
 
@@ -43,15 +43,15 @@ class TransportationAdapter (private var listTransportation : List<Transportatio
             itemView.tv_duration.setOnClickListener { onItemClick(transkind.id) }
 
             if(transkind.id == "driving"){
-                imgView_transportation.setBackgroundResource(R.drawable.originpoint_icon24)
+                imgView_transportation.setImageResource(R.drawable.ic24_car)
             } else if(transkind.id == "walking"){
-                imgView_transportation.setBackgroundResource(R.drawable.originpoint_icon24)
+                imgView_transportation.setImageResource(R.drawable.ic24_walking)
             } else if(transkind.id == "transit"){
-                imgView_transportation.setBackgroundResource(R.drawable.originpoint_icon24)
-            } else if(transkind.id == "4"){
-                imgView_transportation.setBackgroundResource(R.drawable.originpoint_icon24)
+                imgView_transportation.setImageResource(R.drawable.ic24_car)
+            } else if(transkind.id == "bicycling"){
+                imgView_transportation.setImageResource(R.drawable.ic24_walking)
             } else if(transkind.id == "5"){
-                imgView_transportation.setBackgroundResource(R.drawable.originpoint_icon24)
+                imgView_transportation.setImageResource(R.drawable.originpoint_icon24)
             }
 
             tv_duration.text = transkind.duration

@@ -1,10 +1,10 @@
 package com.horus.travelweather.adapter
 
+import android.support.v7.widget.AppCompatImageView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import com.horus.travelweather.R
 import com.horus.travelweather.activity.DirectionsActivity
@@ -35,7 +35,7 @@ class StepbyStepDirectionsAdapter (private var listDirectionsStep : List<Directi
 
     //This class controls views better, avoiding findViewByID too time
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val imgView_direction = itemView.findViewById<View>(R.id.imgView_direction) as ImageView
+        private val imgView_direction = itemView.findViewById<View>(R.id.imgView_direction) as AppCompatImageView
         private val tv_instructions = itemView.findViewById<View>(R.id.tv_instructions) as TextView
         private val tv_attention = itemView.findViewById<View>(R.id.tv_attention) as TextView
 
@@ -43,18 +43,50 @@ class StepbyStepDirectionsAdapter (private var listDirectionsStep : List<Directi
 
             //Lập trình bất đồng bộ
             //Set cho imgView_transportation trên recycleviewer 1 lắng nghe (nhận id bất kỳ để nhận dạng loại ptien)
-            itemView.tv_instructions.setOnClickListener { onItemClick(step.id) }
+            itemView.tv_instructions.setOnClickListener { onItemClick(step.id.toString()) }
 
-            if(step.id == "head"){
-                imgView_direction.setBackgroundResource(R.drawable.ic_turnleft24)
-            } else if(step.id == "turnleft"){
-                imgView_direction.setBackgroundResource(R.drawable.ic_turnleft24)
-            } else if(step.id == "turnright"){
-                imgView_direction.setBackgroundResource(R.drawable.ic_turnleft24)
-            } else if(step.id == "firstroundabout"){
-                imgView_direction.setBackgroundResource(R.drawable.ic_turnleft24)
-            } else if(step.id == "5"){
-                imgView_direction.setBackgroundResource(R.drawable.ic_turnleft24)
+            if(step.direction == "Head" || step.direction == "Straight"){
+                imgView_direction.setImageResource(R.drawable.ic24_head)
+            } else if(step.direction == "turn-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_turnleft)
+            } else if(step.direction == "turn-right"){
+                imgView_direction.setImageResource(R.drawable.ic24_turnright)
+            } else if(step.direction == "turn-slight-right"){ //chếch sang phải
+                imgView_direction.setImageResource(R.drawable.ic24_turnslightright)
+            } else if(step.direction == "turn-slight-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_turnslightleft)
+            }else if(step.direction == "turn-sharp-right"){ // ngoặc phải
+                imgView_direction.setImageResource(R.drawable.ic24_turnsharpright)
+            } else if(step.direction == "turn-sharp-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_turnsharpleft)
+            } else if(step.direction == "ferry"){
+                imgView_direction.setImageResource(R.drawable.ic24_ferry)
+            } else if(step.direction == "ferry-train"){
+                imgView_direction.setImageResource(R.drawable.ic24_ferry)
+            } else if(step.direction == "ramp-right"){ //tại nút giao thông
+                imgView_direction.setImageResource(R.drawable.ic24_rampleft)
+            } else if(step.direction == "ramp-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_rampleft)
+            } else if(step.direction == "fork-right"){ //tại nút giao thông
+                imgView_direction.setImageResource(R.drawable.ic24_rampleft)
+            } else if(step.direction == "fork-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_rampleft)
+            } else if(step.direction == "uturn-right"){
+                imgView_direction.setImageResource(R.drawable.ic24_uturnright)
+            } else if(step.direction == "uturn-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_uturnleft)
+            } else if(step.direction == "merge"){
+                imgView_direction.setImageResource(R.drawable.ic24_merge)
+            } else if(step.direction == "roundabout-right"){
+                imgView_direction.setImageResource(R.drawable.ic24_roundabout)
+            } else if(step.direction == "roundabout-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_roundabout)
+            } else if(step.direction == "keep-right"){
+                imgView_direction.setImageResource(R.drawable.ic24_keepright)
+            } else if(step.direction == "keep-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_keepleft)
+            } else{
+                imgView_direction.setImageResource(R.drawable.ic24_head)
             }
 
             tv_instructions.text = step.instructions

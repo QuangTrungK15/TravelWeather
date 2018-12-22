@@ -6,18 +6,19 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="colorBackground">#0099CC</color>
-    <color name="colorBlack">#000000</color>
+    <color name="colorBlack">#212121</color>
     <color name="colorGold">#ffd700</color>
 
     <color name="overlayBackground">#7f333639</color>
 <!--
-    <color name="color9">#00cc99</color>
--->
     <color name="color9">#4285f4</color>
+-->
+    <color name="color9">#f4f4f4</color>
 
     <color name="colorWhite">#fff</color>
     <color name="colorSliver">#ededed</color>
-    <color name="colorLightBack">#9f9f9f</color>
+    <color name="colorLightBack">#afafaf</color>
+    <color name="colorLightBlack">#545454</color>
 
 
     <color name="white">#ffffff</color>

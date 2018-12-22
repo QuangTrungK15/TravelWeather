@@ -1,11 +1,9 @@
-
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="@dimen/nav_header_vertical_spacing"
-    >
+    android:padding="@dimen/nav_header_vertical_spacing">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="horizontal"
@@ -15,7 +13,7 @@
         android:background="@color/colorWhite">
 
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:layout_weight="9"
             android:id="@+id/imgView_direction"
             android:layout_width="match_parent"
@@ -23,7 +21,7 @@
             android:cropToPadding="true"
             android:padding="8dp"
             android:layout_gravity="center"
-            android:background="@drawable/ic_turnleft24" />
+            app:srcCompat="@drawable/ic24_turnleft" />
 
         <LinearLayout
             android:layout_weight="1"
@@ -68,6 +66,8 @@
                     android:layout_marginStart="4dp"
                     />
             </LinearLayout>
+
+
         </LinearLayout>
 
 
