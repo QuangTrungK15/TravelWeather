@@ -5,11 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.horus.travelweather.R
-import com.horus.travelweather.database.PlaceData
-import com.horus.travelweather.model.LocationDbO
+import com.horus.travelweather.database.PlaceEntity
 import kotlinx.android.synthetic.main.locaiton_item.view.*
 
-class LocationAdapter(private val listLocation : List<PlaceData>, private val onItemClick : (String)-> Unit )
+class LocationAdapter(private val listLocation : List<PlaceEntity>, private val onItemClick : (String)-> Unit )
     : RecyclerView.Adapter<LocationAdapter.ViewHolder>() {
     //Đầu vào là 1 danh sách và 1 cái click (nếu có, click vào nút btn_delete để xóa địa điểm của mình đã thêm)
 
@@ -30,7 +29,7 @@ class LocationAdapter(private val listLocation : List<PlaceData>, private val on
 
     //This class controls views better, avoiding findViewByID too time
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(location : PlaceData) {
+        fun bind(location : PlaceEntity) {
             //Lập trình bất đồng bộ
             //Set cho btn_delete trên recycleviewer 1 lắng nghe (nhận id bất kỳ)
             itemView.btn_delete_location.setOnClickListener { onItemClick(location.id) }

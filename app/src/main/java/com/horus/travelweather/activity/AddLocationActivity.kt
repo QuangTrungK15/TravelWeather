@@ -11,11 +11,8 @@ import android.util.Log
 import android.view.MenuItem
 import com.horus.travelweather.R
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException
-import com.google.android.gms.common.GooglePlayServicesRepairableException
-import com.google.android.gms.common.internal.service.Common
-import com.horus.travelweather.database.PlaceData
-import com.horus.travelweather.database.PlaceDatabase
+import com.horus.travelweather.database.PlaceEntity
+import com.horus.travelweather.database.TravelWeatherDB
 import com.horus.travelweather.adapter.LocationAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -25,7 +22,6 @@ import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.horus.travelweather.common.TWConstant.Companion.currentUser
 
 
 class AddLocationActivity : AppCompatActivity() {
@@ -67,7 +63,7 @@ class AddLocationActivity : AppCompatActivity() {
     //Load user's available places in database room -> recycleviewer rv_location
     private fun loadPlaces()
     {
-        val  getAllPlace = PlaceDatabase.getInstance(this).placeDataDao()
+        val  getAllPlace = TravelWeatherDB.getInstance(this).placeDataDao()
         compositeDisposable.add(getAllPlace.getAll()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -80,7 +76,7 @@ class AddLocationActivity : AppCompatActivity() {
 
     // As LocationAdapter, input: list & id (by one click), if we click btn_delete_location on recycleviewer
     // (it was set a onclicklistener) of any place, it removed by call implementLoad().
-    private fun implementLoad(list : List<PlaceData>) {
+    private fun implementLoad(list : List<PlaceEntity>) {
         adapter = LocationAdapter(list,{
             id ->
             deletePLace().execute(id)
@@ -101,7 +97,7 @@ class AddLocationActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this, data)
                 Log.e(TAG, "Place ID:" + place.id)
-                val placeDB = PlaceData()
+                val placeDB = PlaceEntity()
                 placeDB.name = place.name.toString()
                 placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
@@ -131,15 +127,15 @@ class AddLocationActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    inner class insertPLace(): AsyncTask<PlaceData, Void, Void>() {
-        override fun doInBackground(vararg params: PlaceData): Void? {
-                PlaceDatabase.getInstance(this@AddLocationActivity).placeDataDao().insert(params[0])
+    inner class insertPLace(): AsyncTask<PlaceEntity, Void, Void>() {
+        override fun doInBackground(vararg params: PlaceEntity): Void? {
+                TravelWeatherDB.getInstance(this@AddLocationActivity).placeDataDao().insert(params[0])
             return null
         }
     }
     inner class deletePLace(): AsyncTask<String, Void, Void>() {
         override fun doInBackground(vararg params: String?): Void? {
-            PlaceDatabase.getInstance(this@AddLocationActivity).placeDataDao().deleteByPlaceId(params[0])
+            TravelWeatherDB.getInstance(this@AddLocationActivity).placeDataDao().deleteByPlaceId(params[0])
            return null
         }
     }

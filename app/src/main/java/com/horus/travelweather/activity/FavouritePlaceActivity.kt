@@ -44,7 +44,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
     lateinit var favourite_list: DatabaseReference
     lateinit var mAuth: FirebaseAuth
     lateinit var adapter: FirebaseRecyclerAdapter<PlaceDbO, FavouritePlaceAdapter.PlaceViewHolder>
-    var u: FirebaseUser? = null
+    var myuser: FirebaseUser? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +53,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mAuth = FirebaseAuth.getInstance()
-        u = mAuth.currentUser
+        myuser = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
         favourite_list = database.getReference("favouriteplace")
         btn_add_my_place.setOnClickListener {
@@ -69,7 +69,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
         }
 
         val options = FirebaseRecyclerOptions.Builder<PlaceDbO>()
-                .setQuery(favourite_list.child(u!!.uid), PlaceDbO::class.java)
+                .setQuery(favourite_list.child(myuser!!.uid), PlaceDbO::class.java)
                 .setLifecycleOwner(this)
                 .build()
         adapter = FavouritePlaceAdapter(options, { context, textView, i ->
@@ -125,7 +125,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
         //val placeId = "ChIJa147K9HX3IAR-lwiGIQv9i4"
         val mGeoDataClient = Places.getGeoDataClient(this)
         val photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId)
-        photoMetadataResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoMetadataResponse> { task ->
+        photoMetadataResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoMetadataResponse>{ task ->
             // Get the list of photos.
             val photos = task.result
             // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
@@ -169,11 +169,11 @@ class FavouritePlaceActivity : AppCompatActivity() {
 
     }
     private fun deleteFavouritePlace(key: String) {
-        favourite_list.child(u!!.uid).child(key).removeValue()
+        favourite_list.child(myuser!!.uid).child(key).removeValue()
         adapter.notifyDataSetChanged()
     }
     private fun uploadDatabase() {
-        favourite_list.child(u!!.uid).push().setValue(placeDb)
+        favourite_list.child(myuser!!.uid).push().setValue(placeDb)
     }
 
 }
