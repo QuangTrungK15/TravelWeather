@@ -58,6 +58,7 @@ import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
 
+
 class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private val TAG = DirectionsActivity::class.java.simpleName
@@ -78,7 +79,6 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     var stepsList_temp = ArrayList<DirectionsStepDbO>()
 
     private var count: Int = 1
-
 
 
     var currentlocation = LatLng(10.762622, 106.660172)
@@ -148,7 +148,6 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
                 linear_orgindest.visibility = View.GONE
                 rv_transportations.visibility = View.GONE
-
             }
             else{
                 rv_directionsSteps.visibility = View.GONE
@@ -509,6 +508,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             id ->
 
             mMap.moveCamera(CameraUpdateFactory.newLatLng(stepsList[id.toInt()].latLng))
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(14F))
 
             adapterStepbyStepDirections.notifyDataSetChanged()
         })
@@ -610,9 +610,21 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         var instructions = ""
         var distance = ""
         var duration = ""
+
+        //Transit mdoe
+        var travelmode = ""
+        var arrival_stop = "" //get name & location
+        var arrival_time = "" //get text (text is time)
+        var departure_stop = "" //get name & location
+        var departure_time = "" //get text (text is time)
+        var line_busnumber = "" //get line->name (example "name": 19 - Bến Thành - KCX Linh Trung - ĐH Quốc Gia)
+        var num_stops = "" //get num_stops (number of stops)
+
+        //Coordinator of each step
         var start_location_lat = ""
         var start_location_lng = ""
         var count = 0
+
         try {
 
             jRoutes = jObject.getJSONArray("routes")
@@ -641,7 +653,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
                         maneuver = if(((jSteps.get(k) as JSONObject).has("maneuver")) ){
                             ((jSteps.get(k) as JSONObject).get("maneuver")) as String
-                        } else "Head "
+                        } else "Head"
                         Log.e("Step maneuver: ", maneuver)
 
                         instructions = ((jSteps.get(k) as JSONObject).get("html_instructions")) as String
@@ -741,8 +753,27 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                         Log.e("Step duration: ", start_location_lng)
 
                         Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()).toString())
-                        stepsList.add(DirectionsStepDbO(count++,"head",instructions9,attention,duration,distance, LatLng(start_location_lat.toDouble(),start_location_lng.toDouble())))
 
+                        travelmode = ((jSteps.get(k) as JSONObject).get("travel_mode")) as String
+                        if (travelmode == "TRANSIT"){
+                            departure_stop = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("departure_stop") as JSONObject).get("name") as String
+                            departure_time = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("departure_time") as JSONObject).get("text") as String
+                            arrival_stop = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("arrival_stop") as JSONObject).get("name") as String
+                            arrival_time = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("arrival_time") as JSONObject).get("text") as String
+
+                            line_busnumber = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("line") as JSONObject).get("name") as String
+                            num_stops = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject).get("num_stops") as Int).toString()
+
+                        } else if(travelmode == "WALKING"){
+
+                        }
+
+                        stepsList.add(DirectionsStepDbO(count++,maneuver,instructions9,attention,duration,distance, LatLng(start_location_lat.toDouble(),start_location_lng.toDouble())))
                         runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
 
                     }

@@ -45,32 +45,48 @@ class StepbyStepDirectionsAdapter (private var listDirectionsStep : List<Directi
             //Set cho imgView_transportation trên recycleviewer 1 lắng nghe (nhận id bất kỳ để nhận dạng loại ptien)
             itemView.tv_instructions.setOnClickListener { onItemClick(step.id.toString()) }
 
-            if(step.direction == "head"){
+            if(step.direction == "Head" || step.direction == "Straight"){
                 imgView_direction.setImageResource(R.drawable.ic24_head)
             } else if(step.direction == "turn-left"){
                 imgView_direction.setImageResource(R.drawable.ic24_turnleft)
             } else if(step.direction == "turn-right"){
                 imgView_direction.setImageResource(R.drawable.ic24_turnright)
-            } else if(step.direction == "turn-slight-right"){
+            } else if(step.direction == "turn-slight-right"){ //chếch sang phải
                 imgView_direction.setImageResource(R.drawable.ic24_turnslightright)
             } else if(step.direction == "turn-slight-left"){
                 imgView_direction.setImageResource(R.drawable.ic24_turnslightleft)
-            }else if(step.direction == "turn-sharp-right"){
+            }else if(step.direction == "turn-sharp-right"){ // ngoặc phải
                 imgView_direction.setImageResource(R.drawable.ic24_turnsharpright)
             } else if(step.direction == "turn-sharp-left"){
                 imgView_direction.setImageResource(R.drawable.ic24_turnsharpleft)
             } else if(step.direction == "ferry"){
                 imgView_direction.setImageResource(R.drawable.ic24_ferry)
-            } else if(step.direction == "ramp-right"){
-                imgView_direction.setImageResource(R.drawable.ic_turnleft24)
+            } else if(step.direction == "ferry-train"){
+                imgView_direction.setImageResource(R.drawable.ic24_ferry)
+            } else if(step.direction == "ramp-right"){ //tại nút giao thông
+                imgView_direction.setImageResource(R.drawable.ic24_rampleft)
             } else if(step.direction == "ramp-left"){
-                imgView_direction.setImageResource(R.drawable.ic_turnleft24)
+                imgView_direction.setImageResource(R.drawable.ic24_rampleft)
+            } else if(step.direction == "fork-right"){ //tại nút giao thông
+                imgView_direction.setImageResource(R.drawable.ic24_rampleft)
+            } else if(step.direction == "fork-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_rampleft)
+            } else if(step.direction == "uturn-right"){
+                imgView_direction.setImageResource(R.drawable.ic24_uturnright)
+            } else if(step.direction == "uturn-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_uturnleft)
+            } else if(step.direction == "merge"){
+                imgView_direction.setImageResource(R.drawable.ic24_merge)
             } else if(step.direction == "roundabout-right"){
-                imgView_direction.setImageResource(R.drawable.ic_turnleft24)
+                imgView_direction.setImageResource(R.drawable.ic24_roundabout)
             } else if(step.direction == "roundabout-left"){
-                imgView_direction.setImageResource(R.drawable.ic_turnleft24)
-            } else if(step.direction == "straight"){
-                imgView_direction.setImageResource(R.drawable.ic_turnleft24)
+                imgView_direction.setImageResource(R.drawable.ic24_roundabout)
+            } else if(step.direction == "keep-right"){
+                imgView_direction.setImageResource(R.drawable.ic24_keepright)
+            } else if(step.direction == "keep-left"){
+                imgView_direction.setImageResource(R.drawable.ic24_keepleft)
+            } else{
+                imgView_direction.setImageResource(R.drawable.ic24_head)
             }
 
             tv_instructions.text = step.instructions
