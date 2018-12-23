@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="10dp"
-    app:cardCornerRadius="5dp"
+    app:cardCornerRadius="8dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
@@ -30,14 +30,13 @@
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:scaleType="centerCrop"
-            android:background="@color/overlayBackground"/>
+            android:foreground="@drawable/bg_favourite_place"/>
 
         <TextView
             android:id="@+id/my_place_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/img_my_place"
-            android:background="@color/overlayBackground"
+            android:layout_alignBottom="@id/img_my_place"
             android:textColor="@android:color/white"
             android:textSize="20sp" />
     </RelativeLayout>

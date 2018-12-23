@@ -47,8 +47,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         database = FirebaseDatabase.getInstance()
         mAuth = FirebaseAuth.getInstance()
         place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
-        fab.setOnClickListener { view ->
-        }
+
         //add ActionBarDrawerToggle
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)

@@ -47,6 +47,7 @@ import io.reactivex.internal.operators.single.SingleInternalHelper.toObservable
 class WeatherDetailFragment : Fragment() {
 
     private val TAG = WeatherDetailFragment::class.java.simpleName
+    @SuppressLint("CheckResult")
     private fun requestWeatherDetails(lat: Double, long: Double) {
         Repository.createService(ApiService::class.java).getWeatherDetailsCoordinates(lat, long, TWConstant.ACCESS_API_KEY)
                 .observeOn(AndroidSchedulers.mainThread()) // Chi dinh du lieu chinh tren mainthread
@@ -120,6 +121,7 @@ class WeatherDetailFragment : Fragment() {
     }
 
     //Now Location
+    @SuppressLint("CheckResult")
     private fun requestLocation() {
         val rxLocationManager = context?.let { RxLocationManager(it) };
         if(arguments!!.getInt("position")==0) {

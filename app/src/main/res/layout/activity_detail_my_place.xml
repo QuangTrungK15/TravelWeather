@@ -43,7 +43,7 @@
                     app:piv_animationType="scale"
                     app:piv_dynamicCount="true"
                     app:piv_interactiveAnimation="true"
-                    app:piv_selectedColor="@color/colorAccent"
+                    app:piv_selectedColor="@color/colorCyan"
                     app:piv_unselectedColor="@color/colorPrimary" />
             </RelativeLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
@@ -55,6 +55,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:background="@drawable/bg_combine_color"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -70,42 +71,37 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:text="Tra Sua Ahihi"
-                android:textColor="@color/colorBlack"
+                android:textColor="@color/white"
                 android:textSize="24dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:text="Rating: " />
+                <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="left"-->
+                <!--android:text="Rating: " />-->
 
                 <RatingBar
                     android:id="@+id/rating_bar"
                     style="?android:attr/ratingBarStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:progressTint="@color/colorGold"
+                    android:progressTint="@color/colorCyan"
                     android:rating="4" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="(" />
+
 
                 <TextView
                     android:id="@+id/rating_number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/white"
                     android:text="7" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=")" />
+
             </LinearLayout>
 
             <RelativeLayout
@@ -119,14 +115,14 @@
                     android:id="@+id/card1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="@color/transparent"
                     android:elevation="5dp">
 
                     <ImageView
                         android:id="@+id/imgView_address"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="#fff"
-                        android:src="@drawable/icon48address" />
+                        android:src="@drawable/ic_address" />
 
                     <TextView
                         android:id="@+id/txt_address"
@@ -134,11 +130,10 @@
                         android:layout_height="match_parent"
                         android:layout_marginLeft="32dp"
                         android:layout_marginStart="32dp"
-                        android:background="#fff"
                         android:clickable="true"
                         android:padding="16dp"
                         android:text="1 Võ Văn Ngân, Linh Chiểu, Thủ Đức, Hồ Chí Minh, Việt Nam"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@color/white"
                         android:textSize="16dp" />
 
                 </android.support.v7.widget.CardView>
@@ -150,14 +145,14 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/card1"
                     android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/transparent"
                     android:elevation="5dp">
 
                     <ImageView
                         android:id="@+id/imgView_phone"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="#fff"
-                        android:src="@drawable/icon48phone" />
+                        android:src="@drawable/ic_local_phone" />
 
                     <TextView
                         android:id="@+id/txt_phonenumber"
@@ -165,11 +160,10 @@
                         android:layout_height="match_parent"
                         android:layout_marginLeft="32dp"
                         android:layout_marginStart="32dp"
-                        android:background="#fff"
                         android:clickable="true"
                         android:padding="16dp"
                         android:text="0971792492"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@color/white"
                         android:textSize="16dp" />
 
                 </android.support.v7.widget.CardView>
@@ -179,14 +173,14 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/card2"
                     android:layout_marginTop="10dp"
+                    android:backgroundTint="@color/transparent"
                     android:elevation="5dp">
 
                     <ImageView
                         android:id="@+id/imgView_weburi"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="#fff"
-                        android:src="@drawable/icon48weburi" />
+                        android:src="@drawable/ic_browser_chorme" />
 
                     <TextView
                         android:id="@+id/txt_weburi"
@@ -194,11 +188,10 @@
                         android:layout_height="match_parent"
                         android:layout_marginLeft="32dp"
                         android:layout_marginStart="32dp"
-                        android:background="#fff"
                         android:clickable="true"
                         android:padding="16dp"
                         android:text="hcmute.edu.vn"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@color/white"
                         android:textSize="16dp" />
 
                 </android.support.v7.widget.CardView>
@@ -218,7 +211,8 @@
         android:layout_height="454dp"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-        android:backgroundTint="#fff"
-        android:src="@drawable/directionsicon"
+        android:background="@color/colorCyan"
+        android:backgroundTint="@color/colorCyan"
+        android:src="@drawable/ic_direction"
         app:fabSize="normal" />
 </android.support.design.widget.CoordinatorLayout>

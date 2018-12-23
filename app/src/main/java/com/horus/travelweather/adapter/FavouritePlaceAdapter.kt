@@ -14,6 +14,9 @@ import com.horus.travelweather.model.PlaceDbO
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.locaiton_item.view.*
 import kotlinx.android.synthetic.main.my_places_layout.view.*
+import com.horus.travelweather.utils.CircleTransform
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
+
 
 class FavouritePlaceAdapter( options: FirebaseRecyclerOptions<PlaceDbO>,private val onItemPopupClick : (Context,TextView,Int)-> Unit,private val onItemClick : (PlaceDbO)-> Unit)
     : FirebaseRecyclerAdapter<PlaceDbO, FavouritePlaceAdapter.PlaceViewHolder>(options) {
@@ -28,7 +31,8 @@ class FavouritePlaceAdapter( options: FirebaseRecyclerOptions<PlaceDbO>,private 
 
     inner class PlaceViewHolder(view: View) : RecyclerView.ViewHolder(view){
         fun bind(place : PlaceDbO) {
-            Picasso.with(itemView.context).load(place.uri).into(itemView.img_my_place)
+
+            Picasso.with(itemView.context).load(place.uri).transform(CircleTransform(10,0)).fit().into(itemView.img_my_place)
             itemView.my_place_name.text = place.name
             itemView.txt_option_menu.setOnClickListener {
                 onItemPopupClick(itemView.context,itemView.txt_option_menu,adapterPosition)
