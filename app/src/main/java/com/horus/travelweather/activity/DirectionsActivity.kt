@@ -45,6 +45,7 @@ import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
 import com.horus.travelweather.adapter.TransportationAdapter
 import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.model.DirectionsStepDbO
+import com.horus.travelweather.model.TransitDbO
 import com.horus.travelweather.model.TransportationDbO
 import kotlinx.android.synthetic.main.activity_directions.*
 import org.json.JSONArray
@@ -76,7 +77,6 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
     var transList = ArrayList<TransportationDbO>()
     var stepsList = ArrayList<DirectionsStepDbO>()
-    var stepsList_temp = ArrayList<DirectionsStepDbO>()
 
     private var count: Int = 1
 
@@ -118,7 +118,8 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         transList.add(TransportationDbO("transit",""))
         implementLoad(transList)
 
-        stepsList.add(DirectionsStepDbO(0,"head","s","s","3243","432", currentlocation))
+        stepsList.add(DirectionsStepDbO(0,"head","s","s","3243","432",
+                currentlocation, TransitDbO("","","","","","","")))
         loadingStepbyStep(stepsList)
 
         clicksteps.setOnClickListener{
@@ -508,13 +509,21 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             id ->
 
             mMap.moveCamera(CameraUpdateFactory.newLatLng(stepsList[id.toInt()].latLng))
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(14F))
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(18F))
+            val options = MarkerOptions()
+            // Setting the position of the marker
+            options.position(stepsList[id.toInt()].latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+            options.flat(true)
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options)
 
             adapterStepbyStepDirections.notifyDataSetChanged()
         })
         val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         rv_directionsSteps.adapter = adapterStepbyStepDirections
         rv_directionsSteps.layoutManager = layoutManager2
+        //val showtransit = this.findViewById<View>(R.id.showtransit) as RelativeLayout
+
     }
 
     private fun AddMarker(currentlocation: LatLng, destlocation: LatLng){
@@ -610,15 +619,6 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         var instructions = ""
         var distance = ""
         var duration = ""
-
-        //Transit mdoe
-        var travelmode = ""
-        var arrival_stop = "" //get name & location
-        var arrival_time = "" //get text (text is time)
-        var departure_stop = "" //get name & location
-        var departure_time = "" //get text (text is time)
-        var line_busnumber = "" //get line->name (example "name": 19 - Bến Thành - KCX Linh Trung - ĐH Quốc Gia)
-        var num_stops = "" //get num_stops (number of stops)
 
         //Coordinator of each step
         var start_location_lat = ""
@@ -754,7 +754,122 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
                         Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()).toString())
 
+                        stepsList.add(DirectionsStepDbO(count++,maneuver,instructions9,attention,duration,distance,
+                                LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()),
+                                TransitDbO("","","","","","","")))
+                        runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
+
+                    }
+                }
+            }
+
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+//Step by step
+    fun StepByStep_Transit(jObject: JSONObject) {
+
+        //val routes = ArrayList<List<HashMap<String, String>>>()
+        val jRoutes: JSONArray
+        var jLegs: JSONArray
+        var jSteps: JSONArray
+        var jDuration: JSONObject
+        var jDistance: JSONObject
+        var maneuver = ""
+        var instructions = ""
+        var distance = ""
+        var duration = ""
+
+        //Coordinator of each step
+        var start_location_lat = ""
+        var start_location_lng = ""
+        var count = 0
+
+        //Transit mode
+        //Bus/...
+        var travelmode = ""
+        var arrival_stop = "" //get name & location
+        var arrival_time = "" //get text (text is time)
+        var departure_stop = "" //get name & location
+        var departure_time = "" //get text (text is time)
+        var line_busname = "" //get line->name (example "name": 19 - Bến Thành - KCX Linh Trung - ĐH Quốc Gia)
+        var headsign = "" //get headsign (name of arrival city)
+        var num_stops = "" //get num_stops (number of stops)
+
+        //walking in transit
+        var jSteps_child: JSONArray
+        var jDuration_child: JSONObject
+        var jDistance_child: JSONObject
+        var maneuver_child = ""
+        var instructions_child = ""
+        var distance_child = ""
+        var duration_child = ""
+
+
+        try {
+
+            jRoutes = jObject.getJSONArray("routes")
+
+            /** Traversing all routes  */
+            for (i in 0 until jRoutes.length()) {
+                jLegs = (jRoutes.get(i) as JSONObject).getJSONArray("legs")
+
+                //val path = ArrayList<HashMap<String, String>>()
+
+                jDuration = (jLegs.get(i) as JSONObject).getJSONObject("duration")
+                Log.e("Step duration: ",jDuration.toString())
+
+                jDistance = (jLegs.get(i) as JSONObject).getJSONObject("distance")
+                Log.e("Step duration: ",jDistance.toString())
+
+                /** Traversing all legs  */
+                for (j in 0 until jLegs.length()) {
+                    jSteps = (jLegs.get(j) as JSONObject).getJSONArray("steps")
+
+                    /** Traversing all steps  */
+
+                    stepsList.clear()
+                    count = 0
+                    for (k in 0 until jSteps.length()) {
+
+                        instructions = ((jSteps.get(k) as JSONObject).get("html_instructions")) as String
+
+                        Log.e("Step-0 instructions: ",  instructions)
+
+                        distance = ((jSteps.get(k) as JSONObject).get("distance") as JSONObject).get("text") as String
+                        Log.e("Step distance: ", distance)
+
+                        duration = ((jSteps.get(k) as JSONObject).get("duration") as JSONObject).get("text") as String
+                        Log.e("Step duration: ", duration)
+
+                        start_location_lat = (((jSteps.get(k) as JSONObject).get("start_location") as JSONObject).get("lat") as Double).toString()
+                        Log.e("Step duration: ", start_location_lat)
+
+                        start_location_lng = (((jSteps.get(k) as JSONObject).get("start_location") as JSONObject).get("lng") as Double).toString()
+                        Log.e("Step duration: ", start_location_lng)
+
+                        Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()).toString())
+
                         travelmode = ((jSteps.get(k) as JSONObject).get("travel_mode")) as String
+
+                        if (travelmode.toUpperCase() == "TRANSIT"){
+                            maneuver = "transit"
+
+                        } else if(travelmode.toUpperCase() == "WALKING"){
+                            maneuver = "walking"
+
+                            stepsList.add(DirectionsStepDbO(count++,maneuver,instructions,"",duration,distance,
+                                    LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()),
+                                    TransitDbO("","","","","","","")))
+                            runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
+                        }
+
+
+
                         if (travelmode == "TRANSIT"){
                             departure_stop = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
                                     .get("departure_stop") as JSONObject).get("name") as String
@@ -765,16 +880,133 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                             arrival_time = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
                                     .get("arrival_time") as JSONObject).get("text") as String
 
-                            line_busnumber = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                            line_busname = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
                                     .get("line") as JSONObject).get("name") as String
+                            headsign = ((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                                    .get("headsign") as String
                             num_stops = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject).get("num_stops") as Int).toString()
 
+                            stepsList.add(DirectionsStepDbO(count++,maneuver,instructions,"",duration,distance,
+                                    LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()),
+                                    TransitDbO(departure_stop,departure_time,arrival_stop,arrival_time,line_busname,headsign,num_stops)))
+                            runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
+
                         } else if(travelmode == "WALKING"){
+                            //jSteps_child = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
+                            //        .get("departure_stop") as JSONObject).get("name") as String
+                            jSteps_child = (jSteps.get(k) as JSONObject).getJSONArray("steps")
 
+                            for (m in 0 until jSteps_child.length()) {
+
+                                maneuver_child = if(((jSteps_child.get(m) as JSONObject).has("maneuver")) ){
+                                    ((jSteps_child.get(m) as JSONObject).get("maneuver")) as String
+                                } else "Head"
+                                Log.e("Step maneuver: ", maneuver_child)
+
+                                instructions_child = ((jSteps_child.get(m) as JSONObject).get("html_instructions")) as String
+
+                                Log.e("Step-0 instructions: ",  instructions_child)
+
+                                //Divide instructions string to instruction9 & attention
+                                var instructions9 = instructions_child
+                                var attention = ""           // just additional info about that step
+                                var flag = false
+                                var j = 0
+                                var end = instructions_child.length - 1
+
+                                while (j <= end){
+                                    //
+                                    if(instructions_child[j] == '<' && instructions_child[j+1] == 'd'){
+                                        attention = instructions_child.substring(j,end+1)
+                                        instructions9 = instructions_child.substring(0,j)
+                                        Log.e("Step1 instructions9: ",  instructions9)
+                                        Log.e("Step1 attention: ",  attention)
+                                        break
+                                    }
+                                    j++
+                                }
+
+                                Log.e("Step1 instructions9: ",  instructions9)
+                                Log.e("Step1 attention: ",  attention)
+
+
+                                var start = 0
+                                var i = 0
+                                while(i < instructions9.length){
+
+                                    if (instructions9[i] == '<') { start = i }
+
+                                    if(instructions9[i] == '&' && instructions9[i+1] == 'a' && instructions9[i+2] == 'm'
+                                            && instructions9[i+3] == 'p' && instructions9[i+4] == ';')
+                                    {
+                                        val first = instructions9.substring(0,i+1)
+                                        val last = instructions9.substring(i+5,instructions9.length)
+                                        instructions9 = first + last
+                                    }
+
+                                    if (instructions9[i] == '>')
+                                    {
+                                        val first = instructions9.substring(0,start)
+                                        val last = instructions9.substring(i+1)
+                                        val newins = first + last
+
+                                        instructions9 = newins
+
+                                        i=0
+                                        start = 0
+                                    }
+                                    i++
+                                }
+
+
+                                var start2 = 0
+                                var i2 = 0
+                                while(i2 < attention.length){
+                                    if (attention[i2] == '&' || attention[i2] == '<') { start2 = i2 }
+                                    if (attention[i2] == ';' || attention[i2] == '>')
+                                    {
+                                        var spot = ""
+
+                                        if(attention[i2 - 1] == 'v') spot = ". "
+
+                                        val first = attention.substring(0,start2)
+                                        val last = attention.substring(i2+1)
+                                        val newins = first + spot + last
+
+                                        Log.e("Step last: ",  last.toString())
+
+                                        attention = newins
+
+                                        i2=0
+                                        Log.e("Step ins: ",  i2.toString())
+
+                                        start2 = 0
+                                    }
+                                    i2++
+                                }
+
+                                Log.e("Step instructions: ",  instructions9)
+
+                                distance_child = ((jSteps_child.get(m) as JSONObject).get("distance") as JSONObject).get("text") as String
+                                Log.e("Step distance: ", distance)
+
+                                duration_child = ((jSteps_child.get(m) as JSONObject).get("duration") as JSONObject).get("text") as String
+                                Log.e("Step duration: ", duration)
+
+                                start_location_lat = (((jSteps_child.get(m) as JSONObject).get("start_location") as JSONObject).get("lat") as Double).toString()
+                                Log.e("Step duration: ", start_location_lat)
+
+                                start_location_lng = (((jSteps_child.get(m) as JSONObject).get("start_location") as JSONObject).get("lng") as Double).toString()
+                                Log.e("Step duration: ", start_location_lng)
+
+                                Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()).toString())
+
+                                stepsList.add(DirectionsStepDbO(count++,maneuver_child,instructions9,attention,duration_child,distance_child,
+                                        LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()),
+                                        TransitDbO("","","","","","","")))
+                                runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
+                            }
                         }
-
-                        stepsList.add(DirectionsStepDbO(count++,maneuver,instructions9,attention,duration,distance, LatLng(start_location_lat.toDouble(),start_location_lng.toDouble())))
-                        runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
 
                     }
                 }
@@ -992,7 +1224,10 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
                 Log.d("ParserTask", jsonData[0])
                 val parser = DataParser()
-                StepByStep(jObject)
+                if(transKind == "transit")
+                {
+                    StepByStep_Transit(jObject)
+                } else  StepByStep(jObject)
                 Log.d("ParserTask", parser.toString())
 
                 // Starts parsing data

@@ -16,7 +16,9 @@
 
     <color name="colorWhite">#fff</color>
     <color name="colorSliver">#ededed</color>
-    <color name="colorLightBack">#afafaf</color>
+    <color name="colorLightSliver">#a7a7a7</color>
+    <color name="colorLightSliver2">#c7c7c7</color>
+    <color name="colorLightSliver3">#dadada</color>
     <color name="colorLightBlack">#545454</color>
 
 
