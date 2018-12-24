@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.horus.travelweather.R
-import com.horus.travelweather.activity.DirectionsActivity
+import com.horus.travelweather.activity.DirectionsFragment
 import com.horus.travelweather.model.DirectionsStepDbO
 import kotlinx.android.synthetic.main.stepbystep_directions.view.*
 
@@ -16,7 +16,7 @@ class StepbyStepDirectionsAdapter (private var listDirectionsStep : List<Directi
 
     //Đầu vào là 1 danh sách và 1 cái click (nếu có, click vào nút btn_delete để xóa địa điểm của mình đã thêm)
 
-    private val TAG = DirectionsActivity::class.java.simpleName
+    private val TAG = DirectionsFragment::class.java.simpleName
 
     //assigning layout for a recyclerview element.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

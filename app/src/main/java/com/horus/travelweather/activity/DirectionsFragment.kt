@@ -13,20 +13,19 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.support.annotation.RequiresApi
-import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
-import android.support.v4.app.FragmentActivity
+import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.LinearSmoothScroller
 import android.support.v7.widget.RecyclerView
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
+import android.view.ViewGroup
 import android.widget.RelativeLayout
-import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
@@ -47,6 +46,7 @@ import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.model.DirectionsStepDbO
 import com.horus.travelweather.model.TransportationDbO
 import kotlinx.android.synthetic.main.activity_directions.*
+import kotlinx.android.synthetic.main.activity_directions.view.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -59,9 +59,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private val TAG = DirectionsActivity::class.java.simpleName
+    private val TAG = DirectionsFragment::class.java.simpleName
     private lateinit var adapterTransportation : TransportationAdapter
     private lateinit var adapterStepbyStepDirections : StepbyStepDirectionsAdapter
     var PLACE_AUTOCOMPLETE_REQUEST_CODE = 1
@@ -84,14 +84,11 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     var currentlocation = LatLng(10.762622, 106.660172)
     var destlocation = LatLng(10.762622, 106.660172)
 
-    @SuppressLint("ClickableViewAccessibility")
-    @RequiresApi(Build.VERSION_CODES.M)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_directions)
-        //val actionBar = actionBar
-        //actionBar.hide()
 
+
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.activity_directions, container, false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
             checkLocationPermission()
@@ -99,14 +96,18 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         // Initializing
         markerPoints = ArrayList<LatLng>()
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        if(getFragmentManager() != null)
+        {
+            val mMapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+//            val mapFragment = getFragmentManager()!!
+//                    .findFragmentById(R.id.map) as SupportMapFragment
+            mMapFragment.getMapAsync(this)
+        }
 
-        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
-        val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
-        //This btn shows direction (org -> dest) steps
-        val btn_steps = this.findViewById<View>(R.id.btn_steps) as Button
+//        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
+//        val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
+//        //This btn shows direction (org -> dest) steps
+//        val btn_steps = this.findViewById<View>(R.id.btn_steps) as Button
 
         //val recyclerView = this.findViewById<View>(R.id.rv_directionsSteps) as RecyclerView
 
@@ -116,12 +117,12 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         transList.add(TransportationDbO("driving",""))
         transList.add(TransportationDbO("walking",""))
         transList.add(TransportationDbO("transit",""))
-        implementLoad(transList)
+        implementLoad(transList,view.rv_transportations)
 
         stepsList.add(DirectionsStepDbO(0,"head","s","s","3243","432", currentlocation))
-        loadingStepbyStep(stepsList)
+        loadingStepbyStep(stepsList,view.rv_directionsSteps)
 
-        clicksteps.setOnClickListener{
+        view.clicksteps.setOnClickListener{
             numberofclick++
 
             /*if(numberofclick == 1){
@@ -133,36 +134,36 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
             if(count%2 != 0)
             {
-                rv_directionsSteps.visibility = View.VISIBLE
+                view.rv_directionsSteps.visibility = View.VISIBLE
 
-                linear_orgindest.animate()
+                view.linear_orgindest.animate()
                         .translationY(linear_orgindest.height.toFloat())
                         .alpha(0.0f)
                         .duration = 800
-                rv_transportations.animate()
+                view.rv_transportations.animate()
                         .translationY(rv_transportations.height.toFloat())
                         .alpha(0.0f)
                         .duration = 800
 
-                clicksteps.setOnTouchListener(onTouchListener())
+                view.clicksteps.setOnTouchListener(onTouchListener())
 
-                linear_orgindest.visibility = View.GONE
-                rv_transportations.visibility = View.GONE
+                view.linear_orgindest.visibility = View.GONE
+                view.rv_transportations.visibility = View.GONE
             }
             else{
-                rv_directionsSteps.visibility = View.GONE
+                view.rv_directionsSteps.visibility = View.GONE
 
-                linear_orgindest.animate()
+                view.linear_orgindest.animate()
                         .translationY(0F)
                         .alpha(1.0f)
                         .duration = 200
-                rv_transportations.animate()
+                view.rv_transportations.animate()
                         .translationY(0F)
                         .alpha(1.0f)
                         .duration = 200
 
-                linear_orgindest.visibility = View.VISIBLE
-                rv_transportations.visibility = View.VISIBLE
+                view.linear_orgindest.visibility = View.VISIBLE
+                view.rv_transportations.visibility = View.VISIBLE
             }
             count++
         }
@@ -183,7 +184,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
 
 
-        edt_orgin.setOnClickListener {
+        view.edt_orgin.setOnClickListener {
             //Filter results by place type (by address: get full address, by establisment: get business address)
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
@@ -193,10 +194,10 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             //https://developers.google.com/places/android-sdk/autocomplete
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                     .setFilter(typeFilter)
-                    .build(this)
+                    .build(activity)
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
         }
-        edt_destination.setOnClickListener {
+        view.edt_destination.setOnClickListener {
             //Filter results by place type (by address: get full address, by establisment: get business address)
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
@@ -206,10 +207,140 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             //https://developers.google.com/places/android-sdk/autocomplete
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                     .setFilter(typeFilter)
-                    .build(this)
+                    .build(activity)
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE2)
         }
+        return view
     }
+
+
+
+//    @SuppressLint("ClickableViewAccessibility")
+//    @RequiresApi(Build.VERSION_CODES.M)
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_directions)
+        //val actionBar = actionBar
+        //actionBar.hide()
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//        {
+//            checkLocationPermission()
+//        }
+//        // Initializing
+//        markerPoints = ArrayList<LatLng>()
+//        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+//        val mapFragment = getFragmentManager()!!
+//                .findFragmentById(R.id.map) as SupportMapFragment
+//        mapFragment.getMapAsync(this)
+//
+//        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
+//        val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
+//        //This btn shows direction (org -> dest) steps
+//        val btn_steps = this.findViewById<View>(R.id.btn_steps) as Button
+//
+//        //val recyclerView = this.findViewById<View>(R.id.rv_directionsSteps) as RecyclerView
+//
+////        val behavior = BottomSheetBehavior.from(recyclerView)
+//
+//        //val transList = ArrayList<TransportationDbO>()
+//        transList.add(TransportationDbO("driving",""))
+//        transList.add(TransportationDbO("walking",""))
+//        transList.add(TransportationDbO("transit",""))
+//        implementLoad(transList)
+//
+//        stepsList.add(DirectionsStepDbO(0,"head","s","s","3243","432", currentlocation))
+//        loadingStepbyStep(stepsList)
+//
+//        clicksteps.setOnClickListener{
+//            numberofclick++
+//
+//            /*if(numberofclick == 1){
+//                layoutParams_temp = scroll_directionsdetail.layoutParams as RelativeLayout.LayoutParams
+//
+//                Log.e("ACTION stop=: ",layoutParams_temp!!.topMargin.toString())
+//                numberofclick++
+//            }*/
+//
+//            if(count%2 != 0)
+//            {
+//                rv_directionsSteps.visibility = View.VISIBLE
+//
+//                linear_orgindest.animate()
+//                        .translationY(linear_orgindest.height.toFloat())
+//                        .alpha(0.0f)
+//                        .duration = 800
+//                rv_transportations.animate()
+//                        .translationY(rv_transportations.height.toFloat())
+//                        .alpha(0.0f)
+//                        .duration = 800
+//
+//                clicksteps.setOnTouchListener(onTouchListener())
+//
+//                linear_orgindest.visibility = View.GONE
+//                rv_transportations.visibility = View.GONE
+//            }
+//            else{
+//                rv_directionsSteps.visibility = View.GONE
+//
+//                linear_orgindest.animate()
+//                        .translationY(0F)
+//                        .alpha(1.0f)
+//                        .duration = 200
+//                rv_transportations.animate()
+//                        .translationY(0F)
+//                        .alpha(1.0f)
+//                        .duration = 200
+//
+//                linear_orgindest.visibility = View.VISIBLE
+//                rv_transportations.visibility = View.VISIBLE
+//            }
+//            count++
+//        }
+//        /*stepsicon.setOnClickListener{
+//            if(count%2 != 0)
+//            {
+//                rv_directionsSteps.visibility = View.VISIBLE
+//                linear_orgindest.visibility = View.GONE
+//                rv_transportations.visibility = View.GONE
+//            }
+//            else{
+//                rv_directionsSteps.visibility = View.GONE
+//                linear_orgindest.visibility = View.VISIBLE
+//                rv_transportations.visibility = View.VISIBLE
+//            }
+//            count++
+//        }*/
+//
+//
+//
+//        edt_orgin.setOnClickListener {
+//            //Filter results by place type (by address: get full address, by establisment: get business address)
+//            val typeFilter = AutocompleteFilter.Builder()
+//                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+//                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
+//                    .build()
+//            //Use an intent to launch the autocomplete activity (fullscreen mode)
+//            //https://developers.google.com/places/android-sdk/autocomplete
+//            val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+//                    .setFilter(typeFilter)
+//                    .build(this)
+//            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
+//        }
+//        edt_destination.setOnClickListener {
+//            //Filter results by place type (by address: get full address, by establisment: get business address)
+//            val typeFilter = AutocompleteFilter.Builder()
+//                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+//                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
+//                    .build()
+//            //Use an intent to launch the autocomplete activity (fullscreen mode)
+//            //https://developers.google.com/places/android-sdk/autocomplete
+//            val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+//                    .setFilter(typeFilter)
+//                    .build(this)
+//            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE2)
+//        }
+//    }
 
     private fun distance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
         val dx = x1 - x2
@@ -244,7 +375,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
     private fun onTouchListener(): View.OnTouchListener {
         return View.OnTouchListener { view, event ->
-            val mainLayout = findViewById<View>(R.id.clicksteps) as RelativeLayout
+//            val mainLayout = findViewById<View>(R.id.clicksteps) as RelativeLayout
             val x = event.rawX.toInt()
             val y = event.rawY.toInt()
             val lParams = view.layoutParams as RelativeLayout.LayoutParams
@@ -345,7 +476,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             }
             // Because we call this from onTouchEvent, this code will be executed for both
             // normal touch events and for when the system calls this using Accessibility
-            mainLayout.invalidate()
+            clicksteps.invalidate()
             true
         }
     }
@@ -358,7 +489,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
-            if ((ContextCompat.checkSelfPermission(this,
+            if ((ContextCompat.checkSelfPermission(context!!,
                     Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
             {
                 buildGoogleApiClient()
@@ -371,7 +502,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             mMap.isMyLocationEnabled = true
         }
         // Setting onclick event listener for the map
-        val fab_directions = this.findViewById<View>(R.id.fab_directions) as FloatingActionButton
+//        val fab_directions = this.findViewById<View>(R.id.fab_directions) as FloatingActionButton
         fab_directions.setOnClickListener {
 
             AddMarker(currentlocation,destlocation)
@@ -468,7 +599,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     }
 
     // As TransportationAdapter, input: list & id (by one click), if we click any element on rv_transportation
-    private fun implementLoad(list : List<TransportationDbO>) {
+    private fun implementLoad(list : List<TransportationDbO>,rv_transportations : RecyclerView) {
         adapterTransportation = TransportationAdapter(list,{
             id ->
             var url = getUrl(currentlocation, destlocation)
@@ -496,14 +627,14 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
             //adapterTransportation.notifyDataSetChanged()
         })
-        val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(context!!, LinearLayoutManager.HORIZONTAL, false)
         rv_transportations.adapter = adapterTransportation
         rv_transportations.layoutManager = layoutManager
         //rv_directionsSteps.setHasFixedSize(true)
     }
 
 
-    private fun loadingStepbyStep(list : List<DirectionsStepDbO>) {
+    private fun loadingStepbyStep(list : List<DirectionsStepDbO>,rv_directionsSteps : RecyclerView) {
         adapterStepbyStepDirections = StepbyStepDirectionsAdapter(list,{
             id ->
 
@@ -512,14 +643,14 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
             adapterStepbyStepDirections.notifyDataSetChanged()
         })
-        val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(context!!, LinearLayoutManager.VERTICAL, false)
         rv_directionsSteps.adapter = adapterStepbyStepDirections
         rv_directionsSteps.layoutManager = layoutManager2
     }
 
     private fun AddMarker(currentlocation: LatLng, destlocation: LatLng){
-        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
-        val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
+//        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
+//        val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
 
         if (markerPoints.size > 1) {
             markerPoints.clear()
@@ -774,7 +905,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                         }
 
                         stepsList.add(DirectionsStepDbO(count++,maneuver,instructions9,attention,duration,distance, LatLng(start_location_lat.toDouble(),start_location_lng.toDouble())))
-                        runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
+                        getActivity()!!.runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
 
                     }
                 }
@@ -792,7 +923,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         //autocompleteFragment.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                val place = PlaceAutocomplete.getPlace(this, data)
+                val place = PlaceAutocomplete.getPlace(context, data)
                 Log.e(TAG, "Place ID:" + place.id)
                 val placeDB = PlaceEntity()
                 placeDB.name = place.address.toString()
@@ -804,14 +935,14 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                 currentlocation = place.latLng
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                val status = PlaceAutocomplete.getStatus(this, data)
+                val status = PlaceAutocomplete.getStatus(context, data)
                 Log.e(TAG, ""+status)
             } else if (resultCode == Activity.RESULT_CANCELED) {
 
             }
         } else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE2) {
             if (resultCode == Activity.RESULT_OK) {
-                val place = PlaceAutocomplete.getPlace(this, data)
+                val place = PlaceAutocomplete.getPlace(context, data)
                 Log.e(TAG, "Place ID:" + place.id)
                 val placeDB = PlaceEntity()
                 placeDB.name = place.address.toString()
@@ -823,7 +954,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                 destlocation = place.latLng
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                val status = PlaceAutocomplete.getStatus(this, data)
+                val status = PlaceAutocomplete.getStatus(context, data)
                 Log.e(TAG, ""+status)
             } else if (resultCode == Activity.RESULT_CANCELED) {
 
@@ -1020,8 +1151,8 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                     }
                     //Error: Only the original thread that created a view hierarchy can touch its views.
                     //If it ain't runOnUiThread, this command know it's running on ParserTask(), not DirectionsActiivty
-                    //But, adapterTransportation setted on DirectionsActivity, So this is solution
-                    runOnUiThread { adapterTransportation.notifyDataSetChanged() }
+                    //But, adapterTransportation setted on DirectionsFragment, So this is solution
+                    getActivity()!!.runOnUiThread { adapterTransportation.notifyDataSetChanged() }
 
                 } else if(draw_Polyline == false){
                     when (transKind) {
@@ -1038,8 +1169,8 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
 
                     //Error: Only the original thread that created a view hierarchy can touch its views.
                     //If it ain't runOnUiThread, this command know it's running on ParserTask(), not DirectionsActiivty
-                    //But, adapterTransportation setted on DirectionsActivity, So this is solution
-                    runOnUiThread { adapterTransportation.notifyDataSetChanged() }
+                    //But, adapterTransportation setted on DirectionsFragment, So this is solution
+                    getActivity()!!.runOnUiThread { adapterTransportation.notifyDataSetChanged() }
                 }
 
                 return routes
@@ -1116,7 +1247,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     }
 
     @Synchronized private fun buildGoogleApiClient() {
-        mGoogleApiClient = GoogleApiClient.Builder(this)
+        mGoogleApiClient = GoogleApiClient.Builder(context!!)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
@@ -1128,7 +1259,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         mLocationRequest.interval = 1000
         mLocationRequest.fastestInterval = 1000
         mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        if ((ContextCompat.checkSelfPermission(this,
+        if ((ContextCompat.checkSelfPermission(context!!,
                 Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
         {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
@@ -1161,25 +1292,25 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     override fun onConnectionFailed(connectionResult:ConnectionResult) {
     }
     private fun checkLocationPermission():Boolean {
-        if ((ContextCompat.checkSelfPermission(this,
+        if ((ContextCompat.checkSelfPermission(context!!,
                 Manifest.permission.ACCESS_FINE_LOCATION) !== PackageManager.PERMISSION_GRANTED))
         {
             // Asking user if explanation is needed
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this.activity!!,
                     Manifest.permission.ACCESS_FINE_LOCATION))
             {
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
                 //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(this,
+                ActivityCompat.requestPermissions(this.activity!!,
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                         MY_PERMISSIONS_REQUEST_LOCATION)
             }
             else
             {
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
+                ActivityCompat.requestPermissions(this.activity!!,
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                         MY_PERMISSIONS_REQUEST_LOCATION)
             }
@@ -1199,7 +1330,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                 {
                     // permission was granted. Do the
                     // contacts-related task you need to do.
-                    if ((ContextCompat.checkSelfPermission(this,
+                    if ((ContextCompat.checkSelfPermission(context!!,
                             Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
                     {
                         if (mGoogleApiClient == null)
@@ -1212,7 +1343,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                 else
                 {
                     // Permission denied, Disable the functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this.context, "permission denied", Toast.LENGTH_LONG).show()
                 }
                 return
             }
@@ -1221,6 +1352,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     }
     companion object {
         val MY_PERMISSIONS_REQUEST_LOCATION = 99
+        fun newInstance(): DirectionsFragment = DirectionsFragment()
     }
 }
 

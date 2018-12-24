@@ -489,14 +489,14 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
                 //Prompt the user once explanation has been shown
                 ActivityCompat.requestPermissions(this,
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        DirectionsActivity.MY_PERMISSIONS_REQUEST_LOCATION)
+                        DirectionsFragment.MY_PERMISSIONS_REQUEST_LOCATION)
             }
             else
             {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        DirectionsActivity.MY_PERMISSIONS_REQUEST_LOCATION)
+                        DirectionsFragment.MY_PERMISSIONS_REQUEST_LOCATION)
             }
             return false
         }
@@ -508,7 +508,7 @@ class MapsActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onRequestPermissionsResult(requestCode:Int,
                                             permissions:Array<String>, grantResults:IntArray) {
         when (requestCode) {
-            DirectionsActivity.MY_PERMISSIONS_REQUEST_LOCATION -> {
+            DirectionsFragment.MY_PERMISSIONS_REQUEST_LOCATION -> {
                 // If request is cancelled, the result arrays are empty.
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED))
                 {

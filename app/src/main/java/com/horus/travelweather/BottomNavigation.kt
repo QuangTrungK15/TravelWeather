@@ -1,30 +1,17 @@
 package com.horus.travelweather
 
-import android.Manifest
-import android.os.AsyncTask
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.NavigationView
 import android.support.v4.app.Fragment
-import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import android.view.View
-import android.widget.TextView
-import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.horus.travelweather.activity.DirectionsFragment
 import com.horus.travelweather.activity.FavouritePlaceFragment
 import com.horus.travelweather.activity.HomeFragment
 import com.horus.travelweather.activity.ProfileFragment
-import com.horus.travelweather.adapter.ViewPagerAdapter
-import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.database.PlaceEntity
-import com.horus.travelweather.database.TravelWeatherDB
-import com.tbruyelle.rxpermissions2.RxPermissions
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_bottom_navigation.*
 
 class BottomNavigation : AppCompatActivity() {
@@ -48,6 +35,8 @@ class BottomNavigation : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_direction -> {
+                val directionFragment = DirectionsFragment.newInstance()
+                openFragment(directionFragment)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_history -> {
