@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.horus.travelweather.BottomNavigation
 import com.horus.travelweather.R
 import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.database.ProfileEntity
@@ -119,8 +120,7 @@ class MainActivity : AppCompatActivity() {
                                     Log.e(TAG, ""+ user.email)
                                     progress.dismiss()
                                     deleteAllPLace().execute()
-                                    val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
-                                    startActivity(homeIntent)
+                                    intoMainActivity()
                                 }
                                 catch (e : Exception)
                                 {
@@ -141,6 +141,14 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         finish()
     }*/
+
+    private fun intoMainActivity()
+    {
+//        val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
+//        startActivity(homeIntent)
+        val homeIntent = Intent(this@MainActivity, BottomNavigation::class.java)
+        startActivity(homeIntent)
+    }
 
     private fun validateForm(email: String, password: String): Boolean {
 

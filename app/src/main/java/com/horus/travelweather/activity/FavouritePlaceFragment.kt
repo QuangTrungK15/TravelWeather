@@ -5,10 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
@@ -30,14 +34,15 @@ import com.horus.travelweather.adapter.FavouritePlaceAdapter
 import com.horus.travelweather.common.TWConstant.Companion.REMOVE_PLACE
 import com.horus.travelweather.model.PlaceDbO
 import kotlinx.android.synthetic.main.activity_favourite_my_place.*
+import kotlinx.android.synthetic.main.activity_favourite_my_place.view.*
 import java.io.ByteArrayOutputStream
 import java.util.*
 
 
-class FavouritePlaceActivity : AppCompatActivity() {
+class FavouritePlaceFragment : Fragment() {
 
 
-    private val TAG = FavouritePlaceActivity::class.java.simpleName
+    private val TAG = FavouritePlaceFragment::class.java.simpleName
     var PLACE_AUTOCOMPLETE_REQUEST_CODE = 1
     private val placeDb = PlaceDbO()
     lateinit var database: FirebaseDatabase
@@ -46,17 +51,13 @@ class FavouritePlaceActivity : AppCompatActivity() {
     lateinit var adapter: FirebaseRecyclerAdapter<PlaceDbO, FavouritePlaceAdapter.PlaceViewHolder>
     var myuser: FirebaseUser? = null
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_favourite_my_place)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.activity_favourite_my_place, container, false)
         mAuth = FirebaseAuth.getInstance()
         myuser = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
         favourite_list = database.getReference("favouriteplace")
-        btn_add_my_place.setOnClickListener {
+        view.btn_add_my_place.setOnClickListener {
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
@@ -64,7 +65,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
                     .build()
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                     .setFilter(typeFilter)
-                    .build(this)
+                    .build(this.activity)
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
         }
 
@@ -77,12 +78,23 @@ class FavouritePlaceActivity : AppCompatActivity() {
         },{
             openDetailPlace(it)
         })
-        rv_my_places.layoutManager = LinearLayoutManager(this)
-        rv_my_places.adapter = adapter
+        view.rv_my_places.layoutManager = LinearLayoutManager(this.activity)
+        view.rv_my_places.adapter = adapter
+        return view
+    }
+
+
+    companion object {
+        fun newInstance(): FavouritePlaceFragment = FavouritePlaceFragment()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
     }
 
     private fun openDetailPlace(it: PlaceDbO) {
-        val intent = Intent(this@FavouritePlaceActivity, DetailMyPlace::class.java)
+        val intent = Intent(context, DetailMyPlace::class.java)
         intent.putExtra("MyPlace",it)
         startActivity(intent)
     }
@@ -105,12 +117,12 @@ class FavouritePlaceActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                val place = PlaceAutocomplete.getPlace(this, data)
+                val place = PlaceAutocomplete.getPlace(this.context, data)
                 placeDb.placeId = place.id
                 placeDb.name = place.name.toString()
                 getPhoto(place.id)
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                val status = PlaceAutocomplete.getStatus(this, data)
+                val status = PlaceAutocomplete.getStatus(this.context, data)
                 Log.e(TAG, status.statusMessage)
             } else if (resultCode == Activity.RESULT_CANCELED) {
 
@@ -123,7 +135,7 @@ class FavouritePlaceActivity : AppCompatActivity() {
     // of the map to its co-ordinates (các tọa độ).
     private fun getPhoto(placeId: String) {
         //val placeId = "ChIJa147K9HX3IAR-lwiGIQv9i4"
-        val mGeoDataClient = Places.getGeoDataClient(this)
+        val mGeoDataClient = Places.getGeoDataClient(this.context!!)
         val photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId)
         photoMetadataResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoMetadataResponse>{ task ->
             // Get the list of photos.

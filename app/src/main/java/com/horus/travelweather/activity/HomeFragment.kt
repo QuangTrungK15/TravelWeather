@@ -1,17 +1,13 @@
 package com.horus.travelweather.activity
 
 import android.Manifest
-import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
-import android.support.design.widget.NavigationView
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
+import android.support.v4.app.Fragment
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -24,45 +20,30 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.app_bar_home.*
-import kotlinx.android.synthetic.main.content_home.*
+import kotlinx.android.synthetic.main.activity_home_fragment.*
 
 
+class HomeFragment : Fragment() {
 
-
-class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
-    private val TAG = HomeActivity::class.java.simpleName
+    private val TAG = HomeFragment::class.java.simpleName
     private val compositeDisposable = CompositeDisposable()
     private val menu : MutableList<PlaceEntity> = mutableListOf()
     lateinit var database: FirebaseDatabase
     lateinit var place_list: DatabaseReference
     lateinit var mAuth: FirebaseAuth
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
-        setSupportActionBar(toolbar)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.activity_home_fragment, container, false)
         database = FirebaseDatabase.getInstance()
         mAuth = FirebaseAuth.getInstance()
         place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
-
-        //add ActionBarDrawerToggle
-        val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer_layout.addDrawerListener(toggle)
-        toggle.syncState()
-        //nav_view into ActionBarDrawerToggle
-        val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
-        val headerView = navigationView.getHeaderView(0)
         val rxPermissions = RxPermissions(this)
         rxPermissions
                 .request(Manifest.permission.ACCESS_FINE_LOCATION)
                 .subscribe { granted ->
                     if (granted) {
                         //to read firebase date, we need ValueEventListener
-                        place_list.addListenerForSingleValueEvent(object : ValueEventListener{
+                        place_list.addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onCancelled(p0: DatabaseError) {
                                 Log.e(TAG,"Error : "+p0.message)
                             }
@@ -86,58 +67,12 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         Log.e(TAG, "Access fail")
                     }
                 }
-        //put user info into persional info activity
-        val editName = headerView.findViewById<TextView>(R.id.txtName)
-        editName.text = TWConstant.currentUser.name
-        nav_view.setNavigationItemSelectedListener(this)
+        return view
     }
 
-    //Nút quay lại ở góc trái, tức hiện ẩn drawer_layout
-    override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed() //hàm trở lại của fragment
-        }
-    }
 
-    //Add this optionsmenu to action bar of this activity if it present
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.home, menu)
-        return true
-    }
-
-    //Press optionsmenu icon -> show "setting" sub-option
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-        when (item.itemId) {
-            R.id.nav_profile -> {
-                // Handle the profile action
-                enterProfileView()
-            }
-            R.id.nav_places -> {
-                enterMyPlaces()
-            }
-            R.id.nav_directions -> {
-                enterDirections()
-            }
-            R.id.nav_history -> {
-                enterHistory()
-            }
-            R.id.exit -> {
-                enterLoginPage()
-            }
-        }
-        drawer_layout.closeDrawer(GravityCompat.START)
-        return true
+    companion object {
+        fun newInstance(): HomeFragment = HomeFragment()
     }
 
     private fun getDataFromLocal()
@@ -148,7 +83,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Subscriber lắng nghe flow, thực thi các hành động trên dòng dữ liệu hoặc sự kiện được đưa ra bởi Observable
 
         //get all places from database room
-        val getAllPlace = TravelWeatherDB.getInstance(this@HomeActivity).placeDataDao()
+        val getAllPlace = TravelWeatherDB.getInstance(context!!).placeDataDao()
 
         // Probably, you already know that all UI code is done on Android Main thread.
         // RxJava is java library and it does not know about Android Main thread. That is the reason why we use RxAndroid.
@@ -158,40 +93,16 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ //excute event
-                    val adapter = ViewPagerAdapter(supportFragmentManager,it)
+                    val adapter = ViewPagerAdapter(childFragmentManager,it)
                     view_pager.adapter = adapter
                 }, {
                     Log.e(TAG, "" + it.message)
                 }))
     }
 
-    private fun enterHistory() {
-        //val intent = Intent(this@HomeActivity, MapsActivity2::class.java)
-        //startActivity(intent)
-    }
-
-    private fun enterDirections() {
-        val intent = Intent(this@HomeActivity, DirectionsActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun enterMyPlaces() {
-        val intent = Intent(this@HomeActivity, FavouritePlaceActivity::class.java)
-        startActivity(intent)
-    }
-    private fun enterProfileView() {
-        val intent = Intent(this@HomeActivity, ProfileActivity::class.java)
-        startActivity(intent)
-    }
-    private fun enterLoginPage() {
-        val intent = Intent(this@HomeActivity, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        startActivity(intent)
-    }
-
     inner class insertAllPlace() : AsyncTask<ArrayList<PlaceEntity>, Void, Void>() {
         override fun doInBackground(vararg params : ArrayList<PlaceEntity>): Void? {
-            TravelWeatherDB.getInstance(this@HomeActivity).placeDataDao().insertAllPlace(params[0])
+            TravelWeatherDB.getInstance(context!!).placeDataDao().insertAllPlace(params[0])
             getDataFromLocal()
             return null
         }

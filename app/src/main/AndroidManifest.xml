@@ -5,18 +5,18 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
-        android:hardwareAccelerated="false"
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:largeHeap="true"
         android:theme="@style/AppTheme">
         <activity android:name=".activity.MainActivity">
             <intent-filter>
@@ -25,18 +25,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.HomeActivity"
-            android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar" />
+        <!--<activity-->
+            <!--android:name=".activity.HomeActivity"-->
+            <!--android:label="@string/title_activity_home"-->
+            <!--android:theme="@style/AppTheme.NoActionBar" />-->
         <activity android:name=".activity.SignUpActivity" />
-        <activity android:name=".activity.ProfileActivity" />
+        <!--<activity android:name=".activity.ProfileFragment" />-->
         <activity
             android:name=".activity.AddLocationActivity"
             android:label="@string/title_add_location" />
-        <activity
-            android:name=".activity.FavouritePlaceActivity"
-            android:label="@string/title_favourite_place" />
+        <!--<activity-->
+            <!--android:name=".activity.FavouritePlaceActivity"-->
+            <!--android:label="@string/title_favourite_place" />-->
         <activity
             android:name=".activity.DetailMyPlace"
             android:label="@string/detail_my_place" />
@@ -52,11 +52,14 @@
             android:name=".activity.DirectionsActivity"
             android:label="@string/title_activity_directions">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".BottomNavigation"
+            android:label="@string/title_activity_bottom_navigation"></activity>
     </application>
 
 </manifest> <!-- android:value="AIzaSyBv2srja-fflBOYUDDHSsKSgDZnHkgIzc0" -->

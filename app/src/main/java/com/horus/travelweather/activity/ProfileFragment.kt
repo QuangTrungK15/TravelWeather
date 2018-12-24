@@ -1,12 +1,13 @@
 package com.horus.travelweather.activity
 
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -15,41 +16,46 @@ import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.model.UserDbO
 import com.rengwuxian.materialedittext.MaterialEditText
 import kotlinx.android.synthetic.main.activity_profile.*
+import kotlinx.android.synthetic.main.activity_profile.view.*
 
-class   ProfileActivity : AppCompatActivity() {
-
-
-    private val TAG : String = ProfileActivity::class.toString()
+class   ProfileFragment : Fragment() {
 
 
+    private val TAG : String = ProfileFragment::class.toString()
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_profile)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        txt_user_profile_name.text =  TWConstant.currentUser.name
-        txt_phone_number.text = TWConstant.currentUser.phone
-        txt_email_user.text = TWConstant.currentUser.email
-        fabEdit.setOnClickListener {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.activity_profile, container, false)
+
+        view.txt_user_profile_name.text =  TWConstant.currentUser.name
+        view.txt_phone_number.text = TWConstant.currentUser.phone
+        view.txt_email_user.text = TWConstant.currentUser.email
+        view.fabEdit.setOnClickListener {
             showDialog()
         }
+
+        return view
     }
+
+
+    companion object {
+        fun newInstance(): ProfileFragment = ProfileFragment()
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id = item?.itemId
         if(id == android.R.id.home) {
-            this.finish()
+            context
         }
         return super.onOptionsItemSelected(item)
     }
 
     private fun showDialog() {
-        val alterDialog : AlertDialog.Builder = AlertDialog.Builder(this)
+        val alterDialog : AlertDialog.Builder = AlertDialog.Builder(context!!)
         alterDialog.setTitle("Edit Profile")
 
-        val inflater : LayoutInflater = LayoutInflater.from(this)
+        val inflater : LayoutInflater = LayoutInflater.from(context!!)
         val dialogView =    inflater.inflate(R.layout.edit_profile_layout,null)
         alterDialog.setView(dialogView)
         val editName  = dialogView.findViewById<View>(R.id.editName) as MaterialEditText
