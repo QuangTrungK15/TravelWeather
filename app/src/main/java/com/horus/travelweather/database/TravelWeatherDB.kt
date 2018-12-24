@@ -8,7 +8,7 @@ import android.content.Context
 
 @Database(entities = arrayOf(
         PlaceEntity::class,
-        ProfileEntity::class), version = 1)
+        ProfileEntity::class), version = 2)
 abstract class TravelWeatherDB : RoomDatabase() {
 
     abstract fun placeDataDao(): PlaceDAO

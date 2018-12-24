@@ -24,10 +24,12 @@
             app:srcCompat="@drawable/ic24_turnleft" />
 
         <LinearLayout
+            android:id="@+id/show_stepbystep"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:visibility="gone"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp">
 
@@ -46,6 +48,7 @@
                 android:padding="4dp">
 
                 <ImageView
+                    android:id="@+id/imgv_attention_icon"
                     android:layout_weight="9"
                     android:layout_width="160dp"
                     android:layout_height="16dp"
@@ -60,16 +63,144 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="Đi về hướng Tây Nam lên Hẻm Chợ Đường Ray"
-                    android:textColor="@color/colorLightBack"
+                    android:textColor="@color/colorLightSliver"
                     android:textSize="12sp"
                     android:layout_marginLeft="4dp"
                     android:layout_marginStart="4dp"
                     />
             </LinearLayout>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp">
+
+                <TextView
+                    android:id="@+id/tv_showtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="170m (3 phut)"
+                    android:textSize="14sp"/>
+
+                <View
+                    android:layout_toEndOf="@+id/tv_showtime"
+                    android:layout_toRightOf="@+id/tv_showtime"
+                    android:layout_centerInParent="true"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/colorLightSliver2" />
+            </RelativeLayout>
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/show_transitsteps"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:id="@+id/tv_departure_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chợ phường 25"
+                android:textColor="@color/colorBlack"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:textSize="17sp"
+                />
+            <TextView
+                android:id="@+id/tv_busname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="141 - KDL BCR - Long Trường - KCS Long Trường"
+                android:textColor="@color/colorBlack"
+                android:textStyle="bold"
+                android:background="@drawable/radius_border2"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:paddingRight="8dp"
+                android:paddingLeft="8dp"
+                android:textSize="13sp"
+                />
+
+            <TextView
+                android:id="@+id/tv_headsign"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Bến Thành"
+                android:textColor="@color/colorBlack"
+                android:padding="4dp"
+                android:textSize="14sp"
+                />
+
+            <TextView
+                android:id="@+id/tv_transit_distance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="150m"
+                android:padding="4dp"
+                android:textSize="14sp"
+                />
+            <View
+
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorLightSliver2" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/downarrow_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:cropToPadding="true"
+                    android:padding="2dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic16_arrowdown" />
+
+                <TextView
+                    android:id="@+id/tv_numstops"
+                    android:layout_toRightOf="@+id/downarrow_icon"
+                    android:layout_toEndOf="@+id/downarrow_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Đi qua 10 trạm dừng (trong 11 phút)"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="14sp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    />
+            </RelativeLayout>
+
+            <View
+
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorLightSliver2" />
+
+            <TextView
+                android:id="@+id/tv_arrival_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chợ phường 25"
+                android:textColor="@color/colorBlack"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:textSize="17sp"
+                />
+        </LinearLayout>
 
     </LinearLayout>
 </android.support.v7.widget.CardView>

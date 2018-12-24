@@ -47,7 +47,7 @@ class TransportationAdapter (private var listTransportation : List<Transportatio
             } else if(transkind.id == "walking"){
                 imgView_transportation.setImageResource(R.drawable.ic24_walking)
             } else if(transkind.id == "transit"){
-                imgView_transportation.setImageResource(R.drawable.ic24_car)
+                imgView_transportation.setImageResource(R.drawable.ic24_bus)
             } else if(transkind.id == "bicycling"){
                 imgView_transportation.setImageResource(R.drawable.ic24_walking)
             } else if(transkind.id == "5"){
