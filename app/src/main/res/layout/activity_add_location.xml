@@ -1,37 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_combine_color"
     android:orientation="vertical">
 
 
-    <android.support.v7.widget.CardView
+    <!--<android.support.v7.widget.CardView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginLeft="50dp"-->
+        <!--android:layout_marginRight="50dp"-->
+        <!--android:layout_marginTop="16dp"-->
+        <!--app:cardCornerRadius="10dp">-->
+
+
+
+    <!--</android.support.v7.widget.CardView>-->
+
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="10dp">
-
-        <Button
-            android:id="@+id/btn_add_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/background_dark"
-            android:text="Click to add location"
-            android:textColor="@android:color/white" />
-
-    </android.support.v7.widget.CardView>
-
-
+        android:layout_height="1dp"
+        android:background="#575967"
+        />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_location"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp">
+        android:layout_height="wrap_content">
 
     </android.support.v7.widget.RecyclerView>
 
+    <Button
+        android:id="@+id/btn_add_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_cloud_wind_humidity"
+        android:text="Click to add location"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="104dp"
+        android:textColor="@color/colorCyan" />
 
-</LinearLayout>
+</RelativeLayout>
