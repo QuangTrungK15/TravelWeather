@@ -15,13 +15,12 @@ import android.os.Bundle
 import android.support.annotation.RequiresApi
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
-import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.LinearSmoothScroller
-import android.support.v7.widget.RecyclerView
+import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.*
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
@@ -60,7 +59,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+class DirectionsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private val TAG = DirectionsActivity::class.java.simpleName
     private lateinit var adapterTransportation : TransportationAdapter
@@ -89,8 +88,10 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_directions)
-        //val actionBar = actionBar
-        //actionBar.hide()
+
+        if (supportActionBar != null) {
+            supportActionBar!!.hide()
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
@@ -182,7 +183,19 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             count++
         }*/
 
+        btn_previous.setOnClickListener{
+            if(thestep > 0 && thestep < stepsList.size){
+                thestep--
+                pre_nextstep(thestep)
+            }
+        }
 
+        btn_next.setOnClickListener{
+            if(thestep >= 0 && thestep < stepsList.size - 1){
+                thestep++
+                pre_nextstep(thestep)
+            }
+        }
 
         edt_orgin.setOnClickListener {
             //Filter results by place type (by address: get full address, by establisment: get business address)
@@ -242,6 +255,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     private var firstclick:Boolean = false
     private var numberofclick:Int = 0
     var layoutParams_temp: RelativeLayout.LayoutParams? = null
+
 
     private fun onTouchListener(): View.OnTouchListener {
         return View.OnTouchListener { view, event ->
@@ -408,7 +422,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         }
 
         //When myuser click anywhere on maps
-        mMap.setOnMapClickListener { point ->
+       /* mMap.setOnMapClickListener { point ->
             // Already two locations
             if (markerPoints.size > 1) {
                 markerPoints.clear()
@@ -420,14 +434,14 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
             val options = MarkerOptions()
             // Setting the position of the marker
             options.position(point)
-            /**
+            *//**
              * For the start location, the color of marker is GREEN and
              * for the end location, the color of marker is RED.
-             */
-            /**
+             *//*
+            *//**
              * For the start location, the color of marker is GREEN and
              * for the end location, the color of marker is RED7.
-             */
+             *//*
             if (markerPoints.size == 1) {
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             } else if (markerPoints.size == 2) {
@@ -453,20 +467,21 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
                 // Start downloading json data from Google Directions API
                 fetchUrl.execute(url)
 
-                /*val url2 = getUrl_Walking(origin,dest)
+                *//*val url2 = getUrl_Walking(origin,dest)
                 val fetchUrl2 = FetchUrl2("2")
                 fetchUrl2.execute(url2)
 
                 val url3 = getUrl_Bicycling(origin,dest)
                 val fetchUrl3 = FetchUrl3("3")
                 fetchUrl3.execute(url3)
-*/
+*//*
                 //move map camera
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(origin))
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
             }
-        }
+        }*/
     }
+
 
     // As TransportationAdapter, input: list & id (by one click), if we click any element on rv_transportation
     private fun implementLoad(list : List<TransportationDbO>) {
@@ -503,27 +518,142 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         //rv_directionsSteps.setHasFixedSize(true)
     }
 
+    var thestep = 0
 
+    @SuppressLint("NewApi")
     private fun loadingStepbyStep(list : List<DirectionsStepDbO>) {
         adapterStepbyStepDirections = StepbyStepDirectionsAdapter(list,{
             id ->
+            pre_nextstep(id.toInt())
+            //adapterStepbyStepDirections.notifyDataSetChanged()
 
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(stepsList[id.toInt()].latLng))
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(18F))
-            val options = MarkerOptions()
-            // Setting the position of the marker
-            options.position(stepsList[id.toInt()].latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
-            options.flat(true)
-            // Add new marker to the Google Map Android API V2
-            mMap.addMarker(options)
-
-            adapterStepbyStepDirections.notifyDataSetChanged()
+            //if(refreshmap){
+             //   pre_nextstep(id.toInt())
+               // adapterStepbyStepDirections.notifyDataSetChanged()
+            //}
         })
-        val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        rv_directionsSteps.adapter = adapterStepbyStepDirections
-        rv_directionsSteps.layoutManager = layoutManager2
-        //val showtransit = this.findViewById<View>(R.id.showtransit) as RelativeLayout
+        //if(!refreshmap){
+            val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+            rv_directionsSteps.adapter = adapterStepbyStepDirections
+            rv_directionsSteps.layoutManager = layoutManager2
+        //}
 
+
+        //val showtransit = this.findViewById<View>(R.id.showtransit) as RelativeLayout
+    }
+
+
+    private fun pre_nextstep(id: Int){
+        thestep = id.toInt()
+
+        val toolbar = this.findViewById<View>(R.id.toolbar) as Toolbar?
+
+        //setSupportActionBar(toolbar)
+
+        goto_stepbystep.visibility = View.VISIBLE
+        show_pre_next.visibility = View.VISIBLE
+
+        scroll_directionsdetail.visibility = View.GONE
+        linear_orgindest.visibility = View.GONE
+        rv_transportations.visibility = View.GONE
+        fab_directions.visibility = View.GONE
+
+
+
+        val imgView_goto_direction = this.findViewById<View>(R.id.imgView_goto_direction) as AppCompatImageView
+        val tv_goto_distance9 = this.findViewById<View>(R.id.tv_goto_distance9) as TextView
+        val tv_goto_instructions = this.findViewById<View>(R.id.tv_goto_instructions) as TextView
+
+        tv_goto_distance9.text = stepsList[id.toInt()].distance
+        tv_goto_instructions.text = stepsList[id.toInt()].instructions
+
+        if(stepsList[id.toInt()].direction == "Head" || stepsList[id.toInt()].direction == "Straight"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_head)
+        } else if(stepsList[id.toInt()].direction == "turn-left"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_turnleft)
+        } else if(stepsList[id.toInt()].direction == "turn-right"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_turnright)
+        } else if(stepsList[id.toInt()].direction == "turn-slight-right"){ //chếch sang phải
+            imgView_goto_direction.setImageResource(R.drawable.ic24_turnslightright)
+        } else if(stepsList[id.toInt()].direction == "turn-slight-left"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_turnslightleft)
+        }else if(stepsList[id.toInt()].direction == "turn-sharp-right"){ // ngoặc phải
+            imgView_goto_direction.setImageResource(R.drawable.ic24_turnsharpright)
+        } else if(stepsList[id.toInt()].direction == "turn-sharp-left"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_turnsharpleft)
+        } else if(stepsList[id.toInt()].direction == "ferry"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_ferry)
+        } else if(stepsList[id.toInt()].direction == "ferry-train"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_ferry)
+        } else if(stepsList[id.toInt()].direction == "ramp-right"){ //tại nút giao thông
+            imgView_goto_direction.setImageResource(R.drawable.ic24_rampleft)
+        } else if(stepsList[id.toInt()].direction == "ramp-left"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_rampleft)
+        } else if(stepsList[id.toInt()].direction == "fork-right"){ //tại nút giao thông
+            imgView_goto_direction.setImageResource(R.drawable.ic24_rampleft)
+        } else if(stepsList[id.toInt()].direction == "fork-left"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_rampleft)
+        } else if(stepsList[id.toInt()].direction == "uturn-right"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_uturnright)
+        } else if(stepsList[id.toInt()].direction == "uturn-left"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_uturnleft)
+        } else if(stepsList[id.toInt()].direction == "merge"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_merge)
+        } else if(stepsList[id.toInt()].direction == "roundabout-right"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_roundabout)
+        } else if(stepsList[id.toInt()].direction == "roundabout-left"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_roundabout)
+        } else if(stepsList[id.toInt()].direction == "keep-right"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_keepright)
+        } else if(stepsList[id.toInt()].direction == "keep-left"){
+            imgView_goto_direction.setImageResource(R.drawable.ic24_keepleft)
+        } else{
+            imgView_goto_direction.setImageResource(R.drawable.ic24_head)
+        }
+
+        if (supportActionBar != null) {
+            supportActionBar!!.show()
+            if(!refreshmap) {
+                supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+                supportActionBar!!.title = "Xem trước tuyến đường"
+            }
+        }
+
+        val options = MarkerOptions()
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(stepsList[id.toInt()].latLng))
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(18F))
+        // Setting the position of the marker
+        options.position(stepsList[id.toInt()].latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+        options.flat(true)
+        // Add new marker to the Google Map Android API V2
+        mMap.addMarker(options)
+
+    }
+
+    var refreshmap = false
+    override fun onOptionsItemSelected(item: MenuItem):Boolean {
+        when (item.getItemId()) {
+            android.R.id.home -> {
+                // todo: goto back activity from here
+
+                if (supportActionBar != null) {
+                    supportActionBar!!.hide()
+                }
+                goto_stepbystep.visibility = View.GONE
+                show_pre_next.visibility = View.GONE
+                linear_orgindest.visibility = View.VISIBLE
+                rv_transportations.visibility = View.VISIBLE
+                scroll_directionsdetail.visibility = View.VISIBLE
+                fab_directions.visibility = View.VISIBLE
+
+                //mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
+                refreshmap = true
+                thestep = 0
+
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
     private fun AddMarker(currentlocation: LatLng, destlocation: LatLng){
@@ -1340,7 +1470,7 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
         //mMap.isTrafficEnabled = true                 //Turns the traffic layer on or off.
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
         val mUiSettings = mMap.uiSettings
-        mUiSettings.isZoomControlsEnabled = true     //it can be zoom control
+        //mUiSettings.isZoomControlsEnabled = true     //it can be zoom control
         mUiSettings.isCompassEnabled = true          //....compass (la ban)
         mUiSettings.isMyLocationButtonEnabled = true //Enables or disables the my-location layer.
         mUiSettings.isScrollGesturesEnabled = true   //....cử chỉ scroll
@@ -1459,27 +1589,6 @@ class DirectionsActivity : FragmentActivity(), OnMapReadyCallback, GoogleApiClie
     }
 }
 
-class LinearLayoutManagerWithSmoothScroller:LinearLayoutManager {
-    constructor(context: Context) : super(context, VERTICAL, false) {}
-    constructor(context:Context, orientation:Int, reverseLayout:Boolean) : super(context, orientation, reverseLayout) {}
-    override fun smoothScrollToPosition(recyclerView:RecyclerView, state:RecyclerView.State,
-                                        position:Int) {
-        val smoothScroller = TopSnappedSmoothScroller(recyclerView.getContext())
-        smoothScroller.setTargetPosition(position)
-        startSmoothScroll(smoothScroller)
-    }
-    private inner class TopSnappedSmoothScroller(context:Context): LinearSmoothScroller(context) {
-        //protected val verticalSnapPreference:Int
-        override fun getVerticalSnapPreference(): Int {
-            return SNAP_TO_START
-        }
-
-        override fun computeScrollVectorForPosition(targetPosition:Int): PointF {
-            return this@LinearLayoutManagerWithSmoothScroller
-                    .computeScrollVectorForPosition(targetPosition)
-        }
-    }
-}
 
 class SmoothLinearLayoutManager : LinearLayoutManager {
 
