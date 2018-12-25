@@ -45,9 +45,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI" />
 
-        <activity
-            android:name=".activity.MapsActivity"
-            android:label="@string/title_activity_maps" />
+
         <activity
             android:name=".activity.DirectionsActivity"
             android:label="@string/title_activity_directions">
