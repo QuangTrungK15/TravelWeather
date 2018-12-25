@@ -11,8 +11,8 @@
     <style name="BottomNavigation">
         <item name="android:background">@color/colorBottomNavigation</item>
         <item name="itemBackground">@drawable/bg_navigation_bar_item</item>
-        <!--<item name="itemIconTint">@color/colorCyan</item>-->
-        <item name="itemTextColor">@color/colorCyan</item>
+        <item name="itemIconTint">@drawable/bottom_nav_icon_color_selector</item>
+        <item name="itemTextColor">@drawable/bottom_nav_icon_color_selector</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

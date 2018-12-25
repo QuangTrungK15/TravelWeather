@@ -30,7 +30,7 @@
             <!--android:label="@string/title_activity_home"-->
             <!--android:theme="@style/AppTheme.NoActionBar" />-->
         <activity android:name=".activity.SignUpActivity" />
-        <!--<activity android:name=".activity.ProfileFragment" />-->
+        <activity android:name=".activity.ProfileActivity" />
         <activity
             android:name=".activity.AddLocationActivity"
             android:label="@string/title_add_location" />

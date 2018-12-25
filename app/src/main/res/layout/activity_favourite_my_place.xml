@@ -31,8 +31,7 @@
 
     <!--</android.support.design.widget.AppBarLayout>-->
 
-
-
+    <!--android:background="?attr/colorPrimary"-->
 
     <android.support.v4.widget.NestedScrollView
         android:clipToPadding="false"
@@ -44,11 +43,12 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical">
-            <Button
+            <android.support.design.widget.FloatingActionButton
                 android:id="@+id/btn_add_my_place"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add"/>
+                app:backgroundTint="@color/colorCyan"
+                android:src="@drawable/ic_add"/>
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_my_places"
                 android:layout_width="match_parent"

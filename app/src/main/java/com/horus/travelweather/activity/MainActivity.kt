@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    Toast.makeText(this@MainActivity, ""+it.size, Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(this@MainActivity, ""+it.size, Toast.LENGTH_SHORT).show();
                 }, {
                     Log.e(TAG, "" + it.message)
                 }))
@@ -116,7 +116,6 @@ class MainActivity : AppCompatActivity() {
                                     TWConstant.currentUser = user
                                     // insert user info into database room.
                                     insertProfileUser().execute(profileUser)
-                                    Toast.makeText(this@MainActivity, ""+user, Toast.LENGTH_SHORT).show();
                                     Log.e(TAG, ""+ user.email)
                                     progress.dismiss()
                                     deleteAllPLace().execute()

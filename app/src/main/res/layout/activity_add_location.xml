@@ -22,7 +22,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#575967"
+        android:background="@color/colorViewLine"
         />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_location"

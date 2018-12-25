@@ -6,13 +6,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.DrawableUtils
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
@@ -33,16 +31,15 @@ import com.horus.travelweather.R
 import com.horus.travelweather.adapter.FavouritePlaceAdapter
 import com.horus.travelweather.common.TWConstant.Companion.REMOVE_PLACE
 import com.horus.travelweather.model.PlaceDbO
-import kotlinx.android.synthetic.main.activity_favourite_my_place.*
 import kotlinx.android.synthetic.main.activity_favourite_my_place.view.*
 import java.io.ByteArrayOutputStream
 import java.util.*
 
 
-class FavouritePlaceFragment : Fragment() {
+class FavoritePlaceFragment : Fragment() {
 
 
-    private val TAG = FavouritePlaceFragment::class.java.simpleName
+    private val TAG = FavoritePlaceFragment::class.java.simpleName
     var PLACE_AUTOCOMPLETE_REQUEST_CODE = 1
     private val placeDb = PlaceDbO()
     lateinit var database: FirebaseDatabase
@@ -53,6 +50,7 @@ class FavouritePlaceFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_favourite_my_place, container, false)
+        setHasOptionsMenu(true)
         mAuth = FirebaseAuth.getInstance()
         myuser = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
@@ -83,9 +81,16 @@ class FavouritePlaceFragment : Fragment() {
         return view
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        if (inflater != null) {
+            inflater.inflate(R.menu.option_menu, menu)
+        }
+        super.onCreateOptionsMenu(menu, inflater)
+
+    }
 
     companion object {
-        fun newInstance(): FavouritePlaceFragment = FavouritePlaceFragment()
+        fun newInstance(): FavoritePlaceFragment = FavoritePlaceFragment()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
