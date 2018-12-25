@@ -11,7 +11,7 @@
 
     <color name="overlayBackground">#7f333639</color>
     <color name="colorText">#8E8F95</color>
-    <color name="color9">#f4f4f4</color>
+    <color name="color9">#fcfcfc</color>
     <color name="colorCyan">#33FFAF</color>
 
 
@@ -36,6 +36,8 @@
     <color name="light_gray">#A9A9A9</color>
 
     <color name="grey_white_button">#dbdbdb</color>
+
+    <color name="cyan">#00C1A8</color>
     <color name="primaryBackground">#CC00CC</color>
 
     <!--Study/Site layout-->

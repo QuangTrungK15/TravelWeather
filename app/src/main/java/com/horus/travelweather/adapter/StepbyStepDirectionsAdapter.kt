@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import com.horus.travelweather.R
 import com.horus.travelweather.activity.DirectionsFragment
@@ -45,6 +46,7 @@ class StepbyStepDirectionsAdapter (private var listDirectionsStep : List<Directi
         private val tv_attention = itemView.findViewById<View>(R.id.tv_attention) as TextView
         private val imgv_attention_icon = itemView.findViewById<View>(R.id.imgv_attention_icon) as ImageView
         private val tv_showtime = itemView.findViewById<View>(R.id.tv_showtime) as TextView
+        private val showtime_eachstep = itemView.findViewById<View>(R.id.showtime_eachstep) as RelativeLayout
 
         //Show info of transit directions
         private val show_transitsteps = itemView.findViewById<View>(R.id.show_transitsteps) as LinearLayout
@@ -123,7 +125,12 @@ class StepbyStepDirectionsAdapter (private var listDirectionsStep : List<Directi
                     imgv_attention_icon.visibility = View.GONE
                     tv_attention.visibility = View.GONE
                 }
-                tv_showtime.text = step.distance.plus(" ("+step.duration+')')
+
+                if(!step.duration.isEmpty()){
+                    tv_showtime.text = step.distance.plus(" ("+step.duration+')')
+                } else{
+                    showtime_eachstep.visibility = View.GONE
+                }
             } else {
                 show_stepbystep.visibility = View.GONE
                 show_transitsteps.visibility = View.VISIBLE

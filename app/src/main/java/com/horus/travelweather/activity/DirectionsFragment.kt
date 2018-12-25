@@ -1,7 +1,6 @@
 package com.horus.travelweather.activity
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -12,22 +11,19 @@ import android.location.Location
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.support.annotation.RequiresApi
-import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.*
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.LinearSmoothScroller
+import android.support.v7.widget.RecyclerView
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.MenuItem
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.RelativeLayout
-import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
@@ -87,7 +83,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     var currentlocation = LatLng(10.762622, 106.660172)
     var destlocation = LatLng(10.762622, 106.660172)
 
-
+    private lateinit var textToSpeech: TextToSpeech
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -96,8 +92,21 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         {
             checkLocationPermission()
         }
+
+        setHasOptionsMenu(true)
+
         // Initializing
         markerPoints = ArrayList<LatLng>()
+        //
+        textToSpeech = TextToSpeech(context!!, TextToSpeech.OnInitListener { i ->
+            if (i == TextToSpeech.SUCCESS) {
+                //result = textToSpeech.setLanguage(Locale.UK)
+                textToSpeech.speak("", TextToSpeech.QUEUE_FLUSH, null)
+            } else {
+                Toast.makeText(context!!,"Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
+            }
+        })
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         if(getFragmentManager() != null)
         {
@@ -122,11 +131,9 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         transList.add(TransportationDbO("transit",""))
         implementLoad(transList,view.rv_transportations)
 
-        stepsList.add(DirectionsStepDbO(0,"head","s","s","3243","432", currentlocation))
-        loadingStepbyStep(stepsList,view.rv_directionsSteps)
-        stepsList.add(DirectionsStepDbO(0,"head","s","s","3243","432",
+        stepsList.add(DirectionsStepDbO(0,"","","","","",
                 currentlocation, TransitDbO("","","","","","","")))
-        loadingStepbyStep(stepsList)
+        loadingStepbyStep(stepsList,view.rv_directionsSteps)
 
         view.clicksteps.setOnClickListener{
             numberofclick++
@@ -188,18 +195,28 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             count++
         }*/
 
-        btn_previous.setOnClickListener{
+        view.btn_previous.setOnClickListener{
             if(thestep > 0 && thestep < stepsList.size){
                 thestep--
                 pre_nextstep(thestep)
             }
         }
 
-        btn_next.setOnClickListener{
+        view.btn_next.setOnClickListener{
             if(thestep >= 0 && thestep < stepsList.size - 1){
                 thestep++
                 pre_nextstep(thestep)
             }
+        }
+
+        view.imgbtn_updown.setOnClickListener{
+            val edt_origin_temp = view.edt_orgin.text
+            view.edt_orgin.text = edt_destination.text
+            view.edt_destination.text = edt_origin_temp
+
+            val currentlocation_temp = currentlocation
+            currentlocation = destlocation
+            destlocation = currentlocation_temp
         }
 
         view.edt_orgin.setOnClickListener {
@@ -225,7 +242,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             //https://developers.google.com/places/android-sdk/autocomplete
             val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                     .setFilter(typeFilter)
-                    .build(this)
+                    .build(activity)
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE2)
         }
         return view
@@ -550,13 +567,17 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             // Start downloading json data from Google Directions API
             fetchUrl3.execute(url3)
 
+            val fetchUrl_present = FetchUrl_ClickonRecycler("driving")
+            fetchUrl_present.execute(url)
+
+
             //move map camera
             mMap.moveCamera(CameraUpdateFactory.newLatLng(currentlocation))
             mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
         }
 
         //When myuser click anywhere on maps
-        mMap.setOnMapClickListener { point ->
+        /*mMap.setOnMapClickListener { point ->
             // Already two locations
             if (markerPoints.size > 1) {
                 markerPoints.clear()
@@ -568,14 +589,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             val options = MarkerOptions()
             // Setting the position of the marker
             options.position(point)
-            /**
+            *//**
              * For the start location, the color of marker is GREEN and
              * for the end location, the color of marker is RED.
-             */
-            /**
+             *//*
+            *//**
              * For the start location, the color of marker is GREEN and
              * for the end location, the color of marker is RED7.
-             */
+             *//*
             if (markerPoints.size == 1) {
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             } else if (markerPoints.size == 2) {
@@ -601,19 +622,19 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 // Start downloading json data from Google Directions API
                 fetchUrl.execute(url)
 
-                /*val url2 = getUrl_Walking(origin,dest)
+                *//*val url2 = getUrl_Walking(origin,dest)
                 val fetchUrl2 = FetchUrl2("2")
                 fetchUrl2.execute(url2)
 
                 val url3 = getUrl_Bicycling(origin,dest)
                 val fetchUrl3 = FetchUrl3("3")
                 fetchUrl3.execute(url3)
-*/
+*//*
                 //move map camera
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(origin))
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
             }
-        }
+        }*/
     }
 
     // As TransportationAdapter, input: list & id (by one click), if we click any element on rv_transportation
@@ -651,32 +672,24 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         //rv_directionsSteps.setHasFixedSize(true)
     }
 
-    var thestep = 0
+    var thestep = 0 //step of rv_directionsteps
 
     private fun loadingStepbyStep(list : List<DirectionsStepDbO>,rv_directionsSteps : RecyclerView) {
         adapterStepbyStepDirections = StepbyStepDirectionsAdapter(list,{
             id ->
+
             pre_nextstep(id.toInt())
             //adapterStepbyStepDirections.notifyDataSetChanged()
 
-            //if(refreshmap){
-             //   pre_nextstep(id.toInt())
-               // adapterStepbyStepDirections.notifyDataSetChanged()
-            //}
         })
         val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(context!!, LinearLayoutManager.VERTICAL, false)
         rv_directionsSteps.adapter = adapterStepbyStepDirections
         rv_directionsSteps.layoutManager = layoutManager2
-        //if(!refreshmap){
-            val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-            rv_directionsSteps.adapter = adapterStepbyStepDirections
-            rv_directionsSteps.layoutManager = layoutManager2
-        //}
 
-
-        //val showtransit = this.findViewById<View>(R.id.showtransit) as RelativeLayout
     }
 
+    var options_flat: Boolean = false
+    private var markerName_temp: Marker? = null
 
     private fun pre_nextstep(id: Int){
         thestep = id.toInt()
@@ -745,35 +758,57 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         } else{
             imgView_goto_direction.setImageResource(R.drawable.ic24_head)
         }
+        val actionBar1 = (activity as AppCompatActivity).supportActionBar
 
-        /*if (supportActionBar != null) {
-            supportActionBar!!.show()
-            if(!refreshmap) {
-                supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-                supportActionBar!!.title = "Xem trước tuyến đường"
-            }
-        }*/
+        if (actionBar1 != null) {
+            actionBar1.setDisplayHomeAsUpEnabled(true)
+            actionBar1.title = "Xem trước tuyến đường"
+        }
 
-        val options = MarkerOptions()
         mMap.moveCamera(CameraUpdateFactory.newLatLng(stepsList[id.toInt()].latLng))
         mMap.animateCamera(CameraUpdateFactory.zoomTo(18F))
+
         // Setting the position of the marker
-        options.position(stepsList[id.toInt()].latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
-        options.flat(true)
+        //val options = MarkerOptions()
+        if(markerName_temp != null) markerName_temp!!.remove()
+
+        val markerName = mMap.addMarker(MarkerOptions().position(stepsList[thestep].latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)))
+        //options.position(stepsList[id.toInt()].latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+        //options.flat(true)
+        markerName_temp = markerName
         // Add new marker to the Google Map Android API V2
-        mMap.addMarker(options)
+        //mMap.addMarker(options)
+
+        //options_flat = true
+
+        if((if (textToSpeech != null) textToSpeech else throw NullPointerException("Expression 'textToSpeech' must not be null")).isSpeaking){
+            textToSpeech.shutdown()
+        }
+
+        textToSpeech = TextToSpeech(context!!, TextToSpeech.OnInitListener { i ->
+            if (i == TextToSpeech.SUCCESS) {
+                //result = textToSpeech.setLanguage(Locale.UK)
+                textToSpeech.speak(tv_goto_instructions.text.toString(), TextToSpeech.QUEUE_FLUSH, null)
+            } else {
+                Toast.makeText(context!!,"Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
+            }
+        })
 
     }
 
-    var refreshmap = false
-    override fun onOptionsItemSelected(item: MenuItem):Boolean {
-        when (item.getItemId()) {
+
+    override fun onOptionsItemSelected(item: MenuItem?):Boolean {
+        when (item?.itemId) {
             android.R.id.home -> {
                 // todo: goto back activity from here
 
-                if (supportActionBar != null) {
-                    supportActionBar!!.hide()
-                }
+                val actionBar1 = (activity as AppCompatActivity).supportActionBar
+                actionBar1!!.title = "Direction"
+                actionBar1.setDisplayHomeAsUpEnabled(false)
+                /*if (actionBar1 != null) {
+                    actionBar1.hide()
+                }*/
+
                 goto_stepbystep.visibility = View.GONE
                 show_pre_next.visibility = View.GONE
                 linear_orgindest.visibility = View.VISIBLE
@@ -782,7 +817,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 fab_directions.visibility = View.VISIBLE
 
                 //mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
-                refreshmap = true
                 thestep = 0
 
                 return true
@@ -1725,6 +1759,27 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     }
 }
 
+class LinearLayoutManagerWithSmoothScroller:LinearLayoutManager {
+    constructor(context: Context) : super(context, VERTICAL, false) {}
+    constructor(context:Context, orientation:Int, reverseLayout:Boolean) : super(context, orientation, reverseLayout) {}
+    override fun smoothScrollToPosition(recyclerView:RecyclerView, state:RecyclerView.State,
+                                        position:Int) {
+        val smoothScroller = TopSnappedSmoothScroller(recyclerView.getContext())
+        smoothScroller.setTargetPosition(position)
+        startSmoothScroll(smoothScroller)
+    }
+    private inner class TopSnappedSmoothScroller(context:Context): LinearSmoothScroller(context) {
+        //protected val verticalSnapPreference:Int
+        override fun getVerticalSnapPreference(): Int {
+            return SNAP_TO_START
+        }
+
+        override fun computeScrollVectorForPosition(targetPosition:Int): PointF {
+            return this@LinearLayoutManagerWithSmoothScroller
+                    .computeScrollVectorForPosition(targetPosition)
+        }
+    }
+}
 
 class SmoothLinearLayoutManager : LinearLayoutManager {
 

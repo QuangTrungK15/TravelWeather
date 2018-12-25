@@ -4,11 +4,10 @@ import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import com.horus.travelweather.activity.*
-import com.horus.travelweather.database.PlaceEntity
-import io.reactivex.disposables.CompositeDisposable
+import com.horus.travelweather.activity.DirectionsFragment
+import com.horus.travelweather.activity.FavoritePlaceFragment
+import com.horus.travelweather.activity.HomeFragment
+import com.horus.travelweather.activity.NewProfileFragment
 import kotlinx.android.synthetic.main.activity_bottom_navigation.*
 
 class BottomNavigation : AppCompatActivity() {

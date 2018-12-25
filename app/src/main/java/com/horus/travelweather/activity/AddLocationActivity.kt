@@ -9,20 +9,20 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.MenuItem
-import com.horus.travelweather.R
-import com.google.android.gms.location.places.ui.PlaceAutocomplete
-import com.horus.travelweather.database.PlaceEntity
-import com.horus.travelweather.database.TravelWeatherDB
-import com.horus.travelweather.adapter.LocationAdapter
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_add_location.*
 import com.google.android.gms.location.places.AutocompleteFilter
+import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.horus.travelweather.BottomNavigation
+import com.horus.travelweather.R
+import com.horus.travelweather.adapter.LocationAdapter
+import com.horus.travelweather.database.PlaceEntity
+import com.horus.travelweather.database.TravelWeatherDB
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_add_location.*
 
 
 class AddLocationActivity : AppCompatActivity() {
@@ -78,7 +78,7 @@ class AddLocationActivity : AppCompatActivity() {
                 .subscribe({
                     implementLoad(it)
                 }, {
-                        Log.e(TAG,""+ it.message)
+                    Log.e(TAG,""+ it.message)
                 }))
     }
 
@@ -137,14 +137,14 @@ class AddLocationActivity : AppCompatActivity() {
 
     inner class insertPLace(): AsyncTask<PlaceEntity, Void, Void>() {
         override fun doInBackground(vararg params: PlaceEntity): Void? {
-                TravelWeatherDB.getInstance(this@AddLocationActivity).placeDataDao().insert(params[0])
+            TravelWeatherDB.getInstance(this@AddLocationActivity).placeDataDao().insert(params[0])
             return null
         }
     }
     inner class deletePLace(): AsyncTask<String, Void, Void>() {
         override fun doInBackground(vararg params: String?): Void? {
             TravelWeatherDB.getInstance(this@AddLocationActivity).placeDataDao().deleteByPlaceId(params[0])
-           return null
+            return null
         }
     }
 }
