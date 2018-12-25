@@ -1,3 +1,4 @@
+
 package com.horus.travelweather.activity
 
 import android.os.Bundle
@@ -75,6 +76,5 @@ class   ProfileActivity : AppCompatActivity() {
 
         })
         alterDialog.create().show()
-
     }
 }

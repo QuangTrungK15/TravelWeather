@@ -22,6 +22,7 @@ import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.horus.travelweather.BottomNavigation
 
 
 class AddLocationActivity : AppCompatActivity() {
@@ -58,6 +59,13 @@ class AddLocationActivity : AppCompatActivity() {
                     .build(this)
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, BottomNavigation::class.java) //this activity will be this fragment's father
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 
     //Load user's available places in database room -> recycleviewer rv_location

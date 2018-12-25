@@ -2,7 +2,7 @@
 <resources>
     <!--<color name="colorPrimary">#3F51B5</color>-->
     <color name="colorPrimary">#444756</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryDark">#3D3F4B</color>
     <color name="colorAccent">#FF4081</color>
 
     <color name="colorBackground">#0099CC</color>
@@ -49,4 +49,7 @@
     <color name="button_option">#3FB1D6</color>
     <color name="bg_row_selected">#3FB1D6</color>
     <color name="bg_content">#ECF0F1</color>
+    <color name="colorBottomNavigation">#2D2F38</color>
+    <color name="colorViewLine">#575967</color>
+    <color name="colorIcon">#8E8F95</color>
 </resources>
