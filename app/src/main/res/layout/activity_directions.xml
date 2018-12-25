@@ -13,7 +13,6 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color9"
         android:orientation="vertical">
 
         <LinearLayout
@@ -21,16 +20,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:elevation="8dp"
             android:padding="8dp"
-            android:visibility="visible">
+            android:background="@drawable/shadow_border"
+            android:visibility="visible"
+            tools:targetApi="lollipop">
 
-            <android.support.v7.widget.AppCompatImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_weight="7"
-                android:backgroundTint="@color/color9"
-                app:srcCompat="@drawable/ic24_back" />
 
             <RelativeLayout
                 android:layout_width="fill_parent"
@@ -57,8 +52,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginBottom="14dp"
-                            android:layout_marginLeft="8dp"
-                            android:layout_marginRight="8dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
                             android:layout_marginTop="14dp"
                             app:srcCompat="@drawable/ic16_origin9" />
 
@@ -72,11 +67,11 @@
                         android:layout_weight="50"
                         android:background="@drawable/radius_border"
                         android:inputType="text"
+                        android:hint="Chọn địa điểm xuất phát"
                         android:paddingBottom="10dp"
                         android:paddingLeft="14dp"
                         android:paddingRight="14dp"
                         android:paddingTop="10dp"
-                        android:text="01976fdsfdsfdsf93"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp"
                         android:textStyle="normal" />
@@ -111,8 +106,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginBottom="14dp"
-                            android:layout_marginLeft="8dp"
-                            android:layout_marginRight="8dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
                             android:layout_marginTop="14dp"
                             app:srcCompat="@drawable/ic16_marker9" />
 
@@ -125,11 +120,11 @@
                         android:layout_weight="50"
                         android:background="@drawable/radius_border"
                         android:inputType="text"
+                        android:hint="Chọn địa điểm đến"
                         android:paddingBottom="10dp"
                         android:paddingLeft="14dp"
                         android:paddingRight="14dp"
                         android:paddingTop="10dp"
-                        android:text="01976fdsfdsfdsf93"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp"
                         android:textStyle="normal" />
@@ -152,13 +147,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:visibility="visible" />
+            android:elevation="8dp"
+            android:background="@drawable/shadow_border"
+            android:visibility="visible"
+            tools:targetApi="lollipop" />
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/goto_stepbystep"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorWhite"
+            android:background="@drawable/shadow_border"
             android:orientation="horizontal"
             android:padding="@dimen/nav_header_vertical_spacing"
             android:visibility="gone">
@@ -221,7 +219,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/color9"
+        android:background="@drawable/shadow_border"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -278,6 +276,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
+        android:background="@drawable/shadow_border"
         android:layout_margin="16dp"
         android:visibility="gone">
 
@@ -287,7 +286,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/radius_border3"
             android:elevation="10dp"
-            android:padding="12dp"
+            android:padding="14dp"
             android:translationZ="10dp"
             app:srcCompat="@drawable/ic24_chevronleft" />
 
@@ -299,7 +298,7 @@
             android:layout_toRightOf="@+id/btn_previous"
             android:background="@drawable/radius_border3"
             android:elevation="10dp"
-            android:padding="12dp"
+            android:padding="14dp"
             app:srcCompat="@drawable/ic24_chevronright" />
     </RelativeLayout>
 
@@ -310,7 +309,8 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:visibility="visible"
-        app:backgroundTint="@color/colorSliver"
+        app:backgroundTint="@color/colorCyan"
+        android:background="@drawable/shadow_border"
         app:elevation="10dp"
         app:fabSize="normal"
         app:srcCompat="@drawable/ic24_directions" />
