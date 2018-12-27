@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-//                    Toast.makeText(this@MainActivity, ""+it.size, Toast.LENGTH_SHORT).show();
                 }, {
                     Log.e(TAG, "" + it.message)
                 }))
