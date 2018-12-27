@@ -10,10 +10,7 @@ import android.util.Log
 import android.view.View
 import android.widget.RatingBar
 import android.widget.TextView
-import com.google.android.gms.location.places.PlacePhotoMetadataResponse
-import com.google.android.gms.location.places.PlacePhotoResponse
 import com.google.android.gms.location.places.Places
-import com.google.android.gms.tasks.OnCompleteListener
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.SlidingImageAdapter
 import com.horus.travelweather.model.PlaceDbO
@@ -49,13 +46,14 @@ class DetailMyPlace : AppCompatActivity() {
 
         val fab_directions = this.findViewById<View>(R.id.fab_directions) as FloatingActionButton
         fab_directions.setOnClickListener {
-            val directionsIntent = Intent(this@DetailMyPlace, MapsActivity::class.java)
-            directionsIntent.putExtra("MyPlace",place)
+            val directionsIntent = Intent(this@DetailMyPlace, DirectionsFragment::class.java)
+            directionsIntent.putExtra("MyAddress",address)
             startActivity(directionsIntent)
         }
 
     }
 
+    var address = ""
     // Request photos and metadata for the specified place.
     private fun getPhoto(placeId: String) {
         //val placeId = "ChIJa147K9HX3IAR-lwiGIQv9i4"
@@ -111,6 +109,8 @@ class DetailMyPlace : AppCompatActivity() {
                 txt_address.text=myPlace.address
                 txt_phonenumber.text=myPlace.phoneNumber
                 txt_weburi.text= myPlace.websiteUri.toString()
+
+                address = txt_address.text.toString() // to send to DirectionsFragment
 
                 Log.i(TAG, "Place address found: " + myPlace.address)
                 //Log.i(TAG, "Place attributions found: " + myPlace.attributions)

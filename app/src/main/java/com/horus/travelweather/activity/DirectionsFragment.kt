@@ -1,6 +1,7 @@
 package com.horus.travelweather.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -25,6 +26,7 @@ import android.util.Log
 import android.view.*
 import android.widget.RelativeLayout
 import android.widget.Toast
+import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
@@ -37,11 +39,17 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.horus.travelweather.R
+import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
 import com.horus.travelweather.adapter.TransportationAdapter
 import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.model.DirectionsStepDbO
+import com.horus.travelweather.model.HistoryDbO
 import com.horus.travelweather.model.TransitDbO
 import com.horus.travelweather.model.TransportationDbO
 import kotlinx.android.synthetic.main.activity_directions.*
@@ -85,7 +93,15 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
     private lateinit var textToSpeech: TextToSpeech
 
+    //Saving history when searching
+    private val historyDb = HistoryDbO()
+    lateinit var database: FirebaseDatabase
+    lateinit var history_list: DatabaseReference
+    lateinit var mAuth: FirebaseAuth
+    lateinit var adapter: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
+    var myuser: FirebaseUser? = null
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_directions, container, false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -94,9 +110,50 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         }
 
         setHasOptionsMenu(true)
+        mAuth = FirebaseAuth.getInstance()
+        myuser = mAuth.currentUser
+        database = FirebaseDatabase.getInstance()
+        history_list = database.getReference("history")
 
         // Initializing
         markerPoints = ArrayList<LatLng>()
+
+       /* val place = getActivity()!!.intent.getSerializableExtra("MyAddress") as String
+        if(place != null){
+            view.edt_destination.setText(place+"")
+        }
+
+
+        currentlocation = currentLocation_latLng!!
+
+        val geocoder = Geocoder(context!!, Locale.getDefault())
+        try
+        {
+            val addresses = geocoder.getFromLocation(currentlocation.latitude, currentlocation.longitude, 1)
+
+            if (addresses != null)
+            {
+                val returnedAddress = addresses.get(0)
+                val strReturnedAddress = StringBuilder("Address:\n")
+                for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                }
+                view.edt_orgin.setText(addresses.get(0).getAddressLine(0))
+                Log.e("start location: ",addresses.get(0).getAddressLine(0))
+            }
+            else
+            {
+                Log.d("a","No Address returned! : ")
+
+            }
+        }
+        catch (e:IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+            Log.d("a","Canont get Address!")
+        }
+*/
         //
         textToSpeech = TextToSpeech(context!!, TextToSpeech.OnInitListener { i ->
             if (i == TextToSpeech.SUCCESS) {
@@ -1330,9 +1387,18 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 /*placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
                 placeDB.id = place.id*/
-
+                place.placeTypes
                 edt_orgin.setText(placeDB.name)
                 currentlocation = place.latLng
+
+                //history object
+                historyDb.address = place.address.toString()
+                historyDb.name = place.name.toString()
+                historyDb.placeTypes = place.placeTypes.toString()
+                historyDb.historyId = place.id
+                Log.e(TAG, "placeTypes:" + place.placeTypes.toString())
+
+                uploadDatabase() //add to firebase
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(context, data)
@@ -1352,6 +1418,15 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
                 edt_destination.setText(placeDB.name)
                 destlocation = place.latLng
+
+                //history object
+                historyDb.address = place.address.toString()
+                historyDb.name = place.name.toString()
+                historyDb.placeTypes = place.placeTypes.toString()
+                historyDb.historyId = place.id
+                Log.e(TAG, "placeTypes:" + place.placeTypes.toString())
+
+                uploadDatabase() //add to firebase
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(context, data)
@@ -1633,6 +1708,10 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         }
     }
 
+    private fun uploadDatabase() {
+        history_list.child(myuser!!.uid).push().setValue(historyDb)
+    }
+
     private fun setupGoogleMapScreenSettings(mMap:GoogleMap) {
         mMap.isBuildingsEnabled = true               //Turns the 3D buildings layer on
         mMap.isIndoorEnabled = true                  //Sets whether indoor maps should be enabled.
@@ -1670,6 +1749,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     }
     override fun onConnectionSuspended(i:Int) {
     }
+
+    var currentLocation_latLng: LatLng? = null
     override fun onLocationChanged(location:Location) {
         mLastLocation = location
         if (mCurrLocationMarker != null)
@@ -1678,6 +1759,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         }
         //Place current location marker
         val latLng = LatLng(location.latitude, location.longitude)
+        currentLocation_latLng = latLng
+
         val markerOptions = MarkerOptions()
         markerOptions.position(latLng)
         markerOptions.title("Current Position")
@@ -1759,27 +1842,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     }
 }
 
-class LinearLayoutManagerWithSmoothScroller:LinearLayoutManager {
-    constructor(context: Context) : super(context, VERTICAL, false) {}
-    constructor(context:Context, orientation:Int, reverseLayout:Boolean) : super(context, orientation, reverseLayout) {}
-    override fun smoothScrollToPosition(recyclerView:RecyclerView, state:RecyclerView.State,
-                                        position:Int) {
-        val smoothScroller = TopSnappedSmoothScroller(recyclerView.getContext())
-        smoothScroller.setTargetPosition(position)
-        startSmoothScroll(smoothScroller)
-    }
-    private inner class TopSnappedSmoothScroller(context:Context): LinearSmoothScroller(context) {
-        //protected val verticalSnapPreference:Int
-        override fun getVerticalSnapPreference(): Int {
-            return SNAP_TO_START
-        }
 
-        override fun computeScrollVectorForPosition(targetPosition:Int): PointF {
-            return this@LinearLayoutManagerWithSmoothScroller
-                    .computeScrollVectorForPosition(targetPosition)
-        }
-    }
-}
 
 class SmoothLinearLayoutManager : LinearLayoutManager {
 

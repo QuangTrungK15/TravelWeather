@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.DrawableUtils
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.util.Log
@@ -29,7 +28,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.FavouritePlaceAdapter
+import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.common.TWConstant.Companion.REMOVE_PLACE
+import com.horus.travelweather.model.HistoryDbO
 import com.horus.travelweather.model.PlaceDbO
 import kotlinx.android.synthetic.main.activity_favourite_my_place.view.*
 import java.io.ByteArrayOutputStream
@@ -48,6 +49,10 @@ class FavoritePlaceFragment : Fragment() {
     lateinit var adapter: FirebaseRecyclerAdapter<PlaceDbO, FavouritePlaceAdapter.PlaceViewHolder>
     var myuser: FirebaseUser? = null
 
+    private val historyDb = HistoryDbO()
+    lateinit var history_list: DatabaseReference
+    lateinit var adapter2: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_favourite_my_place, container, false)
         setHasOptionsMenu(true)
@@ -55,6 +60,8 @@ class FavoritePlaceFragment : Fragment() {
         myuser = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
         favourite_list = database.getReference("favouriteplace")
+        history_list = database.getReference("history")
+
         view.btn_add_my_place.setOnClickListener {
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
@@ -126,6 +133,14 @@ class FavoritePlaceFragment : Fragment() {
                 placeDb.placeId = place.id
                 placeDb.name = place.name.toString()
                 getPhoto(place.id)
+
+                //history object
+                historyDb.address = place.address.toString()
+                historyDb.name = place.name.toString()
+                historyDb.placeTypes = place.placeTypes.toString()
+                historyDb.historyId = place.id
+
+                uploadDatabase2() //add to firebase
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(this.context, data)
                 Log.e(TAG, status.statusMessage)
@@ -191,6 +206,10 @@ class FavoritePlaceFragment : Fragment() {
     }
     private fun uploadDatabase() {
         favourite_list.child(myuser!!.uid).push().setValue(placeDb)
+    }
+
+    private fun uploadDatabase2() {
+        history_list.child(myuser!!.uid).push().setValue(historyDb)
     }
 
 }

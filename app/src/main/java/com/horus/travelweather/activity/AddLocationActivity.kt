@@ -9,16 +9,20 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.MenuItem
+import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.horus.travelweather.BottomNavigation
 import com.horus.travelweather.R
+import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.adapter.LocationAdapter
 import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.database.TravelWeatherDB
+import com.horus.travelweather.model.HistoryDbO
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -35,6 +39,10 @@ class AddLocationActivity : AppCompatActivity() {
     lateinit var place_list: DatabaseReference
     lateinit var mAuth: FirebaseAuth
 
+    private val historyDb = HistoryDbO()
+    lateinit var history_list: DatabaseReference
+    lateinit var adapter2: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
+    var myuser: FirebaseUser? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,6 +54,11 @@ class AddLocationActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance()
         mAuth = FirebaseAuth.getInstance()
         place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
+        myuser = mAuth.currentUser
+        history_list = database.getReference("history")
+
+
+
         btn_add_location.setOnClickListener {
             //Filter results by place type (by address: get full address, by establisment: get business address)
             val typeFilter = AutocompleteFilter.Builder()
@@ -112,6 +125,14 @@ class AddLocationActivity : AppCompatActivity() {
                 placeDB.id = place.id
                 insertPLace().execute(placeDB)
                 place_list.child(place.id).setValue(placeDB)
+
+                //history object
+                historyDb.address = place.address.toString()
+                historyDb.name = place.name.toString()
+                historyDb.placeTypes = place.placeTypes.toString()
+                historyDb.historyId = place.id
+
+                uploadDatabase() //add to firebase
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(this, data)
                 Log.e(TAG, ""+status)
@@ -146,5 +167,9 @@ class AddLocationActivity : AppCompatActivity() {
             TravelWeatherDB.getInstance(this@AddLocationActivity).placeDataDao().deleteByPlaceId(params[0])
             return null
         }
+    }
+
+    private fun uploadDatabase() {
+        history_list.child(myuser!!.uid).push().setValue(historyDb)
     }
 }

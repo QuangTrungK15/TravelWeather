@@ -50,6 +50,13 @@ class   ProfileActivity : AppCompatActivity() {
         val alterDialog : AlertDialog.Builder = AlertDialog.Builder(this)
         alterDialog.setTitle("Edit Profile")
 
+        val actionBar1 = supportActionBar
+
+        if (actionBar1 != null) {
+            //actionBar1.setDisplayHomeAsUpEnabled(true)
+            actionBar1.title = "Edit Profile"
+        }
+
         val inflater : LayoutInflater = LayoutInflater.from(this)
         val dialogView =    inflater.inflate(R.layout.edit_profile_layout,null)
         alterDialog.setView(dialogView)
