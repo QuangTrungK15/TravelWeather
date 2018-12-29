@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -15,15 +16,11 @@ import com.horus.travelweather.R
 import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.model.UserDbO
 import com.rengwuxian.materialedittext.MaterialEditText
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_profile.*
 
 class   ProfileActivity : AppCompatActivity() {
-
-
     private val TAG : String = ProfileActivity::class.toString()
-
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +30,7 @@ class   ProfileActivity : AppCompatActivity() {
         txt_user_profile_name.text =  TWConstant.currentUser.name
         txt_phone_number.text = TWConstant.currentUser.phone
         txt_email_user.text = TWConstant.currentUser.email
+        Picasso.with(this).load(TWConstant.currentUser.urlPhoto).into(header_cover_image)
         fabEdit.setOnClickListener {
             showDialog()
         }
@@ -41,7 +39,7 @@ class   ProfileActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id = item?.itemId
         if(id == android.R.id.home) {
-            this.finish()
+            finish()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -62,10 +60,10 @@ class   ProfileActivity : AppCompatActivity() {
         alterDialog.setView(dialogView)
         val editName  = dialogView.findViewById<View>(R.id.editName) as MaterialEditText
         val editPhone = dialogView.findViewById<View>(R.id.editPhone) as MaterialEditText
-        val editEmail = dialogView.findViewById<View>(R.id.editEmail) as MaterialEditText
+        val editPassword = dialogView.findViewById<View>(R.id.editPassword) as MaterialEditText
         editName.setText(TWConstant.currentUser.name)
         editPhone.setText(TWConstant.currentUser.phone)
-        editEmail.setText(TWConstant.currentUser.email)
+        editPassword.setText("")
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         val table_user : DatabaseReference = database.getReference("users")
@@ -73,10 +71,23 @@ class   ProfileActivity : AppCompatActivity() {
         val mAuth : FirebaseAuth = FirebaseAuth.getInstance()
         alterDialog.setPositiveButton(getString(R.string.update)) { dialog, _ ->
 
-            val user = UserDbO(editName.text.toString(),editEmail.text.toString(),editPhone.text.toString())
-            table_user.child(mAuth.uid!!).setValue(user)
-            Log.e(TAG, "UPDATE");
-
+            val user = UserDbO(editName.text.toString(),TWConstant.currentUser.email,editPhone.text.toString(),TWConstant.currentUser.urlPhoto)
+            if(table_user.child(mAuth.uid!!).setValue(user).isSuccessful)
+            {
+                Toast.makeText(this@ProfileActivity,"UPDATED" , Toast.LENGTH_SHORT).show()
+            }
+            if(editPassword.text.toString().trim()!="")
+            {
+                val newUser = FirebaseAuth.getInstance().currentUser
+                val newPassword = editPassword.text.toString()
+                if(newPassword.trim() != "")
+                {
+                    if(newUser?.updatePassword(newPassword)!!.isSuccessful)
+                    {
+                        Toast.makeText(this@ProfileActivity,"User password updated." , Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
         alterDialog.setNegativeButton(getString(R.string.cancel), { dialog, whichButton ->
 

@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.horus.travelweather.BottomNavigation
@@ -23,12 +24,19 @@ import com.horus.travelweather.model.UserDbO
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_main.*
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
 
 
 class MainActivity : AppCompatActivity() {
 
     private val TAG: String = MainActivity::class.toString()
     private val compositeDisposable = CompositeDisposable()
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     lateinit var btnLogin: Button
     lateinit var btnSignUp: TextView
@@ -38,13 +46,28 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var table_user: DatabaseReference
 
+    companion object {
+        private const val RC_SIGN_IN = 9001
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        // [START config_signin]
+        // Configure Google Sign In
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
+        // [END config_signin]
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         table_user = database.getReference("users")
+        // [START initialize_auth]
+        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance()
+        // [END initialize_auth]
         btnLogin = findViewById(R.id.btnLogin)
         btnSignUp = findViewById(R.id.btnSignUp)
         editEmail = findViewById(R.id.txtEmail)
@@ -54,7 +77,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(signUpIntent)
         }
         btnLogin.setOnClickListener {
-            signIn(editEmail.text.toString(), editPassword.text.toString())
+            signInWithEmail(editEmail.text.toString(), editPassword.text.toString())
+        }
+
+        sign_in_with_gg.setOnClickListener {
+            signInWithGG()
         }
 
         //get all profile from database room
@@ -68,6 +95,12 @@ class MainActivity : AppCompatActivity() {
                 }))
 
     }
+
+    private fun signInWithGG() {
+        val signInIntent = googleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_SIGN_IN)
+    }
+
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
@@ -89,57 +122,131 @@ class MainActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
 
-    private fun signIn(email: String, password: String) {
-
+    private fun signInWithEmail(email: String, password: String) {
         if (!validateForm(email, password))
             return
         val progress = ProgressDialog(this)
         progress.setMessage("Loading....")
         progress.show();
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this){ task ->
+                .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         // update UI with the signed-in user's information
                         val u = mAuth.getCurrentUser()
                         table_user.addValueEventListener(object : ValueEventListener {
                             override fun onCancelled(p0: DatabaseError) {
                             }
+
                             override fun onDataChange(p0: DataSnapshot) {
                                 try {
                                     val user = p0.child(u!!.uid).getValue(UserDbO::class.java)
-                                    val profileUser = ProfileEntity(u.uid,user!!.name,user.email, user.phone)
+                                    val profileUser = ProfileEntity(u.uid, user!!.name, user.email,user.phone)
                                     TWConstant.currentUser = user
                                     // insert user info into database room.
                                     insertProfileUser().execute(profileUser)
-                                    Log.e(TAG, ""+ user.email)
                                     progress.dismiss()
                                     deleteAllPLace().execute()
                                     intoMainActivity()
-                                }
-                                catch (e : Exception)
-                                {
-                                    Toast.makeText(this@MainActivity, ""+e.message, Toast.LENGTH_LONG).show();
+                                } catch (e: Exception) {
+                                    Toast.makeText(this@MainActivity, "Error : " + e.message, Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
                     } else {
                         progress.dismiss()
-                        Log.e(TAG, "signIn: Fail!", task.exception)
+                        Log.e(TAG, "signInWithEmail: Fail!", task.exception)
                         Toast.makeText(this@MainActivity, getString(R.string.authentication_fail), Toast.LENGTH_SHORT).show()
                     }
                 }
     }
 
-    //Move to another activity, close this activity
-    /*override fun onPause() {
-        super.onPause()
-        finish()
-    }*/
 
-    private fun intoMainActivity()
-    {
-//        val homeIntent = Intent(this@MainActivity, HomeActivity::class.java)
-//        startActivity(homeIntent)
+    // [START onactivityresult]
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                val account = task.getResult(ApiException::class.java)
+//                Toast.makeText(this@MainActivity, "Google sign in successfull", Toast.LENGTH_SHORT).show();
+                firebaseAuthWithGoogle(account!!)
+            } catch (e: ApiException) {
+                // Google Sign In failed, update UI appropriately
+                Toast.makeText(this@MainActivity, "Error  :  " + e.message, Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Google sign in failed", e)
+                // [START_EXCLUDE]
+//                updateUI(null)
+                // [END_EXCLUDE]
+            }
+        }
+    }
+    // [END onactivityresult]
+
+
+    // [START auth_with_google]
+    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
+        // [START_EXCLUDE silent]
+//        showProgressDialog()
+        val progress = ProgressDialog(this)
+        progress.setMessage("Loading....")
+        progress.show();
+        // [END_EXCLUDE]
+        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // Sign in success, save data with the signed-in user's information
+                        val u = mAuth.currentUser
+                        if (u != null) {
+                            table_user.orderByKey().equalTo(u.uid).addValueEventListener(object : ValueEventListener {
+                                override fun onCancelled(p0: DatabaseError) {
+                                    Toast.makeText(this@MainActivity, "Error Equal", Toast.LENGTH_SHORT).show()
+                                }
+                                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                    if (dataSnapshot.getChildren().iterator().hasNext()) {
+                                        try {
+                                            val user = dataSnapshot.child(u!!.uid).getValue(UserDbO::class.java)
+                                            TWConstant.currentUser = user!!
+                                            progress.dismiss()
+                                            deleteAllPLace().execute()
+                                            intoMainActivity()
+                                        } catch (e: Exception) {
+                                            Toast.makeText(this@MainActivity, "Error : " + e.message, Toast.LENGTH_LONG).show();
+                                        }
+                                    } else {
+                                        try {
+                                            val userDbO = UserDbO(u.displayName!!,u.email!!, "01234", u.photoUrl.toString())
+                                            if (table_user.child(u.uid).setValue(userDbO).isComplete) {
+                                                val user = dataSnapshot.child(u!!.uid).getValue(UserDbO::class.java)
+                                                TWConstant.currentUser = user!!
+                                                progress.dismiss()
+                                                deleteAllPLace().execute()
+                                                intoMainActivity()
+                                            }
+                                        } catch (e: Exception) {
+                                            Toast.makeText(this@MainActivity, "Error : " + e.message, Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                }
+
+                            })
+                        }
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.e(TAG, "signInWithCredential:failure", task.exception)
+                    }
+
+                    // [START_EXCLUDE]
+                    progress.dismiss()
+                    // [END_EXCLUDE]
+                }
+    }
+
+    // [END auth_with_google]
+    private fun intoMainActivity() {
         val homeIntent = Intent(this@MainActivity, BottomNavigation::class.java)
         startActivity(homeIntent)
     }
@@ -165,20 +272,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     //Clear it before this activity refers to HomeActivity (in this activity, firebase data will put all place data in dbRoom)
-    inner class deleteAllPLace(): AsyncTask<Void, Void, Void>() {
+    inner class deleteAllPLace() : AsyncTask<Void, Void, Void>() {
         override fun doInBackground(vararg params: Void?): Void? {
             TravelWeatherDB.getInstance(this@MainActivity).placeDataDao().deleteAll()
             return null
         }
     }
 
-    inner class insertProfileUser(): AsyncTask<ProfileEntity, Void, Void>() {
+    inner class insertProfileUser() : AsyncTask<ProfileEntity, Void, Void>() {
         override fun doInBackground(vararg params: ProfileEntity): Void? {
-                TravelWeatherDB.getInstance(this@MainActivity).profileDataDao().insert(params[0])
+            TravelWeatherDB.getInstance(this@MainActivity).profileDataDao().insert(params[0])
             return null
         }
     }
-
 
 
 }

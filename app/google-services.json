@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "393459142515-ol2ejtu5mu3ukhvs390h0fr0cim63u2e.apps.googleusercontent.com",
+          "client_id": "393459142515-g2kv2grljivo6h42oqpq32pcplneo8mv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.horus.travelweather",
-            "certificate_hash": "c40ed9cf01eed42ff763961a5df823dee676eeeb"
+            "certificate_hash": "8e258c4b1ad76efde6e823917c87a7b0d00e3aca"
           }
         },
         {
@@ -30,6 +30,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyCYb-Br0L5D11y6QvoxNNqnaohbJ-bNLOQ"
+        },
+        {
+          "current_key": "AIzaSyD0vtX3vEcf8imVCzm1ueZQKENFahe49ns"
         }
       ],
       "services": {

@@ -33,6 +33,7 @@
                 android:text="View and edit profile"/>
         </LinearLayout>
         <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_url_photo"
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_alignParentRight="true"

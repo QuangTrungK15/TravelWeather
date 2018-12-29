@@ -1,5 +1,10 @@
 package com.horus.travelweather.model
 
-class UserDbO(var name : String="", var email : String="", var phone : String = "") {
+import android.net.Uri
+
+class UserDbO(var name: String="",
+              var email: String="",
+              var phone: String = "",
+              var urlPhoto: String = "") {
 
 }
