@@ -30,6 +30,7 @@ abstract class TravelWeatherDB : RoomDatabase() {
         fun create(context : Context) : TravelWeatherDB{
             return Room.databaseBuilder(context,
                     TravelWeatherDB::class.java, "Place_horus")
+                    .fallbackToDestructiveMigration()
                     .build()
         }
     }

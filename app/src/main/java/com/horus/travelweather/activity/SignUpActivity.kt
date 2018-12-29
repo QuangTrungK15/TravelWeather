@@ -1,6 +1,5 @@
 package com.horus.travelweather.activity
 
-import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
@@ -13,10 +12,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.horus.travelweather.R
-import com.horus.travelweather.database.TravelWeatherDB
-import com.horus.travelweather.database.ProfileEntity
+import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.model.UserDbO
-import com.rengwuxian.materialedittext.MaterialEditText
 
 
 class SignUpActivity : AppCompatActivity() {
@@ -38,24 +35,14 @@ class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
-
-
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
-
         table_user = database.getReference("users")
-
         mAuth  = FirebaseAuth.getInstance()
-
-
-        editEmail = findViewById(R.id.editEmail)
+        editEmail = findViewById(R.id.editPassword)
         editName = findViewById(R.id.editName)
         editPass = findViewById(R.id.editPass)
         editPhone = findViewById(R.id.editPhone)
-
         btnSignUp = findViewById(R.id.btnSignUp)
-
-
-
         btnSignUp.setOnClickListener {
             createAccount(editEmail.text.toString(),editPass.text.toString())
         }
@@ -68,8 +55,6 @@ class SignUpActivity : AppCompatActivity() {
             return;
         }
         mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener {
-
-
             if(it.isSuccessful)
             {
                 Log.e(TAG, "createAccount: Success!");
@@ -84,22 +69,13 @@ class SignUpActivity : AppCompatActivity() {
                 Toast.makeText(this@SignUpActivity, getString(R.string.already_in_use), Toast.LENGTH_SHORT).show()
 
             }
-
         }
-
-
-
-
     }
-
 
     private fun writeNewUser(userId : String, username : String, email : String, phone : String) {
-        val user  = UserDbO(username, email,phone)
-        val userEntity = ProfileEntity(userId,username,email,phone)
+        val user  = UserDbO(username,email,phone, TWConstant.BASE_URI_PHOTO)
         table_user.child(userId).setValue(user)
-        insertProfile().execute(userEntity)
     }
-
 
     private fun validateForm(email:String , password : String) : Boolean
     {
@@ -122,13 +98,12 @@ class SignUpActivity : AppCompatActivity() {
         return true
     }
 
-
-    inner class insertProfile(): AsyncTask<ProfileEntity, Void, Void>() {
-        override fun doInBackground(vararg params: ProfileEntity): Void? {
-            TravelWeatherDB.getInstance(this@SignUpActivity).profileDataDao().insert(params[0])
-            return null
-        }
-    }
+//    inner class insertProfile(): AsyncTask<ProfileEntity, Void, Void>() {
+//        override fun doInBackground(vararg params: ProfileEntity): Void? {
+//            TravelWeatherDB.getInstance(this@SignUpActivity).profileDataDao().insert(params[0])
+//            return null
+//        }
+//    }
 
 
 }
