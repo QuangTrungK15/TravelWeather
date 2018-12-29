@@ -96,6 +96,17 @@ class FavoritePlaceFragment : Fragment() {
 
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        when (id) {
+            R.id.removeall -> {
+                deleteAllFavPlace()
+                return true
+            }
+        }
+        return false
+    }
+
     companion object {
         fun newInstance(): FavoritePlaceFragment = FavoritePlaceFragment()
     }
@@ -200,6 +211,12 @@ class FavoritePlaceFragment : Fragment() {
         })
 
     }
+
+    private fun deleteAllFavPlace() {
+        favourite_list.child(myuser!!.uid).removeValue()
+        adapter.notifyDataSetChanged()
+    }
+
     private fun deleteFavouritePlace(key: String) {
         favourite_list.child(myuser!!.uid).child(key).removeValue()
         adapter.notifyDataSetChanged()

@@ -47,8 +47,9 @@
                 android:id="@+id/btn_add_my_place"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="4dp"
                 app:backgroundTint="@color/colorCyan"
-                android:src="@drawable/ic_add"/>
+                app:srcCompat="@drawable/ic24_plus"/>
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_my_places"
                 android:layout_width="match_parent"

@@ -9,7 +9,7 @@ import kotlinx.android.synthetic.main.activity_bottom_navigation.*
 
 class BottomNavigation : AppCompatActivity() {
 
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+    val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
                 getSupportActionBar()!!.setTitle("Home")
@@ -25,7 +25,7 @@ class BottomNavigation : AppCompatActivity() {
             }
             R.id.navigation_direction -> {
                 getSupportActionBar()!!.setTitle("Direction")
-                val directionFragment = DirectionsFragment.newInstance()
+                val directionFragment = DirectionsFragment.newInstance("")
                 openFragment(directionFragment)
                 return@OnNavigationItemSelectedListener true
             }
@@ -42,6 +42,7 @@ class BottomNavigation : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
         }
+
         false
     }
 

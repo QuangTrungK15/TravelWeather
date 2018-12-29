@@ -1,9 +1,10 @@
 package com.horus.travelweather.activity
 
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.app.Fragment
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -11,6 +12,8 @@ import android.view.View
 import android.widget.RatingBar
 import android.widget.TextView
 import com.google.android.gms.location.places.Places
+import com.google.android.gms.maps.model.LatLng
+import com.horus.travelweather.BottomNavigation
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.SlidingImageAdapter
 import com.horus.travelweather.model.PlaceDbO
@@ -31,6 +34,12 @@ class DetailMyPlace : AppCompatActivity() {
 
         getPhoto(place.placeId)
 
+        val actionBar1 = supportActionBar
+        if (actionBar1 != null) {
+            //actionBar1.setDisplayHomeAsUpEnabled(true)
+            actionBar1.title = "Detail Place"
+        }
+
         sliding_view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
             }
@@ -39,21 +48,95 @@ class DetailMyPlace : AppCompatActivity() {
             }
 
             override fun onPageSelected(position: Int) {
-                pageIndicatorView.selection = position;
+                pageIndicatorView.selection = position
             }
 
         })
 
-        val fab_directions = this.findViewById<View>(R.id.fab_directions) as FloatingActionButton
+        val fab_directions = this.findViewById<View>(R.id.fab_directions2) as FloatingActionButton
         fab_directions.setOnClickListener {
-            val directionsIntent = Intent(this@DetailMyPlace, DirectionsFragment::class.java)
-            directionsIntent.putExtra("MyAddress",address)
-            startActivity(directionsIntent)
+            //val directionsIntent = Intent(this@DetailMyPlace, DirectionsFragment::class.java)
+            //directionsIntent.putExtra("MyLatLng",latLng_toDirection.toString())
+            setContentView(R.layout.activity_bottom_navigation)
+
+            val aaa = BottomNavigation()
+            //aaa.navigation
+            val navigation =  this.findViewById<View>(R.id.navigation) as BottomNavigationView
+            navigation.selectedItemId = R.id.navigation_direction
+            val directionFragment = DirectionsFragment.newInstance(latLng_toDirection.toString())
+            openFragment(directionFragment)
+            val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+                when (item.itemId) {
+                    R.id.navigation_home -> {
+                        getSupportActionBar()!!.setTitle("Home")
+                        val homeFragment = HomeFragment.newInstance()
+                        openFragment(homeFragment)
+                        return@OnNavigationItemSelectedListener true
+                    }
+                    R.id.navigation_favorite -> {
+                        getSupportActionBar()!!.setTitle("Favorite Places")
+                        val favouriteFragment = FavoritePlaceFragment.newInstance()
+                        openFragment(favouriteFragment)
+                        return@OnNavigationItemSelectedListener true
+                    }
+                    R.id.navigation_direction -> {
+                        getSupportActionBar()!!.setTitle("Direction")
+                        val directionFragment = DirectionsFragment.newInstance(latLng_toDirection.toString())
+                        openFragment(directionFragment)
+                        return@OnNavigationItemSelectedListener true
+                    }
+                    R.id.navigation_history -> {
+                        getSupportActionBar()!!.setTitle("History")
+                        val historyFragment = HistoryFragment.newInstance()
+                        openFragment(historyFragment)
+                        return@OnNavigationItemSelectedListener true
+                    }
+                    R.id.navigation_profile -> {
+                        getSupportActionBar()!!.setTitle("Profile")
+                        val profileFragment = NewProfileFragment.newInstance()
+                        openFragment(profileFragment)
+                        return@OnNavigationItemSelectedListener true
+                    }
+                }
+                false
+            }
+
+            navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+
+
+            /*val transaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.detailmyplace, directionFragment)
+            fab_directions2.visibility = View.GONE
+            app_bar_layout.visibility = View.GONE
+            transaction.attach(directionFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+            directionbackDetail = true*/
         }
 
     }
 
-    var address = ""
+   /* override fun onBackPressed() {
+        super.onBackPressed()
+
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        navigation.selectedItemId = R.id.navigation_home
+        val homeFragment = HomeFragment.newInstance()
+        openFragment(homeFragment)
+    }*/
+
+    fun getMyData(): String {
+        return latLng_toDirection.toString()
+    }
+
+    private fun openFragment(fragment: Fragment) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.container, fragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
+
+    var latLng_toDirection: LatLng = LatLng(10.762622, 106.660172)
     // Request photos and metadata for the specified place.
     private fun getPhoto(placeId: String) {
         //val placeId = "ChIJa147K9HX3IAR-lwiGIQv9i4"
@@ -110,7 +193,9 @@ class DetailMyPlace : AppCompatActivity() {
                 txt_phonenumber.text=myPlace.phoneNumber
                 txt_weburi.text= myPlace.websiteUri.toString()
 
-                address = txt_address.text.toString() // to send to DirectionsFragment
+                latLng_toDirection = myPlace.latLng // to send to DirectionsFragment
+                Log.i(TAG, "Place latlng found: " + latLng_toDirection)
+
 
                 Log.i(TAG, "Place address found: " + myPlace.address)
                 //Log.i(TAG, "Place attributions found: " + myPlace.attributions)

@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PointF
+import android.location.Geocoder
 import android.location.Location
 import android.os.AsyncTask
 import android.os.Build
@@ -18,9 +19,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.LinearSmoothScroller
-import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.*
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
@@ -47,6 +46,7 @@ import com.horus.travelweather.R
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
 import com.horus.travelweather.adapter.TransportationAdapter
+import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.model.DirectionsStepDbO
 import com.horus.travelweather.model.HistoryDbO
@@ -101,6 +101,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     lateinit var adapter: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
     var myuser: FirebaseUser? = null
 
+    var latLngfromFavPlace = ""
+
     @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_directions, container, false)
@@ -118,42 +120,69 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         // Initializing
         markerPoints = ArrayList<LatLng>()
 
-       /* val place = getActivity()!!.intent.getSerializableExtra("MyAddress") as String
-        if(place != null){
-            view.edt_destination.setText(place+"")
-        }
+        //
+        //val activity = activity as DetailMyPlace?
+        //latLngfromFavPlace = activity!!.getMyData()
+        //val latLngfromFavPlace = (activity!!.intent.getSerializableExtra("MyLatLng") as String)
+        //if(!latLngfromFavPlace.isEmpty()){
+        latLngfromFavPlace = arguments!!.getString("MyLatLng")
 
+        if(!latLngfromFavPlace.isEmpty()){
+            val actionBar1 = (activity as AppCompatActivity).supportActionBar
+            if (actionBar1 != null) {
+                //actionBar1.setDisplayHomeAsUpEnabled(true)
+                actionBar1.title = "Direction"
+            }
 
-        currentlocation = currentLocation_latLng!!
-
-        val geocoder = Geocoder(context!!, Locale.getDefault())
-        try
-        {
-            val addresses = geocoder.getFromLocation(currentlocation.latitude, currentlocation.longitude, 1)
-
-            if (addresses != null)
-            {
-                val returnedAddress = addresses.get(0)
-                val strReturnedAddress = StringBuilder("Address:\n")
-                for (i in 0 until returnedAddress.getMaxAddressLineIndex())
-                {
-                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+            var lat = ""
+            var lng = ""
+            for(i in 0 until latLngfromFavPlace.length){
+                if(latLngfromFavPlace[i] == ','){
+                    lat = latLngfromFavPlace.substring(10,i)
+                    lng = latLngfromFavPlace.substring(i+1,latLngfromFavPlace.lastIndex)
                 }
-                view.edt_orgin.setText(addresses.get(0).getAddressLine(0))
-                Log.e("start location: ",addresses.get(0).getAddressLine(0))
             }
-            else
-            {
-                Log.d("a","No Address returned! : ")
 
+            Log.e("Place latlng: ",lat+ ',' + lng)
+
+            destlocation = LatLng(lat.toDouble(),lng.toDouble())
+
+            val geocoder = Geocoder(context!!, Locale.getDefault())
+            try
+            {
+                val addresses = geocoder.getFromLocation(destlocation.latitude, destlocation.longitude, 1)
+
+                if (addresses != null)
+                {
+                    val returnedAddress = addresses.get(0)
+                    val strReturnedAddress = StringBuilder("Address:\n")
+                    for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                    {
+                        strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                    }
+                    view.edt_destination.setText(addresses.get(0).getAddressLine(0))
+                    Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                }
+                else
+                {
+                    Log.d("a","No Address returned! : ")
+
+                }
+            }
+            catch (e:IOException) {
+                // TODO Auto-generated catch block
+                e.printStackTrace()
+                Log.d("a","Canont get Address!")
             }
         }
-        catch (e:IOException) {
-            // TODO Auto-generated catch block
-            e.printStackTrace()
-            Log.d("a","Canont get Address!")
+
+        //currentlocation = currentLocation_latLng!!
+        view.imgView_optionmenu.setOnClickListener{
+            showPopup(context!!, view.imgView_optionmenu, 0)
+            //Log.e("hientai: ",currentLocation_latLng.toString())
         }
-*/
+
+
         //
         textToSpeech = TextToSpeech(context!!, TextToSpeech.OnInitListener { i ->
             if (i == TextToSpeech.SUCCESS) {
@@ -305,8 +334,83 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         return view
     }
 
+    private fun showPopup(context: Context, textView: AppCompatImageButton, position: Int) {
+        var popup: PopupMenu? = null
+        popup = PopupMenu(context, textView)
+        //Add only option (remove) of per img
+        popup.menu.add(0, position, 0, TWConstant.YOURLOCATION1)
+        popup.menu.add(0, position+1, 0, TWConstant.YOURLOCATION2)
 
+        popup.show()
+        popup.menu.getItem(0).setOnMenuItemClickListener({
 
+            currentlocation = currentLocation_latLng
+
+            val geocoder = Geocoder(context!!, Locale.getDefault())
+            try
+            {
+                val addresses = geocoder.getFromLocation(currentlocation.latitude, currentlocation.longitude, 1)
+
+                if (addresses != null)
+                {
+                    val returnedAddress = addresses.get(0)
+                    val strReturnedAddress = StringBuilder("Address:\n")
+                    for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                    {
+                        strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                    }
+                    edt_orgin.setText(addresses.get(0).getAddressLine(0))
+                    Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                }
+                else
+                {
+                    Log.d("a","No Address returned! : ")
+
+                }
+            }
+            catch (e:IOException) {
+                // TODO Auto-generated catch block
+                e.printStackTrace()
+                Log.d("a","Canont get Address!")
+            }
+            true
+        })
+
+        popup.menu.getItem(1).setOnMenuItemClickListener({
+            Log.e("Ok nha2:","1")
+            destlocation = currentLocation_latLng
+
+            val geocoder = Geocoder(context!!, Locale.getDefault())
+            try
+            {
+                val addresses = geocoder.getFromLocation(destlocation.latitude, destlocation.longitude, 1)
+
+                if (addresses != null)
+                {
+                    val returnedAddress = addresses.get(0)
+                    val strReturnedAddress = StringBuilder("Address:\n")
+                    for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                    {
+                        strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                    }
+                    edt_destination.setText(addresses.get(0).getAddressLine(0))
+                    Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                }
+                else
+                {
+                    Log.d("a","No Address returned! : ")
+
+                }
+            }
+            catch (e:IOException) {
+                // TODO Auto-generated catch block
+                e.printStackTrace()
+                Log.d("a","Canont get Address!")
+            }
+            true
+        })
+
+    }
 //    @SuppressLint("ClickableViewAccessibility")
 //    @RequiresApi(Build.VERSION_CODES.M)
 //    override fun onCreate(savedInstanceState: Bundle?) {
@@ -876,11 +980,23 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
                 thestep = 0
 
+                /*if(!latLngfromFavPlace.isEmpty()){
+                    val actionBar1 = (activity as AppCompatActivity).supportActionBar
+                    if (actionBar1 != null) {
+                        //actionBar1.setDisplayHomeAsUpEnabled(true)
+                        actionBar1.title = "Detail Place"
+                        fab_directions2.visibility = View.VISIBLE
+                        app_bar_layout.visibility = View.VISIBLE
+                    }
+                }*/
+
                 return true
             }
+
             else -> return super.onOptionsItemSelected(item)
         }
     }
+
 
     private fun AddMarker(currentlocation: LatLng, destlocation: LatLng){
 //        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
@@ -1750,7 +1866,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     override fun onConnectionSuspended(i:Int) {
     }
 
-    var currentLocation_latLng: LatLng? = null
+    var currentLocation_latLng: LatLng = LatLng(10.762622, 106.660172)
     override fun onLocationChanged(location:Location) {
         mLastLocation = location
         if (mCurrLocationMarker != null)
@@ -1838,7 +1954,13 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     }
     companion object {
         val MY_PERMISSIONS_REQUEST_LOCATION = 99
-        fun newInstance(): DirectionsFragment = DirectionsFragment()
+        fun newInstance(latLng_toDirection: String): DirectionsFragment{
+            val args = Bundle()
+            args.putString("MyLatLng", latLng_toDirection)
+            val fragment = DirectionsFragment()
+            fragment.arguments = args
+            return fragment
+        }
     }
 }
 

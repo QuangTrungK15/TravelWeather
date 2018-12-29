@@ -2,6 +2,7 @@
 
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/detailmyplace"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -228,7 +229,7 @@
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_directions"
+        android:id="@+id/fab_directions2"
         android:layout_width="wrap_content"
         android:layout_height="454dp"
         android:layout_gravity="end|bottom"
