@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
+import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.TextView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -48,7 +49,7 @@ class HistoryFragment: Fragment() {
         adapter = HistoryAdapter(options, { context,textview, i ->
             showPopup(context,textview, i)
         })
-        view.rv_history.layoutManager = LinearLayoutManager(this.activity)
+        view.rv_history.layoutManager = LinearLayoutManager(this.activity) as RecyclerView.LayoutManager?
         view.rv_history.adapter = adapter
         return view
     }
