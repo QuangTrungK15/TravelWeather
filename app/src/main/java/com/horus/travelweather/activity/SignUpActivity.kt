@@ -38,7 +38,7 @@ class SignUpActivity : AppCompatActivity() {
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         table_user = database.getReference("users")
         mAuth  = FirebaseAuth.getInstance()
-        editEmail = findViewById(R.id.editPassword)
+        editEmail = findViewById(R.id.signUpEmail)
         editName = findViewById(R.id.editName)
         editPass = findViewById(R.id.editPass)
         editPhone = findViewById(R.id.editPhone)

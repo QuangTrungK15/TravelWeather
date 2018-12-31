@@ -1,13 +1,17 @@
 
 package com.horus.travelweather.activity
 
+import android.app.ProgressDialog
+import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -18,9 +22,13 @@ import com.horus.travelweather.model.UserDbO
 import com.rengwuxian.materialedittext.MaterialEditText
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_profile.*
+import uk.co.markormesher.android_fab.SpeedDialMenuAdapter
+import uk.co.markormesher.android_fab.SpeedDialMenuItem
 
 class   ProfileActivity : AppCompatActivity() {
     private val TAG : String = ProfileActivity::class.toString()
+    private val flag = true;
+    private lateinit var  progress : ProgressDialog ;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,9 +39,10 @@ class   ProfileActivity : AppCompatActivity() {
         txt_phone_number.text = TWConstant.currentUser.phone
         txt_email_user.text = TWConstant.currentUser.email
         Picasso.with(this).load(TWConstant.currentUser.urlPhoto).into(header_cover_image)
-        fabEdit.setOnClickListener {
-            showDialog()
-        }
+        fabEdit.speedDialMenuAdapter = speedDialMenuAdapter
+        fabEdit.setContentCoverColour(Color.TRANSPARENT)
+        progress = ProgressDialog(this)
+        progress.setMessage("Loading....")
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -44,7 +53,7 @@ class   ProfileActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun showDialog() {
+    private fun showDialogChangeProfile() {
         val alterDialog : AlertDialog.Builder = AlertDialog.Builder(this)
         alterDialog.setTitle("Edit Profile")
 
@@ -60,10 +69,8 @@ class   ProfileActivity : AppCompatActivity() {
         alterDialog.setView(dialogView)
         val editName  = dialogView.findViewById<View>(R.id.editName) as MaterialEditText
         val editPhone = dialogView.findViewById<View>(R.id.editPhone) as MaterialEditText
-        val editPassword = dialogView.findViewById<View>(R.id.editPassword) as MaterialEditText
         editName.setText(TWConstant.currentUser.name)
         editPhone.setText(TWConstant.currentUser.phone)
-        editPassword.setText("")
 
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         val table_user : DatabaseReference = database.getReference("users")
@@ -72,27 +79,98 @@ class   ProfileActivity : AppCompatActivity() {
         alterDialog.setPositiveButton(getString(R.string.update)) { dialog, _ ->
 
             val user = UserDbO(editName.text.toString(),TWConstant.currentUser.email,editPhone.text.toString(),TWConstant.currentUser.urlPhoto)
-            if(table_user.child(mAuth.uid!!).setValue(user).isSuccessful)
-            {
-                Toast.makeText(this@ProfileActivity,"UPDATED" , Toast.LENGTH_SHORT).show()
+
+            table_user.child(mAuth.uid!!).setValue(user).addOnCompleteListener {
+                if(it.isComplete)
+                {
+                    Toast.makeText(this@ProfileActivity,"UPDATED" , Toast.LENGTH_SHORT).show()
+                }
             }
-            if(editPassword.text.toString().trim()!="")
+        }
+        alterDialog.setNegativeButton(getString(R.string.cancel), { dialog, whichButton ->
+            progress.dismiss()
+        })
+        alterDialog.create().show()
+    }
+
+    private fun showDialogChangePassword() {
+        progress.show();
+        val alterDialog : AlertDialog.Builder = AlertDialog.Builder(this)
+        alterDialog.setTitle("Edit Password")
+        val inflater : LayoutInflater = LayoutInflater.from(this)
+        val dialogView = inflater.inflate(R.layout.edit_password_layout,null)
+        val editPassword = dialogView.findViewById<View>(R.id.editPassword) as MaterialEditText
+        alterDialog.setView(dialogView)
+        editPassword.setText("")
+        alterDialog.setPositiveButton(getString(R.string.update)) { dialog, _ ->
+            if(countOnString(editPassword.text.toString().trim()))
             {
                 val newUser = FirebaseAuth.getInstance().currentUser
                 val newPassword = editPassword.text.toString()
                 if(newPassword.trim() != "")
                 {
-                    if(newUser?.updatePassword(newPassword)!!.isSuccessful)
-                    {
-                        Toast.makeText(this@ProfileActivity,"User password updated." , Toast.LENGTH_SHORT).show()
+                    newUser?.updatePassword(newPassword)!!.addOnCompleteListener {
+                        if(it.isComplete)
+                        {
+                            progress.dismiss()
+                            Toast.makeText(this@ProfileActivity,"User password updated" , Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
         }
         alterDialog.setNegativeButton(getString(R.string.cancel), { dialog, whichButton ->
-
-
+            progress.dismiss()
         })
         alterDialog.create().show()
     }
+
+
+    private fun countOnString(text : String) : Boolean
+    {
+        if(text.count() >= 6)
+        {
+            return true
+        }
+        progress.dismiss()
+        Toast.makeText(this@ProfileActivity,"Text must be larger five characters" , Toast.LENGTH_LONG).show()
+        return false
+    }
+
+    private val speedDialMenuAdapter = object: SpeedDialMenuAdapter() {
+        override fun getCount(): Int {
+            return 2
+        }
+
+        override fun getMenuItem(context: Context, position: Int): SpeedDialMenuItem = when (position) {
+            0 -> SpeedDialMenuItem(context, R.drawable.ic_edit_white_24dp, "Edit Profile")
+            1 -> SpeedDialMenuItem(context, R.drawable.ic_vpn_key_white_24dp, "Change Password")
+            else -> throw IllegalArgumentException("No menu item: $position")
+        }
+
+        override fun onPrepareItemLabel(context: Context, position: Int, label: TextView) {
+            // make the first item bold if there are multiple items
+            // (this isn't a design pattern, it's just to demo the functionality)
+                label.setTypeface(label.typeface, Typeface.BOLD)
+                label.setTextColor(Color.WHITE)
+        }
+
+        override fun onMenuItemClick(position: Int): Boolean {
+            if(position == 0)
+            {
+                showDialogChangeProfile()
+                return true
+            }
+            else if(position == 1)
+            {
+                showDialogChangePassword()
+                return true
+
+            }
+            return super.onMenuItemClick(position)
+        }
+        //        // rotate the "+" icon only
+//        override fun fabRotationDegrees(): Float = if (0 == 0) 135F else 0F
+    }
+
 }
