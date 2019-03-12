@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
                 Toast.makeText(this@MainActivity, "Error  :  " + e.message, Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Google sign in failed", e)
+                Toast.makeText(this@MainActivity, "Error google signin:  " + e.statusMessage, Toast.LENGTH_SHORT).show();
                 // [START_EXCLUDE]
 //                updateUI(null)
                 // [END_EXCLUDE]
@@ -218,7 +218,7 @@ class MainActivity : AppCompatActivity() {
                                         }
                                     } else {
                                         try {
-                                            val userDbO = UserDbO(u.displayName!!,u.email!!, "01234", u.photoUrl.toString())
+                                            val userDbO = UserDbO(u.displayName!!,u.email!!, "[Chưa cập nhật]", u.photoUrl.toString())
                                             if (table_user.child(u.uid).setValue(userDbO).isComplete) {
                                                 val user = dataSnapshot.child(u!!.uid).getValue(UserDbO::class.java)
                                                 TWConstant.currentUser = user!!

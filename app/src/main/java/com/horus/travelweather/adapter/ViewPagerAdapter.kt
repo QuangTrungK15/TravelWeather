@@ -4,9 +4,13 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
+import android.view.View
+import com.horus.travelweather.R
+import com.horus.travelweather.R.id.progress_loading
 import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.fragment.AddLocationFragment
 import com.horus.travelweather.fragment.WeatherDetailFragment
+import kotlinx.android.synthetic.main.activity_bottom_navigation.*
 
 open class ViewPagerAdapter(fragmentManager: FragmentManager, private var listPlaces : List<PlaceEntity>) :
         FragmentPagerAdapter(fragmentManager) {

@@ -26,6 +26,7 @@ import android.location.Geocoder
 import android.location.Location
 import java.util.*
 import android.location.LocationManager
+import android.opengl.Visibility
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.google.android.gms.location.LocationRequest
@@ -38,10 +39,7 @@ import ru.solodovnikov.rx2locationmanager.RxLocationManager
 import java.util.concurrent.TimeUnit
 import ru.solodovnikov.rx2locationmanager.LocationRequestBuilder
 import io.reactivex.internal.operators.single.SingleInternalHelper.toObservable
-
-
-
-
+import kotlinx.android.synthetic.main.activity_bottom_navigation.*
 
 
 class WeatherDetailFragment : Fragment() {
@@ -95,8 +93,9 @@ class WeatherDetailFragment : Fragment() {
     private fun processResponseData(result: WeatherDetailsResponse) {
         txt_current_time.text = getCurrentTime()
         txt_date_time.text = convertTimestampToDayAndHourFormat(result.dateTime)
-        txt_city_name.text = result.nameCity.toString()
+        txt_city_name.text = result.nameCity
         txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp))
+        Log.e("nhiet do",txt_temperature.text.toString())
         txt_temp_max.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp_max))
         txt_temp_min.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp_min))
         txt_main_weather.text = result.weather[0].nameWeather

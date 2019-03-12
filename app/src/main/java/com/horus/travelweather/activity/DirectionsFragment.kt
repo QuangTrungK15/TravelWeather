@@ -1506,6 +1506,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 place.placeTypes
                 edt_orgin.setText(placeDB.name)
                 currentlocation = place.latLng
+                Log.e("nhiet2",place.latLng.toString())
 
                 //history object
                 historyDb.address = place.address.toString()

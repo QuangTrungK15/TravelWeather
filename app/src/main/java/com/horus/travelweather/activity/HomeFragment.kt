@@ -1,6 +1,10 @@
 package com.horus.travelweather.activity
 
 import android.Manifest
+import android.app.ProgressDialog
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.drawable.AnimationDrawable
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -8,9 +12,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.ProgressBar
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.horus.travelweather.R
+import com.horus.travelweather.R.id.view_pager
 import com.horus.travelweather.adapter.ViewPagerAdapter
 import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.database.TravelWeatherDB
@@ -20,7 +29,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_home_fragment.*
 
-
 class HomeFragment : Fragment() {
 
     private val TAG = HomeFragment::class.java.simpleName
@@ -29,12 +37,27 @@ class HomeFragment : Fragment() {
     lateinit var database: FirebaseDatabase
     lateinit var place_list: DatabaseReference
     lateinit var mAuth: FirebaseAuth
+    //lateinit var progress_loading: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_home_fragment, container, false)
         database = FirebaseDatabase.getInstance()
         mAuth = FirebaseAuth.getInstance()
         place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
+
+        //progress_loading = view.findViewById(R.id.progress_loading)
+
+        var progress = ProgressDialog(context)
+        val progress_loading = view.findViewById<ProgressBar>(R.id.progress_loading) as ProgressBar
+        progress_loading.isIndeterminate = true
+        progress_loading.max = 100
+
+        progress_loading.visibility = View.VISIBLE
+       // progress.setIndeterminateDrawable(R.drawable.my_progress_indeterminate)
+        //progress.setMessage("Loading....")
+        //progress.setProgressDrawable(resources.getDrawable(R.drawable.bottleloading))
+        //progress.max = 100
+        //progress.show()
         val rxPermissions = RxPermissions(this)
         rxPermissions
                 .request(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -57,6 +80,8 @@ class HomeFragment : Fragment() {
                                 }
                                 Log.e(TAG,"Size : "+placeList.size)
                                 insertAllPlace().execute(placeList)
+                                //progress.cancel()
+                                progress_loading.visibility = View.GONE
                                 //Bind fragments on viewpager
                             }
                         })
