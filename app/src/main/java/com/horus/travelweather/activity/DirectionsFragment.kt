@@ -1490,6 +1490,9 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         }
     }
 
+    fun getCurrentDateTime(): Date {
+        return Calendar.getInstance().time
+    }
     //Use an intent to launch the autocomplete activity
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -1513,6 +1516,10 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 historyDb.name = place.name.toString()
                 historyDb.placeTypes = place.placeTypes.toString()
                 historyDb.historyId = place.id
+                val date = getCurrentDateTime()
+                //val c = GregorianCalendar(1995, 12, 23)
+                val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                historyDb.date = currenttime
                 Log.e(TAG, "placeTypes:" + place.placeTypes.toString())
 
                 uploadDatabase() //add to firebase
@@ -1541,6 +1548,10 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 historyDb.name = place.name.toString()
                 historyDb.placeTypes = place.placeTypes.toString()
                 historyDb.historyId = place.id
+                val date = getCurrentDateTime()
+                //val c = GregorianCalendar(1995, 12, 23)
+                val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                historyDb.date = currenttime
                 Log.e(TAG, "placeTypes:" + place.placeTypes.toString())
 
                 uploadDatabase() //add to firebase

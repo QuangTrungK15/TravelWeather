@@ -27,6 +27,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_location.*
+import java.util.*
 
 
 class AddLocationActivity : AppCompatActivity() {
@@ -109,7 +110,9 @@ class AddLocationActivity : AppCompatActivity() {
         rv_location.layoutManager = layoutManager
 
     }
-
+    fun getCurrentDateTime(): Date {
+        return Calendar.getInstance().time
+    }
     //Use an intent to launch the autocomplete activity
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -131,7 +134,10 @@ class AddLocationActivity : AppCompatActivity() {
                 historyDb.name = place.name.toString()
                 historyDb.placeTypes = place.placeTypes.toString()
                 historyDb.historyId = place.id
-
+                val date = getCurrentDateTime()
+                //val c = GregorianCalendar(1995, 12, 23)
+                val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                historyDb.date = currenttime
                 uploadDatabase() //add to firebase
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(this, data)

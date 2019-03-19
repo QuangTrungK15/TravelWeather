@@ -6,19 +6,21 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.common.TWConstant
+import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.model.HistoryDbO
 import kotlinx.android.synthetic.main.fragment_history.view.*
+import java.util.*
 
 /**
  * Created by onlyo on 12/26/2018.
@@ -29,6 +31,7 @@ class HistoryFragment: Fragment() {
     private val historyDb = HistoryDbO()
     lateinit var database: FirebaseDatabase
     lateinit var history_list: DatabaseReference
+    lateinit var history_list_temp: DatabaseReference
     lateinit var mAuth: FirebaseAuth
     lateinit var adapter: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
     var myuser: FirebaseUser? = null
@@ -42,8 +45,31 @@ class HistoryFragment: Fragment() {
         history_list = database.getReference("history")
 
 
+        history_list_temp = database.getReference("history").child(mAuth.currentUser!!.uid)
+        val placeList = ArrayList<PlaceEntity>()
+        history_list_temp.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Log.e(TAG,"Error : "+p0.message)
+            }
+            override fun onDataChange(dataSnapshot : DataSnapshot) {
+
+                // Result will be holded Here
+                for (dsp in dataSnapshot.children) {
+                    //add result into array list
+                    val item : PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
+                    if (item != null) {
+                        placeList.add(item)
+                    }
+                }
+                Log.e(TAG,"Size : "+placeList.size)
+                //insertAllPlace().execute(placeList)
+            }
+        })
+        //Log.e("historylist:",history_list.child(myuser!!.uid).)
+        Collections.reverse(placeList)
+
         val options = FirebaseRecyclerOptions.Builder<HistoryDbO>()
-                .setQuery(history_list.child(myuser!!.uid), HistoryDbO::class.java)
+                .setQuery(history_list_temp, HistoryDbO::class.java)
                 .setLifecycleOwner(this)
                 .build()
         adapter = HistoryAdapter(options, { context,textview, i ->

@@ -134,7 +134,9 @@ class FavoritePlaceFragment : Fragment() {
         })
         popup.show()
     }
-
+    fun getCurrentDateTime(): Date {
+        return Calendar.getInstance().time
+    }
     //Carry on with AUTOCOMPLETE
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -150,7 +152,10 @@ class FavoritePlaceFragment : Fragment() {
                 historyDb.name = place.name.toString()
                 historyDb.placeTypes = place.placeTypes.toString()
                 historyDb.historyId = place.id
-
+                val date = getCurrentDateTime()
+                //val c = GregorianCalendar(1995, 12, 23)
+                val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                historyDb.date = currenttime
                 uploadDatabase2() //add to firebase
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(this.context, data)

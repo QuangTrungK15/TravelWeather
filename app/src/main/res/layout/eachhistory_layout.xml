@@ -6,12 +6,25 @@
     android:padding="@dimen/nav_header_vertical_spacing">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_combine_color">
+    <TextView
+        android:id="@+id/txt_history_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="16/03/2019"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:padding="8dp"
+        />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:padding="17dp"
         android:background="@drawable/bg_combine_color">
-
 
         <android.support.v7.widget.AppCompatImageView
             android:layout_weight="9"
@@ -91,5 +104,6 @@
                 android:text="&#8942;"/>
         </LinearLayout>-->
 
+    </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>
