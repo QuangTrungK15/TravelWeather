@@ -3,6 +3,7 @@ package com.horus.travelweather.activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.view.ViewCompat.setNestedScrollingEnabled
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
@@ -15,10 +16,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.horus.travelweather.R
+import com.horus.travelweather.R.id.navigation_direction
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.model.HistoryDbO
+import kotlinx.android.synthetic.main.eachhistory_layout.view.*
 import kotlinx.android.synthetic.main.fragment_history.view.*
 import java.util.*
 
@@ -35,6 +38,9 @@ class HistoryFragment: Fragment() {
     lateinit var mAuth: FirebaseAuth
     lateinit var adapter: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
     var myuser: FirebaseUser? = null
+    var length: Int = 0
+    var runagain: Int = 0
+    lateinit var placeList: ArrayList<HistoryDbO>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_history, container, false)
@@ -43,10 +49,14 @@ class HistoryFragment: Fragment() {
         myuser = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
         history_list = database.getReference("history")
-
-
         history_list_temp = database.getReference("history").child(mAuth.currentUser!!.uid)
-        val placeList = ArrayList<PlaceEntity>()
+        //length = 0
+        placeList = ArrayList<HistoryDbO>()
+        val options = FirebaseRecyclerOptions.Builder<HistoryDbO>()
+                .setQuery(history_list_temp, HistoryDbO::class.java)
+                .setLifecycleOwner(this)
+                .build()
+
         history_list_temp.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 Log.e(TAG,"Error : "+p0.message)
@@ -56,27 +66,35 @@ class HistoryFragment: Fragment() {
                 // Result will be holded Here
                 for (dsp in dataSnapshot.children) {
                     //add result into array list
-                    val item : PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
+                    val item : HistoryDbO? = dsp.getValue(HistoryDbO::class.java)
                     if (item != null) {
                         placeList.add(item)
+                        length++
                     }
                 }
-                Log.e(TAG,"Size : "+placeList.size)
+                //Log.e(TAG,"Size : "+placeList.size)
+                length = placeList.size
+
+                //Collections.reverse(placeList)
+                for (i in placeList) {
+                    //Log.e(TAG,"Size2 : "+i.name)
+                }
+
+
                 //insertAllPlace().execute(placeList)
             }
         })
-        //Log.e("historylist:",history_list.child(myuser!!.uid).)
-        Collections.reverse(placeList)
 
-        val options = FirebaseRecyclerOptions.Builder<HistoryDbO>()
-                .setQuery(history_list_temp, HistoryDbO::class.java)
-                .setLifecycleOwner(this)
-                .build()
-        adapter = HistoryAdapter(options, { context,textview, i ->
+        adapter = HistoryAdapter(options, placeList, runagain, { context,textview, i ->
             showPopup(context,textview, i)
         })
-        view.rv_history.layoutManager = LinearLayoutManager(this.activity) as RecyclerView.LayoutManager?
+
+        val linearLayoutManager = LinearLayoutManager(this.activity)
+        linearLayoutManager.reverseLayout = true
+        linearLayoutManager.stackFromEnd = true
+        view.rv_history.layoutManager = linearLayoutManager as RecyclerView.LayoutManager?
         view.rv_history.adapter = adapter
+        view.rv_history.isNestedScrollingEnabled = false
         return view
     }
 
@@ -116,7 +134,9 @@ class HistoryFragment: Fragment() {
         popup.menu.add(0, position, 0, TWConstant.REMOVE_PLACE)
         popup.show()
         popup.setOnMenuItemClickListener({
-            deleteOneHistory(adapter.getRef(position).key!!) //get position id of rv_my_places
+            Log.e(TAG,"key : "+(length - 1 - position))
+            deleteOneHistory(adapter.getRef(position).key!!,position) //get position id of rv_my_places
+            runagain++
             true
         })
 
@@ -142,14 +162,18 @@ class HistoryFragment: Fragment() {
     }
 
     private fun deleteAllHistory() {
-        history_list.child(myuser!!.uid).removeValue()
+        history_list_temp.removeValue()
         adapter.notifyDataSetChanged()
     }
-    private fun deleteOneHistory(key: String) {
-        history_list.child(myuser!!.uid).child(key).removeValue()
+    private fun deleteOneHistory(key: String, tempkey: Int) {
+        history_list_temp.child(key).removeValue()
+        runagain++
+        placeList.removeAt(tempkey)
+        //adapter.notifyItemRemoved(tempkey)
         adapter.notifyDataSetChanged()
     }
     private fun uploadDatabase() {
-        history_list.child(myuser!!.uid).push().setValue(historyDb)
+        history_list_temp.push().setValue(historyDb)
     }
+
 }

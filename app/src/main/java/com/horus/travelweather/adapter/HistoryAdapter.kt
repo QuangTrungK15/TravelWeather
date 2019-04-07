@@ -10,6 +10,8 @@ import android.widget.TextView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.horus.travelweather.R
+import com.horus.travelweather.database.PlaceEntity
+import com.horus.travelweather.model.DirectionsStepDbO
 import com.horus.travelweather.model.HistoryDbO
 import kotlinx.android.synthetic.main.eachhistory_layout.view.*
 import java.util.*
@@ -17,43 +19,78 @@ import java.util.*
 
 /**
  * Created by onlyo on 12/26/2018.
+ *
  */
-class HistoryAdapter(options: FirebaseRecyclerOptions<HistoryDbO>, private val onItemClickListener : (Context, TextView, Int)-> Unit)
+
+class HistoryAdapter(options: FirebaseRecyclerOptions<HistoryDbO>, private var temphistoryList : ArrayList<HistoryDbO>,
+                     private var runagain: Int,
+                     private val onItemClickListener : (Context, TextView, Int)-> Unit)
     : FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>(options) {
-
-
+    /*val historyList = ArrayList<HistoryDbO>()
+    var temp_date = "" //to check next historyid if the same date
+    var count = 0
+    var firstrunning = false
+    var length_history = 0
+    var length_history2 = 0*/
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.eachhistory_layout, parent, false)
         return HistoryViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int, model: HistoryDbO) {
+       //holder.tempbind(temphistoryList[position])
+       /* if(temphistoryList.size < position){
+            Log.e("Size4 : ", "sad")
+            temphistoryList.clear()
+            holder.tempbind(model)
+            holder.bind(temphistoryList[temphistoryList.size - 1])
+        } else holder.bind(temphistoryList[position])*/
+        length_history = temphistoryList.size
+        Log.e("Size4 : ", temphistoryList.size.toString())
+        Log.e("Size5 : ", position.toString())
+
+        if(temphistoryList.size  == position){
+            Log.e("Size61 : ", "=========================================="+count)
+            count = 0
+            temp_date = ""
+            length_history2 = 0
+            Log.e("Size62 : ", "=========================================="+count)
+            //length_history = position - 1
+        }// else length_history = position
+
         holder.tempbind(model)
-        holder.bind(model)
+        //if(temphistoryList.size == length_history){
+            holder.bind(model)
+        //}
     }
 
+    /*override fun getItemCount(): Int {
+        return Int.size()
+    }*/
     fun getCurrentDateTime(): Date {
         return Calendar.getInstance().time
     }
 
 
-
     val historyList = ArrayList<HistoryDbO>()
     var temp_date = "" //to check next historyid if the same date
     var count = 0
+    var firstrunning = false
     var length_history = 0
+    var length_history2 = 0
+    var location = -1
     inner class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view){
-        fun tempbind(history3: HistoryDbO){
-            //val placeList = ArrayList<PlaceEntity>()
-            //val item : PlaceEntity? = history.getValue(PlaceEntity::class.java)
-            historyList.add(history3)
-            length_history ++
-            //}
 
+        fun tempbind(history: HistoryDbO) {
+            //length_history++
+            //Log.e("length:", length_history.toString())
         }
 
-        fun bind(history2: HistoryDbO) {
-            Collections.reverse(historyList)
+        fun bind(history: HistoryDbO) {
+            length_history2++
+            //Log.e("length2:", length_history2.toString())
+
+            /*Collections.reverse(historyList)
             val historyList9 = ArrayList<HistoryDbO>(length_history)
             var len = length_history
                 for (history in historyList) {
@@ -61,56 +98,68 @@ class HistoryAdapter(options: FirebaseRecyclerOptions<HistoryDbO>, private val o
                         historyList9.add(history)
                         len--
                     }
-                }
-            /*var len9 = length_history
-            for (history in historyList) {
-                if(len9 !=0){
-                    len9 = len9 - 1
-                    historyList9.removeAt(len9)
-                    historyList9.add(len9,history)
-                    len9--
-                }
+                }*/
+
+            /*historyList9.reverse()
+            historyList9.reversed()
+            historyList9.asReversed()*/
+            /*val reversed = historyList.asReversed()
+            var len9 = length_history
+            //Log.e("historyid92:",len9.toString())
+            for (i in len9-1..0) {
+                Log.e("historyid91:",i.toString())
             }*/
 
-            /*historyList9.reversed().forEach { //Log.e("historyid9:", historyList9)
-            }*/
-            historyList9.reverse()
-            historyList9.reversed()
-            historyList9.asReversed()
-            for (history in historyList9) {
-                Log.e("historyid9:", history.name)
-            }
-            for (history in historyList) {
-                    if(length_history != 0 ) {
+           // for (history in historyList) {
+                //Log.e("historyid9:",length_history.toString())
+               // if(length_history != 0 ) {
                         Log.e("historyid:", history.name)
-                        Log.e("historyid2:",history.date)
+                        //Log.e("historyid2:",length_history.toString())
                         itemView.tv_name.text = history.name
                         itemView.tv_address.text = history.address
+                        itemView.txt_history_minute.text = history.minute
 
                         val date = getCurrentDateTime()
                         //val c = GregorianCalendar(1995, 12, 23)
                         val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                        Log.e("historyid3:",history.date)
 
                         // -> s == "16/03/2019"
-                        if (history.date == currenttime) {
-                            //Log.e("historyid3:",history.date)
+                        if(location - 1 == length_history - length_history2 + 1){
+                            Log.e("location:","voooo"+length_history2)
+                            if(history.date == currenttime) itemView.txt_history_date.text = "Hôm nay"
+                            else itemView.txt_history_date.text = history.date
+                            itemView.txt_history_date.visibility = View.VISIBLE
+                            location = -1
+                        }
+                         else if (history.date == currenttime) {
                             if (count == 0) {
+                                itemView.txt_history_date.visibility = View.VISIBLE
                                 itemView.txt_history_date.text = "Hôm nay"
                             } /*else if(count != 0){
                                 itemView.txt_history_date.text = history.date*/
-                            else itemView.txt_history_date.visibility = View.GONE
+                            else {
+                                itemView.txt_history_date.text = "Hôm nay"
+                                itemView.txt_history_date.visibility = View.GONE
+                            }
+
                             count++
                         } else {
                             if (count == 0) {
+                                itemView.txt_history_date.visibility = View.VISIBLE
                                 itemView.txt_history_date.text = history.date
                                 count++
-                            } else if (temp_date == history.date) {
+                            }
+                            else if (temp_date == history.date) {
+                                itemView.txt_history_date.text = history.date
                                 itemView.txt_history_date.visibility = View.GONE
                             } else {
+                                itemView.txt_history_date.visibility = View.VISIBLE
                                 itemView.txt_history_date.text = history.date
                             }
 
                         }
+
                         temp_date = history.date
 
                         if (history.placeTypes == "airport") {
@@ -282,17 +331,25 @@ class HistoryAdapter(options: FirebaseRecyclerOptions<HistoryDbO>, private val o
                             //when (motionEvent.action and MotionEvent.ACTION_MASK) {
                             //   MotionEvent.ACTION_HOVER_EXIT -> {
                             onItemClickListener(itemView.context, itemView.tv_name, adapterPosition)
+                            if(itemView.txt_history_date.visibility == View.VISIBLE) location = adapterPosition
+                            Log.e("location:",location.toString())
                             //  }
                             //}
                             // true
                         }
-                        length_history--
-                    }
+                        //length_history--
+                   // }
                 /*itemView.tv_name.setOnClickListener {
                     onItemClick(history)
                 }*/
-            }
-
+            //}
+            /*if(length_history < length_history2){
+                runagain = true
+                count = 0
+                length_history = 0
+                length_history2 = 0
+                Log.e("refresh:","refresh")
+            } */
         }
 
     }

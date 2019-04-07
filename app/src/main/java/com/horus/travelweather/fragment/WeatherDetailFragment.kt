@@ -129,7 +129,7 @@ class WeatherDetailFragment : Fragment() {
                         .subscribe({
                             val geocode = Geocoder(context, Locale.getDefault())
                             val address = geocode.getFromLocation(it.latitude, it.longitude, 1)
-                            requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
+                            requestWeatherDetails(address[0].latitude, address[0].longitude)
                         }, {
                             Log.e(TAG, "Error" + it.message)
                         })

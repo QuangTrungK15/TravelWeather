@@ -6,4 +6,5 @@ data class HistoryDbO(var historyId : String=""
                       , var name : String= ""
                       , var address : String=""
                       , var placeTypes: String=""
-                      , var date: String="") : Serializable
+                      , var date: String=""
+                      , var minute: String="") : Serializable

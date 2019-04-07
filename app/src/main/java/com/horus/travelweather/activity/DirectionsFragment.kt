@@ -54,6 +54,7 @@ import com.horus.travelweather.model.TransitDbO
 import com.horus.travelweather.model.TransportationDbO
 import kotlinx.android.synthetic.main.activity_directions.*
 import kotlinx.android.synthetic.main.activity_directions.view.*
+import kotlinx.android.synthetic.main.eachhistory_layout.view.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -1515,8 +1516,13 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 historyDb.address = place.address.toString()
                 historyDb.name = place.name.toString()
                 historyDb.placeTypes = place.placeTypes.toString()
-                historyDb.historyId = place.id
+                val mGroupId = history_list.push().getKey()
+                historyDb.historyId = mGroupId!!
+
                 val date = getCurrentDateTime()
+                val minute = String.format("%1\$tH:%1\$tM", date)
+                Log.e("minute:", minute)
+                historyDb.minute = minute
                 //val c = GregorianCalendar(1995, 12, 23)
                 val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
                 historyDb.date = currenttime
@@ -1547,8 +1553,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 historyDb.address = place.address.toString()
                 historyDb.name = place.name.toString()
                 historyDb.placeTypes = place.placeTypes.toString()
-                historyDb.historyId = place.id
+                val mGroupId = history_list.push().getKey()
+                historyDb.historyId = mGroupId!!
+
                 val date = getCurrentDateTime()
+                val minute = String.format("%1\$tH:%1\$tM", date)
+                Log.e("minute:", minute)
+                historyDb.minute = minute
+
                 //val c = GregorianCalendar(1995, 12, 23)
                 val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
                 historyDb.date = currenttime
