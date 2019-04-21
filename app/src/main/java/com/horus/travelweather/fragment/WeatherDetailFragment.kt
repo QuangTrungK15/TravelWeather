@@ -30,6 +30,7 @@ import android.opengl.Visibility
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.google.android.gms.location.LocationRequest
+import com.horus.travelweather.R.id.*
 import com.horus.travelweather.adapter.DailyWeatherAdapter
 import com.horus.travelweather.model.DailyWeatherDetailResponse
 import com.horus.travelweather.utils.StringFormatter.getCurrentTime
@@ -141,6 +142,8 @@ class WeatherDetailFragment : Fragment() {
             requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
         }
     }
+
+
 
 
 
