@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.location.Geocoder
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ import com.google.android.gms.location.places.PlacePhotoMetadataResponse
 import com.google.android.gms.location.places.PlacePhotoResponse
 import com.google.android.gms.location.places.Places
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
@@ -32,8 +34,10 @@ import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.common.TWConstant.Companion.REMOVE_PLACE
 import com.horus.travelweather.model.HistoryDbO
 import com.horus.travelweather.model.PlaceDbO
+import kotlinx.android.synthetic.main.activity_directions.view.*
 import kotlinx.android.synthetic.main.activity_favourite_my_place.view.*
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.util.*
 
 
@@ -143,6 +147,36 @@ class FavoritePlaceFragment : Fragment() {
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 val place = PlaceAutocomplete.getPlace(this.context, data)
+
+
+                val geocoder = Geocoder(context!!, Locale.getDefault())
+                try
+                {
+                    val addresses = geocoder.getFromLocation(place.latLng.latitude, place.latLng.longitude, 1)
+
+                    if (addresses != null)
+                    {
+                        val returnedAddress = addresses.get(0)
+                        val strReturnedAddress = StringBuilder("Address:\n")
+                        for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                        {
+                            strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                        }
+                        placeDb.address = addresses.get(0).getAddressLine(0)
+                       // Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                    }
+                    else
+                    {
+                        Log.d("a","No Address returned! : ")
+
+                    }
+                }
+                catch (e: IOException) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace()
+                    Log.d("a","Canont get Address!")
+                }
+
                 placeDb.placeId = place.id
                 placeDb.name = place.name.toString()
                 getPhoto(place.id)

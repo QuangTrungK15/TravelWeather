@@ -94,7 +94,7 @@ class   ProfileActivity : AppCompatActivity() {
     }
 
     private fun showDialogChangePassword() {
-        progress.show();
+        progress.show()
         val alterDialog : AlertDialog.Builder = AlertDialog.Builder(this)
         alterDialog.setTitle("Edit Password")
         val inflater : LayoutInflater = LayoutInflater.from(this)
