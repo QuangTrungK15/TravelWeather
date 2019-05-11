@@ -35,7 +35,7 @@ android {
 
 
 kapt {
-    generateStubs = true
+    //generateStubs = true
 
     arguments {
         arg('eventBusIndex', 'com.example.myapp.MyEventBusIndex')
@@ -65,7 +65,7 @@ dependencies {
     implementation 'com.android.support:cardview-v7:27.1.1'
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
     implementation 'com.squareup.picasso:picasso:2.5.2'
-    compile 'jp.wasabeef:picasso-transformations:2.2.1'
+    implementation 'jp.wasabeef:picasso-transformations:2.2.1'
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.patrickpissurno:ripple-effect:1.3.1'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
@@ -75,7 +75,7 @@ dependencies {
 */
 
     //Sign In with google
-    compile 'com.google.android.gms:play-services-auth:15.0.1'
+    implementation 'com.google.android.gms:play-services-auth:15.0.1'
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.1.16'
@@ -98,20 +98,20 @@ dependencies {
     //Google place api
     implementation 'com.google.android.gms:play-services-places:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
-    compile 'com.google.maps:google-maps-services:0.1.20'
-    compile 'com.google.maps.android:android-maps-utils:0.5'
-    testCompile 'junit:junit:4.12'
+    implementation 'com.google.maps:google-maps-services:0.1.20'
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
+    testImplementation 'junit:junit:4.12'
 
-    compile 'com.akexorcist:googledirectionlibrary:1.0.4'
+    implementation 'com.akexorcist:googledirectionlibrary:1.0.4'
 
     implementation 'com.github.JakeWharton:ViewPagerIndicator:2.4.1'
 
     implementation 'com.romandanylyk:pageindicatorview:1.0.2'
-    compile "org.slf4j:slf4j-api:1.7.25"
-    compile "org.slf4j:slf4j-simple:1.7.25"
+    implementation "org.slf4j:slf4j-api:1.7.25"
+    implementation "org.slf4j:slf4j-simple:1.7.25"
 
-    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
-    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
+    implementation 'com.squareup.retrofit:retrofit:2.0.0-beta2'
+    implementation 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
 
     //animation for recycleview rv_directionsStep
     implementation 'jp.wasabeef:recyclerview-animators:2.2.3'
