@@ -403,6 +403,7 @@ class WeatherDetailFragment : Fragment() {
                                             tempplaceDb.longitude = item.longitude
                                             tempplaceDb.name = item.name
                                             tempplaceDb.numofvisit = item.numofvisit + 1
+                                            tempplaceDb.numofsearch = item.numofsearch
                                             tempplaceDb.isacity = item.isacity
                                             tempplaceDb.id = item.id
                                             tempplace_list.child(item.id).setValue(tempplaceDb)

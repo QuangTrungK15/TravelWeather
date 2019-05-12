@@ -40,18 +40,14 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
 import com.horus.travelweather.adapter.TransportationAdapter
 import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.database.PlaceEntity
-import com.horus.travelweather.model.DirectionsStepDbO
-import com.horus.travelweather.model.HistoryDbO
-import com.horus.travelweather.model.TransitDbO
-import com.horus.travelweather.model.TransportationDbO
+import com.horus.travelweather.model.*
 import kotlinx.android.synthetic.main.activity_directions.*
 import kotlinx.android.synthetic.main.activity_directions.view.*
 import kotlinx.android.synthetic.main.eachhistory_layout.view.*
@@ -96,8 +92,10 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
     //Saving history when searching
     private val historyDb = HistoryDbO()
+    private val tempplaceDb = TempPlaceDbO() //for AI
     lateinit var database: FirebaseDatabase
     lateinit var history_list: DatabaseReference
+    lateinit var tempplace_list: DatabaseReference //for AI
     lateinit var mAuth: FirebaseAuth
     lateinit var adapter: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
     var myuser: FirebaseUser? = null
@@ -117,6 +115,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         myuser = mAuth.currentUser
         database = FirebaseDatabase.getInstance()
         history_list = database.getReference("history")
+        tempplace_list = database.getReference("tempplace").child(mAuth.currentUser!!.uid)
 
         // Initializing
         markerPoints = ArrayList<LatLng>()
@@ -1526,10 +1525,17 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //val c = GregorianCalendar(1995, 12, 23)
                 val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
                 historyDb.date = currenttime
-                Log.e(TAG, "placeTypes:" + place.placeTypes.toString())
+                Log.e(TAG, "placeTypes:" + place.name.toString())
 
                 uploadDatabase() //add to firebase
 
+                //data for tempplace
+                latitude_temp = place.latLng.latitude
+                longitude_temp = place.latLng.longitude
+                cityname_temp = place.name.toString()
+                placeid_temp = place.id
+
+                uploadTempplace()
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(context, data)
                 Log.e(TAG, ""+status)
@@ -1568,6 +1574,13 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
                 uploadDatabase() //add to firebase
 
+                //data for tempplace
+                latitude_temp = place.latLng.latitude
+                longitude_temp = place.latLng.longitude
+                cityname_temp = place.name.toString()
+                placeid_temp = place.id
+
+                uploadTempplace()
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(context, data)
                 Log.e(TAG, ""+status)
@@ -1575,6 +1588,156 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
             }
         }
+    }
+
+    var cityname_temp = ""
+    var placeid_temp = ""
+
+    var latitude_temp = 0.0
+    var longitude_temp = 0.0
+    var numofvisit_temp = 0
+    var isacity_temp = false
+    var newplace_flag = true
+    var runonce_flag = true
+    var curplace_like_beforeplace = false
+
+    private fun uploadTempplace() {
+        //get city name
+        val geocoder = Geocoder(context!!, Locale.getDefault())
+
+        try
+        {
+            val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
+
+            if (addresses != null)
+            {
+                Log.e("start location : ", addresses.toString())
+
+                val returnedAddress = addresses.get(0)
+                val strReturnedAddress = StringBuilder("Address:\n")
+                //val strReturnedAddress = StringBuilder()
+
+                for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                }
+                //Log.e("start location : ", addresses.get(0).subAdminArea)
+                cityname_temp = addresses.get(0).adminArea
+            }
+            else
+            {
+                Log.d("a","No Address returned! : ")
+            }
+        }
+        catch (e:IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+            Log.d("a","Canont get Address!")
+        }
+        //end get city name
+
+
+        tempplace_list.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Log.e(TAG, "Error : " + p0.message)
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    // code if data exists
+                    // if current place like before place
+                    for (dsp in dataSnapshot.children) {
+                        //add result into array list
+                        val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
+                        if (item != null) {
+                            //Log.e("Test AI : ",dsp.key)
+                            if (dsp.key == mAuth.currentUser!!.uid && item.name == cityname_temp) {
+                                curplace_like_beforeplace = true
+                                //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
+                                //break
+                            }
+                            if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
+                                            cityname_temp == "Thủ Đô " + item.name ||
+                                            cityname_temp == "Tỉnh " + item.name) &&
+                                    item.isacity == true) {
+
+
+                                //place_list.child(place.id).setValue(placeDB)
+                                //tempplaceDb.numofvisit = item.numofvisit+1
+
+                                tempplaceDb.latitude = item.latitude
+                                tempplaceDb.longitude = item.longitude
+                                tempplaceDb.name = item.name
+                                tempplaceDb.numofsearch = item.numofsearch + 1
+                                tempplaceDb.numofvisit = item.numofvisit
+                                tempplaceDb.isacity = item.isacity
+                                tempplaceDb.id = item.id
+                                tempplace_list.child(item.id).setValue(tempplaceDb)
+
+                                //update dia diem hien tai gan nhat da ghe qua
+                                if(curplace_like_beforeplace){
+                                    tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                                    curplace_like_beforeplace = false
+                                }
+
+                                newplace_flag = false
+
+                            }
+                        }
+                    }
+                    /*if(!curplace_like_beforeplace) {
+
+                        for (dsp in dataSnapshot.children) {
+                            //add result into array list
+                            val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
+                            if (item != null) {
+
+
+
+                            }
+                        }
+                    }*/
+                } else {
+                    // code if data does not  exists
+                    tempplaceDb.latitude = latitude_temp
+                    tempplaceDb.longitude = longitude_temp
+                    tempplaceDb.name = cityname_temp
+                    tempplaceDb.numofsearch = 1
+                    tempplaceDb.isacity = true
+                    tempplaceDb.id = placeid_temp
+                    tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+
+                    //update dia diem hien tai gan nhat da ghe qua
+                    if(curplace_like_beforeplace){
+                        tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                        curplace_like_beforeplace = false
+                    }
+
+
+                    newplace_flag = false
+                }
+                if (newplace_flag) {
+                    tempplaceDb.latitude = latitude_temp
+                    tempplaceDb.longitude = longitude_temp
+                    tempplaceDb.name = cityname_temp
+                    tempplaceDb.numofsearch = 1
+                    tempplaceDb.isacity = true
+                    tempplaceDb.id = placeid_temp
+                    tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+
+                    //update dia diem hien tai gan nhat da ghe qua
+                    if(curplace_like_beforeplace){
+                        tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                        curplace_like_beforeplace = false
+                    }
+
+                }
+                // Result will be holded Here
+
+                //insertAllPlace().execute(placeList)
+            }
+        })
     }
 
     // Fetches data from url passed
