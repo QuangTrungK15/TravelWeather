@@ -2,6 +2,7 @@ package com.horus.travelweather.activity
 
 import android.app.Activity
 import android.content.Intent
+import android.location.Geocoder
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -12,6 +13,7 @@ import android.view.MenuItem
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
@@ -27,6 +29,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_location.*
+import java.io.IOException
 import java.util.*
 
 
@@ -122,9 +125,9 @@ class AddLocationActivity : AppCompatActivity() {
                 val place = PlaceAutocomplete.getPlace(this, data)
                 Log.e(TAG, "Place ID:" + place.id)
                 val placeDB = PlaceEntity()
-                placeDB.name = place.name.toString()
                 placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
+                placeDB.name = getCityName_byLatlong(place.latLng)
                 placeDB.id = place.id
                 insertPLace().execute(placeDB)
                 place_list.child(place.id).setValue(placeDB)
@@ -146,6 +149,45 @@ class AddLocationActivity : AppCompatActivity() {
 
             }
         }
+    }
+
+    fun getCityName_byLatlong(latlong: LatLng): String {
+        //get city name
+        val geocoder = Geocoder(this, Locale.getDefault())
+        val latitude_temp = latlong.latitude
+        val longitude_temp = latlong.longitude
+        val cityname_temp2 = ""
+        try
+        {
+            val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
+
+            if (addresses != null)
+            {
+                Log.e("start location : ", addresses.toString())
+
+                val returnedAddress = addresses.get(0)
+                val strReturnedAddress = StringBuilder("Address:\n")
+                //val strReturnedAddress = StringBuilder()
+
+                for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                }
+                //Log.e("start location : ", addresses.get(0).subAdminArea)
+                return addresses.get(0).adminArea
+            }
+            else
+            {
+                Log.d("a","No Address returned! : ")
+            }
+        }
+        catch (e: IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+            Log.d("a","Canont get Address!")
+        }
+        //end get city name
+        return cityname_temp2
     }
 
     //Press home button

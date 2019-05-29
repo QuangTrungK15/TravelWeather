@@ -40,7 +40,7 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_bottom_navigation">Bottom Navigation</string>
-    <string name="splash_travel_weather"><![CDATA[<font color="#00C1A8">Travel</font>]]> weather</string>
+    <string name="splash_travel_weather"><![CDATA[<font color="#00C1A8">Business</font>]]> Weather</string>
     <string name="new_password">New Password</string>
     <string name="toast_click">CLICK</string>
 </resources>

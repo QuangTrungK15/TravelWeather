@@ -1,7 +1,10 @@
 package com.horus.travelweather.fragment
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.ProgressDialog
+import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -33,6 +36,7 @@ import android.preference.PreferenceManager
 import android.support.annotation.RequiresApi
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.widget.Toast
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.places.PlaceBuffer
 import com.google.android.gms.location.places.Places
@@ -40,9 +44,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.horus.travelweather.BottomNavigation
 import com.horus.travelweather.R.id.*
 import com.horus.travelweather.activity.DataParser
 import com.horus.travelweather.adapter.DailyWeatherAdapter
+import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.model.*
 import com.horus.travelweather.utils.StringFormatter.getCurrentTime
 import com.patloew.rxlocation.RxLocation
@@ -80,6 +86,7 @@ class WeatherDetailFragment : Fragment() {
                 .subscribe(
                         //cú pháp của rxjava trong kotlin
                         { result ->
+                            cityname_temp = getCityName_byLatlong (LatLng(lat,long))
                             //request thành công
                             processResponseData(result)
                         },
@@ -95,6 +102,7 @@ class WeatherDetailFragment : Fragment() {
                 .subscribe(
                         //cú pháp của rxjava trong kotlin
                         { result ->
+                            cityname_temp = getCityName_byLatlong (LatLng(lat,long))
                             //request thành công
                             processResponseDataDaily(result)
                         },
@@ -120,8 +128,8 @@ class WeatherDetailFragment : Fragment() {
     private fun processResponseData(result: WeatherDetailsResponse) {
         txt_current_time.text = getCurrentTime()
         txt_date_time.text = convertTimestampToDayAndHourFormat(result.dateTime)
-        txt_city_name.text = result.nameCity
-
+        if(cityname_temp != "") txt_city_name.text = cityname_temp
+        else txt_city_name.text = result.nameCity
        // cityname_temp = result.nameCity //using to add to tempplace
 
         txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp))
@@ -361,6 +369,33 @@ class WeatherDetailFragment : Fragment() {
             mAuth = FirebaseAuth.getInstance()
             tempplace_list = database.getReference("tempplace").child(mAuth.currentUser!!.uid)
 
+            place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
+            //val placeList = ArrayList<PlaceEntity>()
+            val cityname_list = ArrayList<String>()
+            var index_temp = 0
+
+            place_list.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                }
+
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    // Result will be holded Here
+                    for (dsp in dataSnapshot.children) {
+                        //add result into array list
+                        val item : PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
+                        if (item != null) {
+                            //placeList.add(item)
+                            cityname_list.add(getCityName_byLatlong(LatLng(item.latitude,item.longitude)))
+                            //cityname_list[index_temp++]=)
+                            Log.d("city name : ",cityname_list.get(index_temp))
+                           // placeList.add(PlaceEntity(item.id,cityname_list.get(index_temp),item.latitude,item.longitude))
+                            index_temp++
+                        }
+                    }
+                }
+
+
+            })
                 tempplace_list.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onCancelled(p0: DatabaseError) {
                         Log.e(TAG, "Error : " + p0.message)
@@ -375,10 +410,49 @@ class WeatherDetailFragment : Fragment() {
                                 val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
                                 if (item != null) {
                                     //Log.e("Test AI : ",dsp.key)
+                                    //Add new place if temp place (visit:1 or searchh: 5)
+
+                                    if(cityname_list.contains(item.name) == true){
+
+                                    } else if(dsp.key != mAuth.currentUser!!.uid &&
+                                            (item.numofvisit >= 1 || item.numofsearch > 4)){
+                                        val alertDialogBuilder = AlertDialog.Builder(context)
+                                        alertDialogBuilder.setTitle("Thêm địa điểm thời tiết")
+                                        alertDialogBuilder
+                                                .setMessage("Bạn có muốn thêm "+item.name+" vào màn hình để tiện quan sát" +
+                                                        " thời tiết hay không?")
+                                                .setCancelable(false)
+                                                .setPositiveButton("Yes") { dialog, id ->
+                                                    // Add new place if temp place qualified
+                                                    //for(pl in placeList){
+                                                    //    if(pl.name == item.name){
+                                                            val placeDB = PlaceEntity()
+                                                            placeDB.name = item.name.toString()
+                                                            placeDB.latitude = item.latitude
+                                                            placeDB.longitude = item.longitude
+                                                            placeDB.id = item.id
+                                                            place_list.child(item.id).setValue(placeDB)
+
+                                                      //  }
+                                                    //}
+                                                    Toast.makeText(context, "You added successfully.", Toast.LENGTH_SHORT).show()
+                                                    val intent = Intent(context, BottomNavigation::class.java) //this activity will be this fragment's father
+                                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                                    startActivity(intent)
+                                                }
+                                                .setNegativeButton("No") { dialog, id ->
+                                                    // if this button is clicked, just close
+                                                    // the dialog box and do nothing
+                                                    dialog.cancel()
+                                                }
+                                        val alertDialog = alertDialogBuilder.create()
+                                        alertDialog.show()
+                                    }
+
                                     if (dsp.key == mAuth.currentUser!!.uid && item.name == cityname_temp) {
                                         curplace_like_beforeplace = true
                                         //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
-                                        break
+                                        //break
                                     }
                                 }
                             }
@@ -388,7 +462,6 @@ class WeatherDetailFragment : Fragment() {
                                     //add result into array list
                                     val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
                                     if (item != null) {
-
 
                                         if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
                                                 cityname_temp == "Thủ Đô " + item.name ||
@@ -412,7 +485,6 @@ class WeatherDetailFragment : Fragment() {
                                             tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
 
                                             newplace_flag = false
-
                                         }
                                     }
                                 }
@@ -450,6 +522,44 @@ class WeatherDetailFragment : Fragment() {
                     }
                 })
         }
+    }
+    fun getCityName_byLatlong(latlong: LatLng): String {
+        //get city name
+        val geocoder = Geocoder(context!!, Locale.getDefault())
+        val latitude_temp = latlong.latitude
+        val longitude_temp = latlong.longitude
+        val cityname_temp2 = ""
+        try
+        {
+            val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
+
+            if (addresses != null)
+            {
+                Log.e("start location : ", addresses.toString())
+
+                val returnedAddress = addresses.get(0)
+                val strReturnedAddress = StringBuilder("Address:\n")
+                //val strReturnedAddress = StringBuilder()
+
+                for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                }
+                //Log.e("start location : ", addresses.get(0).subAdminArea)
+                return addresses.get(0).adminArea
+            }
+            else
+            {
+                Log.d("a","No Address returned! : ")
+            }
+        }
+        catch (e:IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+            Log.d("a","Canont get Address!")
+        }
+        //end get city name
+        return cityname_temp2
     }
     /**
      * A method to download json data from url
