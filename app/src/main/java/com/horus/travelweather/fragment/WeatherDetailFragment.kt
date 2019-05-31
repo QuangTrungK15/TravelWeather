@@ -36,6 +36,7 @@ import android.preference.PreferenceManager
 import android.support.annotation.RequiresApi
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.format.DateFormat
 import android.widget.Toast
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.places.PlaceBuffer
@@ -130,7 +131,7 @@ class WeatherDetailFragment : Fragment() {
         txt_date_time.text = convertTimestampToDayAndHourFormat(result.dateTime)
         if(cityname_temp != "") txt_city_name.text = cityname_temp
         else txt_city_name.text = result.nameCity
-       // cityname_temp = result.nameCity //using to add to tempplace
+        //cityname_temp = result.nameCity //using to add to tempplace
 
         txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp))
         Log.e("nhiet do",txt_temperature.text.toString())
@@ -410,12 +411,24 @@ class WeatherDetailFragment : Fragment() {
                                 val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
                                 if (item != null) {
                                     //Log.e("Test AI : ",dsp.key)
+                                    var now_cityname = ""
+
+                                    if (dsp.key == mAuth.currentUser!!.uid && item.name == cityname_temp) {
+                                        curplace_like_beforeplace = true
+                                        now_cityname = item.name
+                                        //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
+                                        //break
+                                    }
+
                                     //Add new place if temp place (visit:1 or searchh: 5)
+                                    val date = getCurrentDateTime()
+                                    val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
 
                                     if(cityname_list.contains(item.name) == true){
 
                                     } else if(dsp.key != mAuth.currentUser!!.uid &&
-                                            (item.numofvisit >= 1 || item.numofsearch > 4)){
+                                            (item.numofvisit >= 1 || item.numofsearch > 4) && item.numofask < 3
+                                    && currenttime != item.askdate){
                                         val alertDialogBuilder = AlertDialog.Builder(context)
                                         alertDialogBuilder.setTitle("Thêm địa điểm thời tiết")
                                         alertDialogBuilder
@@ -443,17 +456,30 @@ class WeatherDetailFragment : Fragment() {
                                                 .setNegativeButton("No") { dialog, id ->
                                                     // if this button is clicked, just close
                                                     // the dialog box and do nothing
+                                                    tempplaceDb.latitude = item.latitude
+                                                    tempplaceDb.longitude = item.longitude
+                                                    tempplaceDb.name = item.name
+                                                    tempplaceDb.placename = item.placename
+                                                    tempplaceDb.numofvisit = item.numofvisit
+                                                    tempplaceDb.numofsearch = item.numofsearch
+                                                    tempplaceDb.isacity = item.isacity
+                                                    tempplaceDb.id = item.id
+                                                    tempplaceDb.numofask = item.numofask+1
+                                                    tempplaceDb.askdate = currenttime
+                                                    tempplace_list.child(item.id).setValue(tempplaceDb)
+
+                                                    if(curplace_like_beforeplace){
+                                                        tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                                                        curplace_like_beforeplace = false
+                                                    }
+
                                                     dialog.cancel()
                                                 }
                                         val alertDialog = alertDialogBuilder.create()
                                         alertDialog.show()
                                     }
 
-                                    if (dsp.key == mAuth.currentUser!!.uid && item.name == cityname_temp) {
-                                        curplace_like_beforeplace = true
-                                        //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
-                                        //break
-                                    }
+
                                 }
                             }
                             if(!curplace_like_beforeplace) {
@@ -475,14 +501,20 @@ class WeatherDetailFragment : Fragment() {
                                             tempplaceDb.latitude = item.latitude
                                             tempplaceDb.longitude = item.longitude
                                             tempplaceDb.name = item.name
+                                            tempplaceDb.placename = item.placename
                                             tempplaceDb.numofvisit = item.numofvisit + 1
                                             tempplaceDb.numofsearch = item.numofsearch
                                             tempplaceDb.isacity = item.isacity
                                             tempplaceDb.id = item.id
+                                            tempplaceDb.numofask = item.numofask
+                                            //val date = getCurrentDateTime()
+                                            //val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                                            tempplaceDb.askdate = item.askdate
                                             tempplace_list.child(item.id).setValue(tempplaceDb)
 
                                             //update dia diem hien tai gan nhat da ghe qua
                                             tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+
 
                                             newplace_flag = false
                                         }
@@ -491,18 +523,22 @@ class WeatherDetailFragment : Fragment() {
                             }
                         } else {
                             // code if data does not  exists
-                            tempplaceDb.latitude = latitude_temp
-                            tempplaceDb.longitude = longitude_temp
-                            tempplaceDb.name = cityname_temp
-                            tempplaceDb.numofvisit = 1
-                            tempplaceDb.isacity = true
-                            tempplaceDb.id = placeid_temp
-                            tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+                            if(!curplace_like_beforeplace) {
 
-                            //update dia diem hien tai gan nhat da ghe qua
-                            tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                                tempplaceDb.latitude = latitude_temp
+                                tempplaceDb.longitude = longitude_temp
+                                tempplaceDb.name = cityname_temp
+                                tempplaceDb.numofvisit = 1
+                                tempplaceDb.isacity = true
+                                tempplaceDb.id = placeid_temp
+                                val date = getCurrentDateTime()
+                                val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                                tempplaceDb.askdate = currenttime
+                                //update dia diem hien tai gan nhat da ghe qua
+                                tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
 
-                            newplace_flag = false
+                                newplace_flag = false
+                            }
                         }
                         if (newplace_flag && !curplace_like_beforeplace) {
                             tempplaceDb.latitude = latitude_temp
@@ -511,6 +547,9 @@ class WeatherDetailFragment : Fragment() {
                             tempplaceDb.numofvisit = 1
                             tempplaceDb.isacity = true
                             tempplaceDb.id = placeid_temp
+                            val date = getCurrentDateTime()
+                            val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                            tempplaceDb.askdate = currenttime
                             tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
 
                             //update dia diem hien tai gan nhat da ghe qua
@@ -546,7 +585,9 @@ class WeatherDetailFragment : Fragment() {
                     strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                 }
                 //Log.e("start location : ", addresses.get(0).subAdminArea)
-                return addresses.get(0).adminArea
+                var result_adminarea = addresses.get(0).adminArea
+                if(result_adminarea == null) result_adminarea = ""
+                return result_adminarea
             }
             else
             {
@@ -610,9 +651,8 @@ class WeatherDetailFragment : Fragment() {
         return data
     }
 
-
-
-
-
+    fun getCurrentDateTime(): Date {
+        return Calendar.getInstance().time
+    }
 
 }

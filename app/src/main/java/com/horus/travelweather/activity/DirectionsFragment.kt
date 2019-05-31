@@ -1533,6 +1533,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 latitude_temp = place.latLng.latitude
                 longitude_temp = place.latLng.longitude
                 cityname_temp = place.name.toString()
+                placename_temp = place.name.toString()
                 placeid_temp = place.id
 
                 uploadTempplace()
@@ -1578,6 +1579,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 latitude_temp = place.latLng.latitude
                 longitude_temp = place.latLng.longitude
                 cityname_temp = place.name.toString()
+                placename_temp = place.name.toString()
                 placeid_temp = place.id
 
                 uploadTempplace()
@@ -1591,6 +1593,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     }
 
     var cityname_temp = ""
+    var placename_temp = ""
     var placeid_temp = ""
 
     var latitude_temp = 0.0
@@ -1622,7 +1625,12 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                 }
                 //Log.e("start location : ", addresses.get(0).subAdminArea)
-                cityname_temp = addresses.get(0).adminArea
+                if(addresses.get(0).adminArea != null){
+                    cityname_temp = addresses.get(0).adminArea
+                } else {
+                    cityname_temp = ""
+
+                }
             }
             else
             {
@@ -1672,7 +1680,10 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                                 tempplaceDb.numofsearch = item.numofsearch + 1
                                 tempplaceDb.numofvisit = item.numofvisit
                                 tempplaceDb.isacity = item.isacity
+                                tempplaceDb.placename = placename_temp
                                 tempplaceDb.id = item.id
+                                tempplaceDb.numofask = item.numofask
+                                tempplaceDb.askdate = item.askdate
                                 tempplace_list.child(item.id).setValue(tempplaceDb)
 
                                 //update dia diem hien tai gan nhat da ghe qua
@@ -1699,31 +1710,43 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         }
                     }*/
                 } else {
-                    // code if data does not  exists
-                    tempplaceDb.latitude = latitude_temp
-                    tempplaceDb.longitude = longitude_temp
-                    tempplaceDb.name = cityname_temp
-                    tempplaceDb.numofsearch = 1
-                    tempplaceDb.isacity = true
-                    tempplaceDb.id = placeid_temp
-                    tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+                    if(cityname_temp != ""){
+                        // code if data does not  exists
+                        tempplaceDb.latitude = latitude_temp
+                        tempplaceDb.longitude = longitude_temp
+                        tempplaceDb.name = cityname_temp
+                        tempplaceDb.numofsearch = 1
+                        tempplaceDb.placename = placename_temp
+                        tempplaceDb.isacity = true
+                        tempplaceDb.id = placeid_temp
+                        val date = getCurrentDateTime()
+                        val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                        tempplaceDb.askdate = currenttime
 
-                    //update dia diem hien tai gan nhat da ghe qua
-                    if(curplace_like_beforeplace){
-                        tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
-                        curplace_like_beforeplace = false
+                        tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+
+                        //update dia diem hien tai gan nhat da ghe qua
+                        if(curplace_like_beforeplace){
+                            tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                            curplace_like_beforeplace = false
+                        }
+
+
+                        newplace_flag = false
                     }
-
-
-                    newplace_flag = false
                 }
-                if (newplace_flag) {
+                if (newplace_flag && cityname_temp != "") {
                     tempplaceDb.latitude = latitude_temp
                     tempplaceDb.longitude = longitude_temp
                     tempplaceDb.name = cityname_temp
                     tempplaceDb.numofsearch = 1
                     tempplaceDb.isacity = true
                     tempplaceDb.id = placeid_temp
+                    tempplaceDb.placename = placename_temp
+                    val date = getCurrentDateTime()
+                    val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                    tempplaceDb.askdate = currenttime
+
                     tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
 
                     //update dia diem hien tai gan nhat da ghe qua

@@ -67,6 +67,7 @@ class AddLocationActivity : AppCompatActivity() {
             //Filter results by place type (by address: get full address, by establisment: get business address)
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
                     .build()
             //Use an intent to launch the autocomplete activity (fullscreen mode)
@@ -128,6 +129,8 @@ class AddLocationActivity : AppCompatActivity() {
                 placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
                 placeDB.name = getCityName_byLatlong(place.latLng)
+
+                //placeDB.name = place.locale.toString()
                 placeDB.id = place.id
                 insertPLace().execute(placeDB)
                 place_list.child(place.id).setValue(placeDB)
