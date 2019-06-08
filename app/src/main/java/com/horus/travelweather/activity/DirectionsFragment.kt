@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PointF
 import android.location.Geocoder
@@ -32,15 +33,22 @@ import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.AutocompleteFilter
+import com.google.android.gms.location.places.PlacePhotoMetadataResponse
+import com.google.android.gms.location.places.PlacePhotoResponse
+import com.google.android.gms.location.places.Places
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
@@ -55,6 +63,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -92,10 +101,16 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
     //Saving history when searching
     private val historyDb = HistoryDbO()
-    private val tempplaceDb = TempPlaceDbO() //for AI
     lateinit var database: FirebaseDatabase
     lateinit var history_list: DatabaseReference
+    //temp place
+    private val tempplaceDb = TempPlaceDbO() //for AI
     lateinit var tempplace_list: DatabaseReference //for AI
+    //temp favplace
+    private val favplaceDb = PlaceDbO()
+    private val tempfavplaceDb = TempFavPlaceDbO() //for AI
+    lateinit var tempfavplace_list: DatabaseReference //for AI
+
     lateinit var mAuth: FirebaseAuth
     lateinit var adapter: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
     var myuser: FirebaseUser? = null
@@ -1533,8 +1548,38 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 latitude_temp = place.latLng.latitude
                 longitude_temp = place.latLng.longitude
                 cityname_temp = place.name.toString()
-                placename_temp = place.name.toString()
                 placeid_temp = place.id
+
+                //data for tempfavplace
+                favplaceDb.name = place.name.toString()
+                favplaceDb.placeId = place.id
+                getPhoto(place.id)
+                Log.e(TAG, "Image : " + favplaceDb.uri)
+
+                //address for tempfavplace
+                val geocoder = Geocoder(context!!, Locale.getDefault())
+                try {
+                    val addresses = geocoder.getFromLocation(place.latLng.latitude, place.latLng.longitude, 1)
+
+                    if (addresses != null) {
+                        val returnedAddress = addresses.get(0)
+                        val strReturnedAddress = StringBuilder("Address:\n")
+                        for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
+                            strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                        }
+                        favplaceDb.address = addresses.get(0).getAddressLine(0)
+                        // Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                    } else {
+                        Log.d("a", "No Address returned! : ")
+
+                    }
+                } catch (e: IOException) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace()
+                    Log.d("a", "Canont get Address!")
+                }
+
+                uploadTempplace()
 
                 uploadTempplace()
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -1579,8 +1624,38 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 latitude_temp = place.latLng.latitude
                 longitude_temp = place.latLng.longitude
                 cityname_temp = place.name.toString()
-                placename_temp = place.name.toString()
                 placeid_temp = place.id
+
+                //data for tempfavplace
+                favplaceDb.name = place.name.toString()
+                favplaceDb.placeId = place.id
+                getPhoto(place.id)
+                Log.e(TAG, "Image : " + favplaceDb.uri)
+
+                //address for tempfavplace
+                val geocoder = Geocoder(context!!, Locale.getDefault())
+                try {
+                    val addresses = geocoder.getFromLocation(place.latLng.latitude, place.latLng.longitude, 1)
+
+                    if (addresses != null) {
+                        val returnedAddress = addresses.get(0)
+                        val strReturnedAddress = StringBuilder("Address:\n")
+                        for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
+                            strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                        }
+                        favplaceDb.address = addresses.get(0).getAddressLine(0)
+                        // Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                    } else {
+                        Log.d("a", "No Address returned! : ")
+
+                    }
+                } catch (e: IOException) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace()
+                    Log.d("a", "Canont get Address!")
+                }
+
+                uploadTempplace()
 
                 uploadTempplace()
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -1599,10 +1674,11 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     var latitude_temp = 0.0
     var longitude_temp = 0.0
     var numofvisit_temp = 0
-    var isacity_temp = false
+    var uri_temp = ""
     var newplace_flag = true
     var runonce_flag = true
     var curplace_like_beforeplace = false
+
 
     private fun uploadTempplace() {
         //get city name
@@ -1659,16 +1735,30 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         //add result into array list
                         val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
                         if (item != null) {
+                            var now_cityname = ""
+
                             //Log.e("Test AI : ",dsp.key)
                             if (dsp.key == mAuth.currentUser!!.uid && item.name == cityname_temp) {
                                 curplace_like_beforeplace = true
+                                now_cityname = item.name
                                 //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
                                 //break
                             }
                             if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
                                             cityname_temp == "Thủ Đô " + item.name ||
-                                            cityname_temp == "Tỉnh " + item.name) &&
-                                    item.isacity == true) {
+                                            cityname_temp == "Tỉnh " + item.name)) {
+
+                                if(item.numofask >= 1 && item.numsearch_after_ask >= 4){
+                                    tempplaceDb.numofask=item.numofask - 1
+                                    tempplaceDb.numsearch_after_ask = 0
+                                }
+                                else if(item.numofask >= 2){
+                                    tempplaceDb.numsearch_after_ask=item.numsearch_after_ask+1
+                                    tempplaceDb.numofask = item.numofask
+                                } else {
+                                    tempplaceDb.numofask = item.numofask
+                                    tempplaceDb.numsearch_after_ask=item.numsearch_after_ask
+                                }
 
 
                                 //place_list.child(place.id).setValue(placeDB)
@@ -1679,10 +1769,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                                 tempplaceDb.name = item.name
                                 tempplaceDb.numofsearch = item.numofsearch + 1
                                 tempplaceDb.numofvisit = item.numofvisit
-                                tempplaceDb.isacity = item.isacity
-                                tempplaceDb.placename = placename_temp
                                 tempplaceDb.id = item.id
-                                tempplaceDb.numofask = item.numofask
                                 tempplaceDb.askdate = item.askdate
                                 tempplace_list.child(item.id).setValue(tempplaceDb)
 
@@ -1716,8 +1803,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         tempplaceDb.longitude = longitude_temp
                         tempplaceDb.name = cityname_temp
                         tempplaceDb.numofsearch = 1
-                        tempplaceDb.placename = placename_temp
-                        tempplaceDb.isacity = true
                         tempplaceDb.id = placeid_temp
                         val date = getCurrentDateTime()
                         val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
@@ -1740,9 +1825,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     tempplaceDb.longitude = longitude_temp
                     tempplaceDb.name = cityname_temp
                     tempplaceDb.numofsearch = 1
-                    tempplaceDb.isacity = true
                     tempplaceDb.id = placeid_temp
-                    tempplaceDb.placename = placename_temp
                     val date = getCurrentDateTime()
                     val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
                     tempplaceDb.askdate = currenttime
@@ -1762,6 +1845,148 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             }
         })
     }
+
+    var newfavplace_flag = true
+    private fun uploadTempfavplace() {
+        database = FirebaseDatabase.getInstance()
+        mAuth = FirebaseAuth.getInstance()
+        tempfavplace_list = database.getReference("tempfavplace").child(mAuth.currentUser!!.uid)
+
+        //check tempfavplace data to add/update/ask tempfavplace
+        tempfavplace_list.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Log.e(TAG, "Error : " + p0.message)
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    // code if data exists
+                    // if current place like before place
+                    for (dsp in dataSnapshot.children) {
+                        val item: TempFavPlaceDbO? = dsp.getValue(TempFavPlaceDbO::class.java)
+                        if (item != null) {
+                            //update tempfavplace (number of search + 1) if user searchs there again
+                            if (favplaceDb.name == item.name || favplaceDb.placeId == item.id) {
+
+                                if(item.numofask >= 1 && item.numsearch_after_ask >= 2){
+                                    tempfavplaceDb.numofask=item.numofask - 1
+                                    tempfavplaceDb.numsearch_after_ask = 0
+                                }
+                                else if(item.numofask >= 2){
+                                    tempfavplaceDb.numsearch_after_ask=item.numsearch_after_ask+1
+                                    tempfavplaceDb.numofask = item.numofask
+                                } else {
+                                    tempfavplaceDb.numofask = item.numofask
+                                    tempfavplaceDb.numsearch_after_ask=item.numsearch_after_ask
+                                }
+
+                                //place_list.child(place.id).setValue(placeDB)
+                                //tempplaceDb.numofvisit = item.numofvisit+1
+                                tempfavplaceDb.id = item.id
+                                //tempfavplaceDb.latitude = item.latitude
+                                // tempfavplaceDb.longitude = item.longitude
+                                tempfavplaceDb.name = item.name
+                                tempfavplaceDb.uri = item.uri
+                                tempfavplaceDb.address = item.address
+                                tempfavplaceDb.numofsearch = item.numofsearch + 1
+                                tempfavplaceDb.numofvisit = item.numofvisit
+                                tempfavplaceDb.askdate = item.askdate
+
+                                tempfavplace_list.child(item.id).setValue(tempfavplaceDb)
+
+
+                                newfavplace_flag = false
+
+                            }
+                        }//
+                    }
+
+                } else {
+                    if (favplaceDb.name != "") {
+                        // code if data does not  exists
+                        tempfavplaceDb.address = favplaceDb.address
+                        tempfavplaceDb.uri = favplaceDb.uri
+                        tempfavplaceDb.name = favplaceDb.name
+                        tempfavplaceDb.numofsearch = 1
+                        tempfavplaceDb.id = favplaceDb.placeId
+                        val date = getCurrentDateTime()
+                        val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                        tempfavplaceDb.askdate = currenttime
+
+                        tempfavplace_list.child(tempfavplaceDb.id).setValue(tempfavplaceDb)
+
+                        newplace_flag = false
+                    }
+                }
+                if (newfavplace_flag && favplaceDb.name != "") {
+                    tempfavplaceDb.address = favplaceDb.address
+                    tempfavplaceDb.uri = favplaceDb.uri
+                    tempfavplaceDb.name = favplaceDb.name
+                    tempfavplaceDb.numofsearch = 1
+                    tempfavplaceDb.id = favplaceDb.placeId
+                    val date = getCurrentDateTime()
+                    val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                    tempfavplaceDb.askdate = currenttime
+
+                    tempfavplace_list.child(tempfavplaceDb.id).setValue(tempfavplaceDb)
+
+                }
+                // Result will be holded Here
+
+                //insertAllPlace().execute(placeList)
+            }
+        })
+    }
+
+    private fun getPhoto(placeId: String) {
+        //val placeId = "ChIJa147K9HX3IAR-lwiGIQv9i4"
+        val mGeoDataClient = Places.getGeoDataClient(this.context!!)
+        val photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId)
+        photoMetadataResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoMetadataResponse> { task ->
+            // Get the list of photos.
+            val photos = task.result
+            // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
+            val photoMetadataBuffer = photos.photoMetadata
+            // Get the first photo in the list.
+            val photoMetadata = photoMetadataBuffer.get(0)
+            // Get a full-size bitmap for the photo.
+            val photoResponse = mGeoDataClient.getPhoto(photoMetadata)
+
+            //Listener Event compeleted itselt, update to firebase's storage
+            photoResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoResponse> { task ->
+                val photo = task.result
+                val bitmap = photo.bitmap
+                upLoadBitmapToStorage(bitmap)
+            })
+        })
+    }
+
+    //Add that place's photos to storage & that place to firebase
+    private fun upLoadBitmapToStorage(bitmap: Bitmap) {
+        val storage = FirebaseStorage.getInstance()
+        val storageReference = storage.getReference("images")
+        val imageName = UUID.randomUUID().toString()
+        val imageFolder = storageReference.child(imageName)
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+        val uploadTask = imageFolder.putBytes(data)
+
+        //after add photos to storage, update that place's uri to placeDb -> add to firebase by uploadDatabase()
+        uploadTask.addOnFailureListener(OnFailureListener {
+            // Handle unsuccessful uploads
+        }).addOnSuccessListener(OnSuccessListener<Any> { taskSnapshot ->
+            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+            imageFolder.downloadUrl.addOnSuccessListener {
+                Log.e(TAG, "Image : " + it.toString())
+                favplaceDb.uri = it.toString()
+                uploadTempfavplace()
+            }
+        })
+
+    }
+
 
     // Fetches data from url passed
     private inner class FetchUrl(transkind: String) :AsyncTask<String, Void, String>() {
