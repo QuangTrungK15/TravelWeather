@@ -66,7 +66,7 @@ class HomeFragment : Fragment() {
                         //to read firebase date, we need ValueEventListener
                         place_list.addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onCancelled(p0: DatabaseError) {
-                                Log.e(TAG,"Error : "+p0.message)
+                                Log.e(TAG,"Error in HomeFragment: "+p0.message)
                             }
                             override fun onDataChange(dataSnapshot : DataSnapshot) {
                                 val placeList = ArrayList<PlaceEntity>()
@@ -74,6 +74,7 @@ class HomeFragment : Fragment() {
                                 for (dsp in dataSnapshot.children) {
                                     //add result into array list
                                     val item : PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
+                                    Log.e(TAG,"PlaceEntity : "+item)
                                     if (item != null) {
                                         placeList.add(item)
                                     }
@@ -116,6 +117,7 @@ class HomeFragment : Fragment() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ //excute event
+                    Log.e(TAG,"Get data from local : "+it)
                     val adapter = ViewPagerAdapter(childFragmentManager,it)
                     view_pager.adapter = adapter
                 }, {
