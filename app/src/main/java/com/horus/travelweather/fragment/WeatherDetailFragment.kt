@@ -197,23 +197,23 @@ class WeatherDetailFragment : Fragment() {
                                 latitude_temp = it.latitude
                                 longitude_temp = it.longitude
                                 //get city name
-                                val geocoder = Geocoder(context!!, Locale.getDefault())
+                                //val geocoder = Geocoder(context!!, Locale.getDefault())
 
                                 try {
-                                    val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
+                                    //val addresses = geocode.getFromLocation(latitude_temp, longitude_temp, 1)
 
-                                    if (addresses != null) {
-                                        Log.e("start location : ", addresses.toString())
+                                    if (address != null) {
+                                        Log.e("start location : ", address.toString())
 
-                                        val returnedAddress = addresses.get(0)
+                                        val returnedAddress = address.get(0)
                                         val strReturnedAddress = StringBuilder("Address:\n")
                                         //val strReturnedAddress = StringBuilder()
 
                                         for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
                                             strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                                         }
-                                        Log.e("start location : ", addresses.get(0).subAdminArea)
-                                        cityname_temp = addresses.get(0).adminArea
+                                        Log.e("start location : ", address.get(0).subAdminArea)
+                                        cityname_temp = address.get(0).adminArea
                                     } else {
                                         Log.d("a", "No Address returned! : ")
                                     }

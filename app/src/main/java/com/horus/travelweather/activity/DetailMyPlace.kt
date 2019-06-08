@@ -189,9 +189,21 @@ class DetailMyPlace : AppCompatActivity() {
                 txt_place_name.text=myPlace.name
                 ratingBar.rating=myPlace.rating
                 ratingNumber.text=myPlace.rating.toString()
-                txt_address.text=myPlace.address
-                txt_phonenumber.text=myPlace.phoneNumber
-                txt_weburi.text= myPlace.websiteUri.toString()
+
+                if(myPlace.address == "" || myPlace.address == null){
+                    txt_address.text = "Chưa cập nhật"
+                }
+                else txt_address.text = myPlace.address
+
+                if(myPlace.phoneNumber == "" || myPlace.phoneNumber == null){
+                    txt_phonenumber.text = "Chưa cập nhật"
+                }
+                else txt_phonenumber.text=myPlace.phoneNumber
+
+                if(myPlace.websiteUri.toString() == "" || myPlace.websiteUri == null){
+                    txt_weburi.text = "Chưa cập nhật"
+                }
+                else txt_weburi.text= myPlace.websiteUri.toString()
 
                 latLng_toDirection = myPlace.latLng // to send to DirectionsFragment
                 Log.i(TAG, "Place latlng found: " + latLng_toDirection)

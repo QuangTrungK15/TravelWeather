@@ -26,6 +26,7 @@ import com.horus.travelweather.database.TravelWeatherDB
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_home_fragment.*
 
@@ -39,6 +40,14 @@ class HomeFragment : Fragment() {
     lateinit var mAuth: FirebaseAuth
     //lateinit var progress_loading: ProgressBar
 
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.e(TAG,"Destroy Destroy Destroy Destroy Destroy Destroy : ")
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_home_fragment, container, false)
         database = FirebaseDatabase.getInstance()
@@ -69,21 +78,27 @@ class HomeFragment : Fragment() {
                                 Log.e(TAG,"Error in HomeFragment: "+p0.message)
                             }
                             override fun onDataChange(dataSnapshot : DataSnapshot) {
-                                val placeList = ArrayList<PlaceEntity>()
-                                // Result will be holded Here
-                                for (dsp in dataSnapshot.children) {
-                                    //add result into array list
-                                    val item : PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
-                                    Log.e(TAG,"PlaceEntity : "+item)
-                                    if (item != null) {
-                                        placeList.add(item)
+                                try {
+                                    val placeList = ArrayList<PlaceEntity>()
+                                    // Result will be holded Here
+                                    for (dsp in dataSnapshot.children) {
+                                        //add result into array list
+                                        val item : PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
+                                        Log.e(TAG,"PlaceEntity : "+item)
+                                        if (item != null) {
+                                            placeList.add(item)
+                                        }
                                     }
+                                    Log.e(TAG,"Size : "+placeList.size)
+                                    insertAllPlace().execute(placeList)
+                                    //progress.cancel()
+                                    progress_loading.visibility = View.GONE
+                                    //Bind fragments on viewpager
+                                } catch (e: NullPointerException) {
+                                    Log.e(TAG, "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee : "+e.message)
                                 }
-                                Log.e(TAG,"Size : "+placeList.size)
-                                insertAllPlace().execute(placeList)
-                                //progress.cancel()
-                                progress_loading.visibility = View.GONE
-                                //Bind fragments on viewpager
+
+
                             }
                         })
                     } else {
@@ -113,16 +128,21 @@ class HomeFragment : Fragment() {
         // RxJava is java library and it does not know about Android Main thread. That is the reason why we use RxAndroid.
         // RxAndroid gives us the possibility to choose Android Main thread as the thread where our code will be executed.
         // Obviously, our Observer should operate on Android Main thread.
-        compositeDisposable.add(getAllPlace.getAll()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ //excute event
-                    Log.e(TAG,"Get data from local : "+it)
-                    val adapter = ViewPagerAdapter(childFragmentManager,it)
-                    view_pager.adapter = adapter
-                }, {
-                    Log.e(TAG, "" + it.message)
-                }))
+        try {
+            compositeDisposable.add(getAllPlace.getAll()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ //excute event
+                        Log.e(TAG,"Get data from local : "+it)
+                        val adapter = ViewPagerAdapter(childFragmentManager,it)
+                        view_pager.adapter = adapter
+                    }, {
+                        Log.e(TAG, "" + it.message)
+                    }))
+        } catch (e: NullPointerException) {
+            Log.e(TAG, "getdatafromlocal lich : "+e.message)
+        }
+
     }
 
     inner class insertAllPlace() : AsyncTask<ArrayList<PlaceEntity>, Void, Void>() {
