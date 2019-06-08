@@ -7,16 +7,15 @@ import java.text.DateFormat
 import java.util.*
 
 data class TempPlaceDbO (@ColumnInfo(name = "id") var id : String
-                         //,@ColumnInfo(name = "isacity") var isacity : Boolean
+                         ,@ColumnInfo(name = "isacity") var isacity : Boolean
                          ,@ColumnInfo(name = "latitude") var latitude : Double
                          ,@ColumnInfo(name = "longitude") var longitude : Double
                      ,@ColumnInfo(name = "name") var name : String
-                     //    ,@ColumnInfo(name = "placename") var placename : String
+                         ,@ColumnInfo(name = "placename") var placename : String
                      ,@ColumnInfo(name = "numofsearch") var numofsearch : Int
                          ,@ColumnInfo(name = "numofvisit") var numofvisit : Int
-                        // ,@ColumnInfo(name = "uri") var uri : String
+                         ,@ColumnInfo(name = "uri") var uri : String
                          ,@ColumnInfo(name = "numofask") var numofask : Int
-                         ,@ColumnInfo(name = "numsearch_after_ask") var numsearch_after_ask : Int
                          ,@ColumnInfo(name = "askdate") var askdate : String){
-    constructor():this("",0.0,0.0,"",0,0,0, 0,"")
+    constructor():this("",false,0.0,0.0,"","",0,0,"",0, "")
 }

@@ -3,11 +3,9 @@ package com.horus.travelweather.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PointF
 import android.location.Geocoder
@@ -34,23 +32,15 @@ import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.AutocompleteFilter
-import com.google.android.gms.location.places.PlacePhotoMetadataResponse
-import com.google.android.gms.location.places.PlacePhotoResponse
-import com.google.android.gms.location.places.Places
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
-import com.google.firebase.storage.FirebaseStorage
-import com.horus.travelweather.BottomNavigation
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
@@ -65,7 +55,6 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -77,20 +66,22 @@ import kotlin.collections.ArrayList
 class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private val TAG = DirectionsFragment::class.java.simpleName
-    private lateinit var adapterTransportation: TransportationAdapter
-    private lateinit var adapterStepbyStepDirections: StepbyStepDirectionsAdapter
+    private lateinit var adapterTransportation : TransportationAdapter
+    private lateinit var adapterStepbyStepDirections : StepbyStepDirectionsAdapter
     var PLACE_AUTOCOMPLETE_REQUEST_CODE = 1
     var PLACE_AUTOCOMPLETE_REQUEST_CODE2 = 2
 
-    private lateinit var mMap: GoogleMap
-    private lateinit var markerPoints: ArrayList<LatLng>
-    private lateinit var mGoogleApiClient: GoogleApiClient
-    private lateinit var mLastLocation: Location
+    private lateinit var mMap:GoogleMap
+    private lateinit var markerPoints:ArrayList<LatLng>
+    private lateinit var mGoogleApiClient:GoogleApiClient
+    private lateinit var mLastLocation:Location
     private var mCurrLocationMarker: Marker? = null
-    private lateinit var mLocationRequest: LocationRequest
+    private lateinit var mLocationRequest:LocationRequest
 
     var transList = ArrayList<TransportationDbO>()
     var stepsList = ArrayList<DirectionsStepDbO>()
+    var stepsList_temp = ArrayList<DirectionsStepDbO>()
+
     private var count: Int = 1
 
 
@@ -101,17 +92,10 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
     //Saving history when searching
     private val historyDb = HistoryDbO()
+    private val tempplaceDb = TempPlaceDbO() //for AI
     lateinit var database: FirebaseDatabase
     lateinit var history_list: DatabaseReference
-    //temp place
-    private val tempplaceDb = TempPlaceDbO() //for AI
     lateinit var tempplace_list: DatabaseReference //for AI
-    //temp favplace
-    private val favplaceDb = PlaceDbO()
-    private val tempfavplaceDb = TempFavPlaceDbO() //for AI
-    lateinit var tempfavplace_list: DatabaseReference //for AI
-
-
     lateinit var mAuth: FirebaseAuth
     lateinit var adapter: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
     var myuser: FirebaseUser? = null
@@ -121,7 +105,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     @SuppressLint("SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_directions, container, false)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
             checkLocationPermission()
         }
 
@@ -131,7 +116,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         database = FirebaseDatabase.getInstance()
         history_list = database.getReference("history")
         tempplace_list = database.getReference("tempplace").child(mAuth.currentUser!!.uid)
-        tempfavplace_list = database.getReference("tempfavplace").child(mAuth.currentUser!!.uid)
 
         // Initializing
         markerPoints = ArrayList<LatLng>()
@@ -143,7 +127,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         //if(!latLngfromFavPlace.isEmpty()){
         latLngfromFavPlace = arguments!!.getString("MyLatLng")
 
-        if (!latLngfromFavPlace.isEmpty()) {
+        if(!latLngfromFavPlace.isEmpty()){
             val actionBar1 = (activity as AppCompatActivity).supportActionBar
             if (actionBar1 != null) {
                 //actionBar1.setDisplayHomeAsUpEnabled(true)
@@ -152,42 +136,48 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
             var lat = ""
             var lng = ""
-            for (i in 0 until latLngfromFavPlace.length) {
-                if (latLngfromFavPlace[i] == ',') {
-                    lat = latLngfromFavPlace.substring(10, i)
-                    lng = latLngfromFavPlace.substring(i + 1, latLngfromFavPlace.lastIndex)
+            for(i in 0 until latLngfromFavPlace.length){
+                if(latLngfromFavPlace[i] == ','){
+                    lat = latLngfromFavPlace.substring(10,i)
+                    lng = latLngfromFavPlace.substring(i+1,latLngfromFavPlace.lastIndex)
                 }
             }
 
-            Log.e("Place latlng: ", lat + ',' + lng)
+            Log.e("Place latlng: ",lat+ ',' + lng)
 
-            destlocation = LatLng(lat.toDouble(), lng.toDouble())
+            destlocation = LatLng(lat.toDouble(),lng.toDouble())
 
             val geocoder = Geocoder(context!!, Locale.getDefault())
-            try {
+            try
+            {
                 val addresses = geocoder.getFromLocation(destlocation.latitude, destlocation.longitude, 1)
 
-                if (addresses != null) {
+                if (addresses != null)
+                {
                     val returnedAddress = addresses.get(0)
                     val strReturnedAddress = StringBuilder("Address:\n")
-                    for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
+                    for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                    {
                         strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                     }
                     view.edt_destination.setText(addresses.get(0).getAddressLine(0))
-                    Log.e("start location: ", addresses.get(0).getAddressLine(0))
-                } else {
-                    Log.d("a", "No Address returned! : ")
+                    Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                }
+                else
+                {
+                    Log.d("a","No Address returned! : ")
 
                 }
-            } catch (e: IOException) {
+            }
+            catch (e:IOException) {
                 // TODO Auto-generated catch block
                 e.printStackTrace()
-                Log.d("a", "Canont get Address!")
+                Log.d("a","Canont get Address!")
             }
         }
 
         //currentlocation = currentLocation_latLng!!
-        view.imgView_optionmenu.setOnClickListener {
+        view.imgView_optionmenu.setOnClickListener{
             showPopup(context!!, view.imgView_optionmenu, 0)
             //Log.e("hientai: ",currentLocation_latLng.toString())
         }
@@ -199,12 +189,13 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //result = textToSpeech.setLanguage(Locale.UK)
                 textToSpeech.speak("", TextToSpeech.QUEUE_FLUSH, null)
             } else {
-                Toast.makeText(context!!, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context!!,"Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
             }
         })
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        if (getFragmentManager() != null) {
+        if(getFragmentManager() != null)
+        {
             val mMapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 //            val mapFragment = getFragmentManager()!!
 //                    .findFragmentById(R.id.map) as SupportMapFragment
@@ -221,16 +212,16 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 //        val behavior = BottomSheetBehavior.from(recyclerView)
 
         //val transList = ArrayList<TransportationDbO>()
-        transList.add(TransportationDbO("driving", ""))
-        transList.add(TransportationDbO("walking", ""))
-        transList.add(TransportationDbO("transit", ""))
-        implementLoad(transList, view.rv_transportations)
+        transList.add(TransportationDbO("driving",""))
+        transList.add(TransportationDbO("walking",""))
+        transList.add(TransportationDbO("transit",""))
+        implementLoad(transList,view.rv_transportations)
 
-        stepsList.add(DirectionsStepDbO(0, "", "", "", "", "",
-                currentlocation, TransitDbO("", "", "", "", "", "", "")))
-        loadingStepbyStep(stepsList, view.rv_directionsSteps)
+        stepsList.add(DirectionsStepDbO(0,"","","","","",
+                currentlocation, TransitDbO("","","","","","","")))
+        loadingStepbyStep(stepsList,view.rv_directionsSteps)
 
-        view.clicksteps.setOnClickListener {
+        view.clicksteps.setOnClickListener{
             numberofclick++
 
             /*if(numberofclick == 1){
@@ -240,7 +231,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 numberofclick++
             }*/
 
-            if (count % 2 != 0) {
+            if(count%2 != 0)
+            {
                 view.rv_directionsSteps.visibility = View.VISIBLE
 
                 view.linear_orgindest.animate()
@@ -256,7 +248,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
                 view.linear_orgindest.visibility = View.GONE
                 view.rv_transportations.visibility = View.GONE
-            } else {
+            }
+            else{
                 view.rv_directionsSteps.visibility = View.GONE
 
                 view.linear_orgindest.animate()
@@ -288,21 +281,21 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             count++
         }*/
 
-        view.btn_previous.setOnClickListener {
-            if (thestep > 0 && thestep < stepsList.size) {
+        view.btn_previous.setOnClickListener{
+            if(thestep > 0 && thestep < stepsList.size){
                 thestep--
                 pre_nextstep(thestep)
             }
         }
 
-        view.btn_next.setOnClickListener {
-            if (thestep >= 0 && thestep < stepsList.size - 1) {
+        view.btn_next.setOnClickListener{
+            if(thestep >= 0 && thestep < stepsList.size - 1){
                 thestep++
                 pre_nextstep(thestep)
             }
         }
 
-        view.imgbtn_updown.setOnClickListener {
+        view.imgbtn_updown.setOnClickListener{
             val edt_origin_temp = view.edt_orgin.text
             view.edt_orgin.text = edt_destination.text
             view.edt_destination.text = edt_origin_temp
@@ -346,7 +339,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         popup = PopupMenu(context, textView)
         //Add only option (remove) of per img
         popup.menu.add(0, position, 0, TWConstant.YOURLOCATION1)
-        popup.menu.add(0, position + 1, 0, TWConstant.YOURLOCATION2)
+        popup.menu.add(0, position+1, 0, TWConstant.YOURLOCATION2)
 
         popup.show()
         popup.menu.getItem(0).setOnMenuItemClickListener({
@@ -354,53 +347,65 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             currentlocation = currentLocation_latLng
 
             val geocoder = Geocoder(context!!, Locale.getDefault())
-            try {
+            try
+            {
                 val addresses = geocoder.getFromLocation(currentlocation.latitude, currentlocation.longitude, 1)
 
-                if (addresses != null) {
+                if (addresses != null)
+                {
                     val returnedAddress = addresses.get(0)
                     val strReturnedAddress = StringBuilder("Address:\n")
-                    for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
+                    for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                    {
                         strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                     }
                     edt_orgin.setText(addresses.get(0).getAddressLine(0))
-                    Log.e("start location: ", addresses.get(0).getAddressLine(0))
-                } else {
-                    Log.d("a", "No Address returned! : ")
+                    Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                }
+                else
+                {
+                    Log.d("a","No Address returned! : ")
 
                 }
-            } catch (e: IOException) {
+            }
+            catch (e:IOException) {
                 // TODO Auto-generated catch block
                 e.printStackTrace()
-                Log.d("a", "Canont get Address!")
+                Log.d("a","Canont get Address!")
             }
             true
         })
 
         popup.menu.getItem(1).setOnMenuItemClickListener({
-            Log.e("Ok nha2:", "1")
+            Log.e("Ok nha2:","1")
             destlocation = currentLocation_latLng
 
             val geocoder = Geocoder(context!!, Locale.getDefault())
-            try {
+            try
+            {
                 val addresses = geocoder.getFromLocation(destlocation.latitude, destlocation.longitude, 1)
 
-                if (addresses != null) {
+                if (addresses != null)
+                {
                     val returnedAddress = addresses.get(0)
                     val strReturnedAddress = StringBuilder("Address:\n")
-                    for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
+                    for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                    {
                         strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                     }
                     edt_destination.setText(addresses.get(0).getAddressLine(0))
-                    Log.e("start location: ", addresses.get(0).getAddressLine(0))
-                } else {
-                    Log.d("a", "No Address returned! : ")
+                    Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                }
+                else
+                {
+                    Log.d("a","No Address returned! : ")
 
                 }
-            } catch (e: IOException) {
+            }
+            catch (e:IOException) {
                 // TODO Auto-generated catch block
                 e.printStackTrace()
-                Log.d("a", "Canont get Address!")
+                Log.d("a","Canont get Address!")
             }
             true
         })
@@ -411,8 +416,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 //    override fun onCreate(savedInstanceState: Bundle?) {
 //        super.onCreate(savedInstanceState)
 //        setContentView(R.layout.activity_directions)
-    //val actionBar = actionBar
-    //actionBar.hide()
+        //val actionBar = actionBar
+        //actionBar.hide()
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
 //        {
@@ -543,38 +548,37 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     private fun pxToDp(px: Float): Float {
         return px / resources.displayMetrics.density
     }
-
     //MotionEvent.ACTION_UP means you touch sensor fist time
     //MotionEvent.ACTION_DOWN means that touch sensor does not detect anymore
     //for example MotionEvent.ACTION_MOVE means that sensor detects some moves (like swipe, scroll etc.)
     //When u move clicksteps (that top bar above direction steps list)
-    private var xDelta: Int = 0
-    private var yDelta: Int = 0
+    private var xDelta:Int = 0
+    private var yDelta:Int = 0
     //private val CLICK_ACTION_THRESHHOLD = 200
 
     //to determind click event when touchevent is running
     private val MAX_CLICK_DURATION = 400
     private val MAX_CLICK_DISTANCE = 5
     private var startClickTime: Long = 0
-    private var stayedWithinClickDistance: Boolean = false
+    private var stayedWithinClickDistance:Boolean = false
     private var x1: Float = 0.toFloat()
     private var y1: Float = 0.toFloat()
     private var dx: Float = 0.toFloat()
     private var dy: Float = 0.toFloat()
-    private var firstclick: Boolean = false
-    private var numberofclick: Int = 0
+    private var firstclick:Boolean = false
+    private var numberofclick:Int = 0
     var layoutParams_temp: RelativeLayout.LayoutParams? = null
 
     private fun onTouchListener(): View.OnTouchListener {
         return View.OnTouchListener { view, event ->
-            //            val mainLayout = findViewById<View>(R.id.clicksteps) as RelativeLayout
+//            val mainLayout = findViewById<View>(R.id.clicksteps) as RelativeLayout
             val x = event.rawX.toInt()
             val y = event.rawY.toInt()
             val lParams = view.layoutParams as RelativeLayout.LayoutParams
 
             when (event.action and MotionEvent.ACTION_MASK) {
                 MotionEvent.ACTION_DOWN -> {
-                    if (clicksteps.bottom != directionsID.bottom) {
+                    if(clicksteps.bottom != directionsID.bottom) {
 
                         xDelta = x - lParams.leftMargin
                         yDelta = y - lParams.topMargin
@@ -590,17 +594,17 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 MotionEvent.ACTION_UP -> {
                     //if(clicksteps.top != directionsID.top) {
 
-                    //  yDelta = y + lParams.topMargin
+                      //  yDelta = y + lParams.topMargin
 
-                    val clickDuration = Calendar.getInstance().timeInMillis - startClickTime
-                    dx = event.x - x1
-                    dy = event.y - y1
-                    if (clickDuration < MAX_CLICK_DURATION && dx < MAX_CLICK_DISTANCE && dy < MAX_CLICK_DISTANCE) {
-                        Log.v("", "On Item Clicked:: ")
-                        view.performClick()
-                    }
+                        val clickDuration = Calendar.getInstance().timeInMillis - startClickTime
+                        dx = event.x - x1
+                        dy = event.y - y1
+                        if (clickDuration < MAX_CLICK_DURATION && dx < MAX_CLICK_DISTANCE && dy < MAX_CLICK_DISTANCE) {
+                            Log.v("", "On Item Clicked:: ")
+                            view.performClick()
+                        }
 
-                    // firstclick = true
+                       // firstclick = true
                     //}
                     /* if (pressDuration < MAX_CLICK_DURATION && stayedWithinClickDistance) {
                          // Click event has occurred
@@ -673,19 +677,23 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         }
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
+    override fun onMapReady(googleMap:GoogleMap) {
         mMap = googleMap
 
         setupGoogleMapScreenSettings(googleMap)
 
         //Initialize Google Play Services
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
             if ((ContextCompat.checkSelfPermission(context!!,
-                            Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED)) {
+                    Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
+            {
                 buildGoogleApiClient()
                 mMap.isMyLocationEnabled = true
             }
-        } else {
+        }
+        else
+        {
             buildGoogleApiClient()
             mMap.isMyLocationEnabled = true
         }
@@ -693,7 +701,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 //        val fab_directions = this.findViewById<View>(R.id.fab_directions) as FloatingActionButton
         fab_directions.setOnClickListener {
 
-            AddMarker(currentlocation, destlocation)
+            AddMarker(currentlocation,destlocation)
 
             // Getting URL to the Google Directions API
             val url = getUrl(currentlocation, destlocation)
@@ -742,16 +750,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             val options = MarkerOptions()
             // Setting the position of the marker
             options.position(point)
-            */
-        /**
-         * For the start location, the color of marker is GREEN and
-         * for the end location, the color of marker is RED.
-         *//*
-            */
-        /**
-         * For the start location, the color of marker is GREEN and
-         * for the end location, the color of marker is RED7.
-         *//*
+            *//**
+             * For the start location, the color of marker is GREEN and
+             * for the end location, the color of marker is RED.
+             *//*
+            *//**
+             * For the start location, the color of marker is GREEN and
+             * for the end location, the color of marker is RED7.
+             *//*
             if (markerPoints.size == 1) {
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             } else if (markerPoints.size == 2) {
@@ -793,8 +799,9 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     }
 
     // As TransportationAdapter, input: list & id (by one click), if we click any element on rv_transportation
-    private fun implementLoad(list: List<TransportationDbO>, rv_transportations: RecyclerView) {
-        adapterTransportation = TransportationAdapter(list, { id ->
+    private fun implementLoad(list : List<TransportationDbO>,rv_transportations : RecyclerView) {
+        adapterTransportation = TransportationAdapter(list,{
+            id ->
             var url = getUrl(currentlocation, destlocation)
             var vehicle = "driving"
             when (id) {
@@ -820,7 +827,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
             //adapterTransportation.notifyDataSetChanged()
         })
-        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context!!, LinearLayoutManager.HORIZONTAL, false)
+        val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(context!!, LinearLayoutManager.HORIZONTAL, false)
         rv_transportations.adapter = adapterTransportation
         rv_transportations.layoutManager = layoutManager
         //rv_directionsSteps.setHasFixedSize(true)
@@ -828,14 +835,15 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
     var thestep = 0 //step of rv_directionsteps
 
-    private fun loadingStepbyStep(list: List<DirectionsStepDbO>, rv_directionsSteps: RecyclerView) {
-        adapterStepbyStepDirections = StepbyStepDirectionsAdapter(list, { id ->
+    private fun loadingStepbyStep(list : List<DirectionsStepDbO>,rv_directionsSteps : RecyclerView) {
+        adapterStepbyStepDirections = StepbyStepDirectionsAdapter(list,{
+            id ->
 
             pre_nextstep(id.toInt())
             //adapterStepbyStepDirections.notifyDataSetChanged()
 
         })
-        val layoutManager2: RecyclerView.LayoutManager = SmoothLinearLayoutManager(context!!, LinearLayoutManager.VERTICAL, false)
+        val layoutManager2 : RecyclerView.LayoutManager = SmoothLinearLayoutManager(context!!, LinearLayoutManager.VERTICAL, false)
         rv_directionsSteps.adapter = adapterStepbyStepDirections
         rv_directionsSteps.layoutManager = layoutManager2
 
@@ -844,7 +852,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     var options_flat: Boolean = false
     private var markerName_temp: Marker? = null
 
-    private fun pre_nextstep(id: Int) {
+    private fun pre_nextstep(id: Int){
         thestep = id.toInt()
 
         //val toolbar = this.findViewById<View>(R.id.toolbar) as Toolbar?
@@ -860,6 +868,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         fab_directions.visibility = View.GONE
 
 
+
         //val imgView_goto_direction = this.findViewById<View>(R.id.imgView_goto_direction) as AppCompatImageView
         //val tv_goto_distance9 = this.findViewById<View>(R.id.tv_goto_distance9) as TextView
         //val tv_goto_instructions = this.findViewById<View>(R.id.tv_goto_instructions) as TextView
@@ -867,47 +876,47 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         tv_goto_distance9.text = stepsList[id.toInt()].distance
         tv_goto_instructions.text = stepsList[id.toInt()].instructions
 
-        if (stepsList[id.toInt()].direction == "Head" || stepsList[id.toInt()].direction == "Straight") {
+        if(stepsList[id.toInt()].direction == "Head" || stepsList[id.toInt()].direction == "Straight"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_head)
-        } else if (stepsList[id.toInt()].direction == "turn-left") {
+        } else if(stepsList[id.toInt()].direction == "turn-left"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_turnleft)
-        } else if (stepsList[id.toInt()].direction == "turn-right") {
+        } else if(stepsList[id.toInt()].direction == "turn-right"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_turnright)
-        } else if (stepsList[id.toInt()].direction == "turn-slight-right") { //chếch sang phải
+        } else if(stepsList[id.toInt()].direction == "turn-slight-right"){ //chếch sang phải
             imgView_goto_direction.setImageResource(R.drawable.ic24_turnslightright)
-        } else if (stepsList[id.toInt()].direction == "turn-slight-left") {
+        } else if(stepsList[id.toInt()].direction == "turn-slight-left"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_turnslightleft)
-        } else if (stepsList[id.toInt()].direction == "turn-sharp-right") { // ngoặc phải
+        }else if(stepsList[id.toInt()].direction == "turn-sharp-right"){ // ngoặc phải
             imgView_goto_direction.setImageResource(R.drawable.ic24_turnsharpright)
-        } else if (stepsList[id.toInt()].direction == "turn-sharp-left") {
+        } else if(stepsList[id.toInt()].direction == "turn-sharp-left"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_turnsharpleft)
-        } else if (stepsList[id.toInt()].direction == "ferry") {
+        } else if(stepsList[id.toInt()].direction == "ferry"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_ferry)
-        } else if (stepsList[id.toInt()].direction == "ferry-train") {
+        } else if(stepsList[id.toInt()].direction == "ferry-train"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_ferry)
-        } else if (stepsList[id.toInt()].direction == "ramp-right") { //tại nút giao thông
+        } else if(stepsList[id.toInt()].direction == "ramp-right"){ //tại nút giao thông
             imgView_goto_direction.setImageResource(R.drawable.ic24_rampleft)
-        } else if (stepsList[id.toInt()].direction == "ramp-left") {
+        } else if(stepsList[id.toInt()].direction == "ramp-left"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_rampleft)
-        } else if (stepsList[id.toInt()].direction == "fork-right") { //tại nút giao thông
+        } else if(stepsList[id.toInt()].direction == "fork-right"){ //tại nút giao thông
             imgView_goto_direction.setImageResource(R.drawable.ic24_rampleft)
-        } else if (stepsList[id.toInt()].direction == "fork-left") {
+        } else if(stepsList[id.toInt()].direction == "fork-left"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_rampleft)
-        } else if (stepsList[id.toInt()].direction == "uturn-right") {
+        } else if(stepsList[id.toInt()].direction == "uturn-right"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_uturnright)
-        } else if (stepsList[id.toInt()].direction == "uturn-left") {
+        } else if(stepsList[id.toInt()].direction == "uturn-left"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_uturnleft)
-        } else if (stepsList[id.toInt()].direction == "merge") {
+        } else if(stepsList[id.toInt()].direction == "merge"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_merge)
-        } else if (stepsList[id.toInt()].direction == "roundabout-right") {
+        } else if(stepsList[id.toInt()].direction == "roundabout-right"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_roundabout)
-        } else if (stepsList[id.toInt()].direction == "roundabout-left") {
+        } else if(stepsList[id.toInt()].direction == "roundabout-left"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_roundabout)
-        } else if (stepsList[id.toInt()].direction == "keep-right") {
+        } else if(stepsList[id.toInt()].direction == "keep-right"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_keepright)
-        } else if (stepsList[id.toInt()].direction == "keep-left") {
+        } else if(stepsList[id.toInt()].direction == "keep-left"){
             imgView_goto_direction.setImageResource(R.drawable.ic24_keepleft)
-        } else {
+        } else{
             imgView_goto_direction.setImageResource(R.drawable.ic24_head)
         }
         val actionBar1 = (activity as AppCompatActivity).supportActionBar
@@ -922,7 +931,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
         // Setting the position of the marker
         //val options = MarkerOptions()
-        if (markerName_temp != null) markerName_temp!!.remove()
+        if(markerName_temp != null) markerName_temp!!.remove()
 
         val markerName = mMap.addMarker(MarkerOptions().position(stepsList[thestep].latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)))
         //options.position(stepsList[id.toInt()].latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
@@ -933,7 +942,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
         //options_flat = true
 
-        if ((if (textToSpeech != null) textToSpeech else throw NullPointerException("Expression 'textToSpeech' must not be null")).isSpeaking) {
+        if((if (textToSpeech != null) textToSpeech else throw NullPointerException("Expression 'textToSpeech' must not be null")).isSpeaking){
             textToSpeech.shutdown()
         }
 
@@ -942,14 +951,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //result = textToSpeech.setLanguage(Locale.UK)
                 textToSpeech.speak(tv_goto_instructions.text.toString(), TextToSpeech.QUEUE_FLUSH, null)
             } else {
-                Toast.makeText(context!!, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context!!,"Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
             }
         })
 
     }
 
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem?):Boolean {
         when (item?.itemId) {
             android.R.id.home -> {
                 // todo: goto back activity from here
@@ -989,7 +998,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     }
 
 
-    private fun AddMarker(currentlocation: LatLng, destlocation: LatLng) {
+    private fun AddMarker(currentlocation: LatLng, destlocation: LatLng){
 //        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
 //        val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
 
@@ -1014,7 +1023,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         mMap.addMarker(options)
     }
 
-    private fun getUrl(origin: LatLng, dest: LatLng): String {
+    private fun getUrl(origin:LatLng, dest:LatLng):String {
         // Origin of route
         val strOrigin = "origin=" + origin.latitude + "," + origin.longitude
         // Destination of route
@@ -1025,14 +1034,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         val parameters = "${strOrigin.trim()}&${strDest.trim()}&$sensor"
         // Output format
         val output = "json"
-        val apikey = "AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
+        val apikey="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
         // Building the url to the web service
         val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&language=vi&mode=driving&key=$apikey"
 
         return url
     }
 
-    private fun getUrl_Walking(origin: LatLng, dest: LatLng): String {
+    private fun getUrl_Walking(origin:LatLng, dest:LatLng):String {
         // Origin of route
         val strOrigin = "origin=" + origin.latitude + "," + origin.longitude
         // Destination of route
@@ -1043,14 +1052,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         val parameters = "${strOrigin.trim()}&${strDest.trim()}&$sensor"
         // Output format
         val output = "json"
-        val apikey = "AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
+        val apikey="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
         // Building the url to the web service
         val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&language=vi&mode=walking&key=$apikey"
 
         return url
     }
 
-    private fun getUrl_Transit(origin: LatLng, dest: LatLng): String {
+    private fun getUrl_Transit(origin:LatLng, dest:LatLng):String {
         // Origin of route
         val strOrigin = "origin=" + origin.latitude + "," + origin.longitude
         // Destination of route
@@ -1061,7 +1070,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         val parameters = "${strOrigin.trim()}&${strDest.trim()}&$sensor"
         // Output format
         val output = "json"
-        val apikey = "AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
+        val apikey="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
         // Building the url to the web service
         val url = "https://maps.googleapis.com/maps/api/directions/$output?$parameters&language=vi&mode=transit&transit_mode=bus&key=$apikey"
 
@@ -1099,10 +1108,10 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //val path = ArrayList<HashMap<String, String>>()
 
                 jDuration = (jLegs.get(i) as JSONObject).getJSONObject("duration")
-                Log.e("Step duration: ", jDuration.toString())
+                Log.e("Step duration: ",jDuration.toString())
 
                 jDistance = (jLegs.get(i) as JSONObject).getJSONObject("distance")
-                Log.e("Step duration: ", jDistance.toString())
+                Log.e("Step duration: ",jDistance.toString())
 
                 /** Traversing all legs  */
                 for (j in 0 until jLegs.length()) {
@@ -1114,14 +1123,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     count = 0
                     for (k in 0 until jSteps.length()) {
 
-                        maneuver = if (((jSteps.get(k) as JSONObject).has("maneuver"))) {
+                        maneuver = if(((jSteps.get(k) as JSONObject).has("maneuver")) ){
                             ((jSteps.get(k) as JSONObject).get("maneuver")) as String
                         } else "Head"
                         Log.e("Step maneuver: ", maneuver)
 
                         instructions = ((jSteps.get(k) as JSONObject).get("html_instructions")) as String
 
-                        Log.e("Step-0 instructions: ", instructions)
+                        Log.e("Step-0 instructions: ",  instructions)
 
                         //Divide instructions string to instruction9 & attention
                         var instructions9 = instructions
@@ -1130,45 +1139,45 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         var j = 0
                         var end = instructions.length - 1
 
-                        while (j <= end) {
+                        while (j <= end){
                             //
-                            if (instructions[j] == '<' && instructions[j + 1] == 'd') {
-                                attention = instructions.substring(j, end + 1)
-                                instructions9 = instructions.substring(0, j)
-                                Log.e("Step1 instructions9: ", instructions9)
-                                Log.e("Step1 attention: ", attention)
+                            if(instructions[j] == '<' && instructions[j+1] == 'd'){
+                                attention = instructions.substring(j,end+1)
+                                instructions9 = instructions.substring(0,j)
+                                Log.e("Step1 instructions9: ",  instructions9)
+                                Log.e("Step1 attention: ",  attention)
                                 break
                             }
                             j++
                         }
 
-                        Log.e("Step1 instructions9: ", instructions9)
-                        Log.e("Step1 attention: ", attention)
+                        Log.e("Step1 instructions9: ",  instructions9)
+                        Log.e("Step1 attention: ",  attention)
 
 
                         var start = 0
                         var i = 0
-                        while (i < instructions9.length) {
+                        while(i < instructions9.length){
 
-                            if (instructions9[i] == '<') {
-                                start = i
-                            }
+                            if (instructions9[i] == '<') { start = i }
 
-                            if (instructions9[i] == '&' && instructions9[i + 1] == 'a' && instructions9[i + 2] == 'm'
-                                    && instructions9[i + 3] == 'p' && instructions9[i + 4] == ';') {
-                                val first = instructions9.substring(0, i + 1)
-                                val last = instructions9.substring(i + 5, instructions9.length)
+                            if(instructions9[i] == '&' && instructions9[i+1] == 'a' && instructions9[i+2] == 'm'
+                                    && instructions9[i+3] == 'p' && instructions9[i+4] == ';')
+                            {
+                                val first = instructions9.substring(0,i+1)
+                                val last = instructions9.substring(i+5,instructions9.length)
                                 instructions9 = first + last
                             }
 
-                            if (instructions9[i] == '>') {
-                                val first = instructions9.substring(0, start)
-                                val last = instructions9.substring(i + 1)
+                            if (instructions9[i] == '>')
+                            {
+                                val first = instructions9.substring(0,start)
+                                val last = instructions9.substring(i+1)
                                 val newins = first + last
 
                                 instructions9 = newins
 
-                                i = 0
+                                i=0
                                 start = 0
                             }
                             i++
@@ -1177,32 +1186,31 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
                         var start2 = 0
                         var i2 = 0
-                        while (i2 < attention.length) {
-                            if (attention[i2] == '&' || attention[i2] == '<') {
-                                start2 = i2
-                            }
-                            if (attention[i2] == ';' || attention[i2] == '>') {
+                        while(i2 < attention.length){
+                            if (attention[i2] == '&' || attention[i2] == '<') { start2 = i2 }
+                            if (attention[i2] == ';' || attention[i2] == '>')
+                            {
                                 var spot = ""
 
-                                if (attention[i2 - 1] == 'v') spot = ". "
+                                if(attention[i2 - 1] == 'v') spot = ". "
 
-                                val first = attention.substring(0, start2)
-                                val last = attention.substring(i2 + 1)
+                                val first = attention.substring(0,start2)
+                                val last = attention.substring(i2+1)
                                 val newins = first + spot + last
 
-                                Log.e("Step last: ", last.toString())
+                                Log.e("Step last: ",  last.toString())
 
                                 attention = newins
 
-                                i2 = 0
-                                Log.e("Step ins: ", i2.toString())
+                                i2=0
+                                Log.e("Step ins: ",  i2.toString())
 
                                 start2 = 0
                             }
                             i2++
                         }
 
-                        Log.e("Step instructions: ", instructions9)
+                        Log.e("Step instructions: ",  instructions9)
 
                         distance = ((jSteps.get(k) as JSONObject).get("distance") as JSONObject).get("text") as String
                         Log.e("Step distance: ", distance)
@@ -1216,11 +1224,11 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         start_location_lng = (((jSteps.get(k) as JSONObject).get("start_location") as JSONObject).get("lng") as Double).toString()
                         Log.e("Step duration: ", start_location_lng)
 
-                        Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(), start_location_lng.toDouble()).toString())
+                        Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()).toString())
 
-                        stepsList.add(DirectionsStepDbO(count++, maneuver, instructions9, attention, duration, distance,
-                                LatLng(start_location_lat.toDouble(), start_location_lng.toDouble()),
-                                TransitDbO("", "", "", "", "", "", "")))
+                        stepsList.add(DirectionsStepDbO(count++,maneuver,instructions9,attention,duration,distance,
+                                LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()),
+                                TransitDbO("","","","","","","")))
                         getActivity()!!.runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
 
                     }
@@ -1285,10 +1293,10 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //val path = ArrayList<HashMap<String, String>>()
 
                 jDuration = (jLegs.get(i) as JSONObject).getJSONObject("duration")
-                Log.e("Step duration: ", jDuration.toString())
+                Log.e("Step duration: ",jDuration.toString())
 
                 jDistance = (jLegs.get(i) as JSONObject).getJSONObject("distance")
-                Log.e("Step duration: ", jDistance.toString())
+                Log.e("Step duration: ",jDistance.toString())
 
                 /** Traversing all legs  */
                 for (j in 0 until jLegs.length()) {
@@ -1302,7 +1310,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
                         instructions = ((jSteps.get(k) as JSONObject).get("html_instructions")) as String
 
-                        Log.e("Step-0 instructions: ", instructions)
+                        Log.e("Step-0 instructions: ",  instructions)
 
                         distance = ((jSteps.get(k) as JSONObject).get("distance") as JSONObject).get("text") as String
                         Log.e("Step distance: ", distance)
@@ -1316,25 +1324,25 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         start_location_lng = (((jSteps.get(k) as JSONObject).get("start_location") as JSONObject).get("lng") as Double).toString()
                         Log.e("Step duration: ", start_location_lng)
 
-                        Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(), start_location_lng.toDouble()).toString())
+                        Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()).toString())
 
                         travelmode = ((jSteps.get(k) as JSONObject).get("travel_mode")) as String
 
-                        if (travelmode.toUpperCase() == "TRANSIT") {
+                        if (travelmode.toUpperCase() == "TRANSIT"){
                             maneuver = "transit"
 
-                        } else if (travelmode.toUpperCase() == "WALKING") {
+                        } else if(travelmode.toUpperCase() == "WALKING"){
                             maneuver = "walking"
 
-                            stepsList.add(DirectionsStepDbO(count++, maneuver, instructions, "", duration, distance,
-                                    LatLng(start_location_lat.toDouble(), start_location_lng.toDouble()),
-                                    TransitDbO("", "", "", "", "", "", "")))
+                            stepsList.add(DirectionsStepDbO(count++,maneuver,instructions,"",duration,distance,
+                                    LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()),
+                                    TransitDbO("","","","","","","")))
                             getActivity()!!.runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
                         }
 
 
 
-                        if (travelmode == "TRANSIT") {
+                        if (travelmode == "TRANSIT"){
                             departure_stop = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
                                     .get("departure_stop") as JSONObject).get("name") as String
                             departure_time = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
@@ -1350,26 +1358,26 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                                     .get("headsign") as String
                             num_stops = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject).get("num_stops") as Int).toString()
 
-                            stepsList.add(DirectionsStepDbO(count++, maneuver, instructions, "", duration, distance,
-                                    LatLng(start_location_lat.toDouble(), start_location_lng.toDouble()),
-                                    TransitDbO(departure_stop, departure_time, arrival_stop, arrival_time, line_busname, headsign, num_stops)))
+                            stepsList.add(DirectionsStepDbO(count++,maneuver,instructions,"",duration,distance,
+                                    LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()),
+                                    TransitDbO(departure_stop,departure_time,arrival_stop,arrival_time,line_busname,headsign,num_stops)))
                             getActivity()!!.runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
 
-                        } else if (travelmode == "WALKING") {
+                        } else if(travelmode == "WALKING"){
                             //jSteps_child = (((jSteps.get(k) as JSONObject).get("transit_details") as JSONObject)
                             //        .get("departure_stop") as JSONObject).get("name") as String
                             jSteps_child = (jSteps.get(k) as JSONObject).getJSONArray("steps")
 
                             for (m in 0 until jSteps_child.length()) {
 
-                                maneuver_child = if (((jSteps_child.get(m) as JSONObject).has("maneuver"))) {
+                                maneuver_child = if(((jSteps_child.get(m) as JSONObject).has("maneuver")) ){
                                     ((jSteps_child.get(m) as JSONObject).get("maneuver")) as String
                                 } else "Head"
                                 Log.e("Step maneuver: ", maneuver_child)
 
                                 instructions_child = ((jSteps_child.get(m) as JSONObject).get("html_instructions")) as String
 
-                                Log.e("Step-0 instructions: ", instructions_child)
+                                Log.e("Step-0 instructions: ",  instructions_child)
 
                                 //Divide instructions string to instruction9 & attention
                                 var instructions9 = instructions_child
@@ -1378,45 +1386,45 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                                 var j = 0
                                 var end = instructions_child.length - 1
 
-                                while (j <= end) {
+                                while (j <= end){
                                     //
-                                    if (instructions_child[j] == '<' && instructions_child[j + 1] == 'd') {
-                                        attention = instructions_child.substring(j, end + 1)
-                                        instructions9 = instructions_child.substring(0, j)
-                                        Log.e("Step1 instructions9: ", instructions9)
-                                        Log.e("Step1 attention: ", attention)
+                                    if(instructions_child[j] == '<' && instructions_child[j+1] == 'd'){
+                                        attention = instructions_child.substring(j,end+1)
+                                        instructions9 = instructions_child.substring(0,j)
+                                        Log.e("Step1 instructions9: ",  instructions9)
+                                        Log.e("Step1 attention: ",  attention)
                                         break
                                     }
                                     j++
                                 }
 
-                                Log.e("Step1 instructions9: ", instructions9)
-                                Log.e("Step1 attention: ", attention)
+                                Log.e("Step1 instructions9: ",  instructions9)
+                                Log.e("Step1 attention: ",  attention)
 
 
                                 var start = 0
                                 var i = 0
-                                while (i < instructions9.length) {
+                                while(i < instructions9.length){
 
-                                    if (instructions9[i] == '<') {
-                                        start = i
-                                    }
+                                    if (instructions9[i] == '<') { start = i }
 
-                                    if (instructions9[i] == '&' && instructions9[i + 1] == 'a' && instructions9[i + 2] == 'm'
-                                            && instructions9[i + 3] == 'p' && instructions9[i + 4] == ';') {
-                                        val first = instructions9.substring(0, i + 1)
-                                        val last = instructions9.substring(i + 5, instructions9.length)
+                                    if(instructions9[i] == '&' && instructions9[i+1] == 'a' && instructions9[i+2] == 'm'
+                                            && instructions9[i+3] == 'p' && instructions9[i+4] == ';')
+                                    {
+                                        val first = instructions9.substring(0,i+1)
+                                        val last = instructions9.substring(i+5,instructions9.length)
                                         instructions9 = first + last
                                     }
 
-                                    if (instructions9[i] == '>') {
-                                        val first = instructions9.substring(0, start)
-                                        val last = instructions9.substring(i + 1)
+                                    if (instructions9[i] == '>')
+                                    {
+                                        val first = instructions9.substring(0,start)
+                                        val last = instructions9.substring(i+1)
                                         val newins = first + last
 
                                         instructions9 = newins
 
-                                        i = 0
+                                        i=0
                                         start = 0
                                     }
                                     i++
@@ -1425,32 +1433,31 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
                                 var start2 = 0
                                 var i2 = 0
-                                while (i2 < attention.length) {
-                                    if (attention[i2] == '&' || attention[i2] == '<') {
-                                        start2 = i2
-                                    }
-                                    if (attention[i2] == ';' || attention[i2] == '>') {
+                                while(i2 < attention.length){
+                                    if (attention[i2] == '&' || attention[i2] == '<') { start2 = i2 }
+                                    if (attention[i2] == ';' || attention[i2] == '>')
+                                    {
                                         var spot = ""
 
-                                        if (attention[i2 - 1] == 'v') spot = ". "
+                                        if(attention[i2 - 1] == 'v') spot = ". "
 
-                                        val first = attention.substring(0, start2)
-                                        val last = attention.substring(i2 + 1)
+                                        val first = attention.substring(0,start2)
+                                        val last = attention.substring(i2+1)
                                         val newins = first + spot + last
 
-                                        Log.e("Step last: ", last.toString())
+                                        Log.e("Step last: ",  last.toString())
 
                                         attention = newins
 
-                                        i2 = 0
-                                        Log.e("Step ins: ", i2.toString())
+                                        i2=0
+                                        Log.e("Step ins: ",  i2.toString())
 
                                         start2 = 0
                                     }
                                     i2++
                                 }
 
-                                Log.e("Step instructions: ", instructions9)
+                                Log.e("Step instructions: ",  instructions9)
 
                                 distance_child = ((jSteps_child.get(m) as JSONObject).get("distance") as JSONObject).get("text") as String
                                 Log.e("Step distance: ", distance)
@@ -1464,11 +1471,11 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                                 start_location_lng = (((jSteps_child.get(m) as JSONObject).get("start_location") as JSONObject).get("lng") as Double).toString()
                                 Log.e("Step duration: ", start_location_lng)
 
-                                Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(), start_location_lng.toDouble()).toString())
+                                Log.e("Step duration2: ", LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()).toString())
 
-                                stepsList.add(DirectionsStepDbO(count++, maneuver_child, instructions9, attention, duration_child, distance_child,
-                                        LatLng(start_location_lat.toDouble(), start_location_lng.toDouble()),
-                                        TransitDbO("", "", "", "", "", "", "")))
+                                stepsList.add(DirectionsStepDbO(count++,maneuver_child,instructions9,attention,duration_child,distance_child,
+                                        LatLng(start_location_lat.toDouble(),start_location_lng.toDouble()),
+                                        TransitDbO("","","","","","","")))
                                 getActivity()!!.runOnUiThread { adapterStepbyStepDirections.notifyDataSetChanged() }
                             }
                         }
@@ -1486,7 +1493,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     fun getCurrentDateTime(): Date {
         return Calendar.getInstance().time
     }
-
     //Use an intent to launch the autocomplete activity
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -1503,7 +1509,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 place.placeTypes
                 edt_orgin.setText(placeDB.name)
                 currentlocation = place.latLng
-                Log.e("nhiet2", place.latLng.toString())
+                Log.e("nhiet2",place.latLng.toString())
 
                 //history object
                 historyDb.address = place.address.toString()
@@ -1527,43 +1533,13 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 latitude_temp = place.latLng.latitude
                 longitude_temp = place.latLng.longitude
                 cityname_temp = place.name.toString()
+                placename_temp = place.name.toString()
                 placeid_temp = place.id
 
-
-                //data for tempfavplace
-                favplaceDb.name = place.name.toString()
-                favplaceDb.placeId = place.id
-                getPhoto(place.id)
-                Log.e(TAG, "Image : " + favplaceDb.uri)
-
-                //address for tempfavplace
-                val geocoder = Geocoder(context!!, Locale.getDefault())
-                try {
-                    val addresses = geocoder.getFromLocation(place.latLng.latitude, place.latLng.longitude, 1)
-
-                    if (addresses != null) {
-                        val returnedAddress = addresses.get(0)
-                        val strReturnedAddress = StringBuilder("Address:\n")
-                        for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
-                            strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
-                        }
-                        favplaceDb.address = addresses.get(0).getAddressLine(0)
-                        // Log.e("start location: ",addresses.get(0).getAddressLine(0))
-                    } else {
-                        Log.d("a", "No Address returned! : ")
-
-                    }
-                } catch (e: IOException) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace()
-                    Log.d("a", "Canont get Address!")
-                }
-
                 uploadTempplace()
-
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(context, data)
-                Log.e(TAG, "" + status)
+                Log.e(TAG, ""+status)
             } else if (resultCode == Activity.RESULT_CANCELED) {
 
             }
@@ -1603,40 +1579,13 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 latitude_temp = place.latLng.latitude
                 longitude_temp = place.latLng.longitude
                 cityname_temp = place.name.toString()
+                placename_temp = place.name.toString()
                 placeid_temp = place.id
 
-                //data for tempfavplace
-                favplaceDb.name = place.name.toString()
-                favplaceDb.placeId = place.id
-                getPhoto(place.id)
-                //address for tempfavplace
-                val geocoder = Geocoder(context!!, Locale.getDefault())
-                try {
-                    val addresses = geocoder.getFromLocation(place.latLng.latitude, place.latLng.longitude, 1)
-
-                    if (addresses != null) {
-                        val returnedAddress = addresses.get(0)
-                        val strReturnedAddress = StringBuilder("Address:\n")
-                        for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
-                            strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
-                        }
-                        favplaceDb.address = addresses.get(0).getAddressLine(0)
-                        // Log.e("start location: ",addresses.get(0).getAddressLine(0))
-                    } else {
-                        Log.d("a", "No Address returned! : ")
-
-                    }
-                } catch (e: IOException) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace()
-                    Log.d("a", "Canont get Address!")
-                }
-
                 uploadTempplace()
-
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(context, data)
-                Log.e(TAG, "" + status)
+                Log.e(TAG, ""+status)
             } else if (resultCode == Activity.RESULT_CANCELED) {
 
             }
@@ -1650,44 +1599,48 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     var latitude_temp = 0.0
     var longitude_temp = 0.0
     var numofvisit_temp = 0
-    var uri_temp = ""
+    var isacity_temp = false
     var newplace_flag = true
     var runonce_flag = true
     var curplace_like_beforeplace = false
-
-    var newfavplace_flag = true
 
     private fun uploadTempplace() {
         //get city name
         val geocoder = Geocoder(context!!, Locale.getDefault())
 
-        try {
+        try
+        {
             val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
 
-            if (addresses != null) {
+            if (addresses != null)
+            {
                 Log.e("start location : ", addresses.toString())
 
                 val returnedAddress = addresses.get(0)
                 val strReturnedAddress = StringBuilder("Address:\n")
                 //val strReturnedAddress = StringBuilder()
 
-                for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
+                for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                {
                     strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                 }
                 //Log.e("start location : ", addresses.get(0).subAdminArea)
-                if (addresses.get(0).adminArea != null) {
+                if(addresses.get(0).adminArea != null){
                     cityname_temp = addresses.get(0).adminArea
                 } else {
                     cityname_temp = ""
 
                 }
-            } else {
-                Log.d("a", "No Address returned! : ")
             }
-        } catch (e: IOException) {
+            else
+            {
+                Log.d("a","No Address returned! : ")
+            }
+        }
+        catch (e:IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
-            Log.d("a", "Canont get Address!")
+            Log.d("a","Canont get Address!")
         }
         //end get city name
 
@@ -1712,19 +1665,11 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                                 //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
                                 //break
                             }
-
                             if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
                                             cityname_temp == "Thủ Đô " + item.name ||
-                                            cityname_temp == "Tỉnh " + item.name)) {
+                                            cityname_temp == "Tỉnh " + item.name) &&
+                                    item.isacity == true) {
 
-                                if(item.numofask >= 1 && item.numsearch_after_ask >= 4){
-                                    tempplaceDb.numofask=item.numofask - 1
-                                    tempplaceDb.numsearch_after_ask = 0
-                                }
-                                else if(item.numofask >= 2){
-                                    tempplaceDb.numsearch_after_ask=item.numsearch_after_ask+1
-                                    tempplaceDb.numofask = item.numofask
-                                }
 
                                 //place_list.child(place.id).setValue(placeDB)
                                 //tempplaceDb.numofvisit = item.numofvisit+1
@@ -1732,16 +1677,17 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                                 tempplaceDb.latitude = item.latitude
                                 tempplaceDb.longitude = item.longitude
                                 tempplaceDb.name = item.name
-                                tempplaceDb.numofvisit = item.numofvisit
                                 tempplaceDb.numofsearch = item.numofsearch + 1
-                                //tempplaceDb.isacity = item.isacity
-                                //tempplaceDb.placename = placename_temp
+                                tempplaceDb.numofvisit = item.numofvisit
+                                tempplaceDb.isacity = item.isacity
+                                tempplaceDb.placename = placename_temp
                                 tempplaceDb.id = item.id
+                                tempplaceDb.numofask = item.numofask
                                 tempplaceDb.askdate = item.askdate
                                 tempplace_list.child(item.id).setValue(tempplaceDb)
 
                                 //update dia diem hien tai gan nhat da ghe qua
-                                if (curplace_like_beforeplace) {
+                                if(curplace_like_beforeplace){
                                     tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
                                     curplace_like_beforeplace = false
                                 }
@@ -1764,14 +1710,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         }
                     }*/
                 } else {
-                    if (cityname_temp != "") {
+                    if(cityname_temp != ""){
                         // code if data does not  exists
                         tempplaceDb.latitude = latitude_temp
                         tempplaceDb.longitude = longitude_temp
                         tempplaceDb.name = cityname_temp
                         tempplaceDb.numofsearch = 1
-                        //tempplaceDb.placename = placename_temp
-                        //tempplaceDb.isacity = true
+                        tempplaceDb.placename = placename_temp
+                        tempplaceDb.isacity = true
                         tempplaceDb.id = placeid_temp
                         val date = getCurrentDateTime()
                         val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
@@ -1780,7 +1726,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
 
                         //update dia diem hien tai gan nhat da ghe qua
-                        if (curplace_like_beforeplace) {
+                        if(curplace_like_beforeplace){
                             tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
                             curplace_like_beforeplace = false
                         }
@@ -1794,9 +1740,9 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     tempplaceDb.longitude = longitude_temp
                     tempplaceDb.name = cityname_temp
                     tempplaceDb.numofsearch = 1
-                    //tempplaceDb.isacity = true
+                    tempplaceDb.isacity = true
                     tempplaceDb.id = placeid_temp
-                    //tempplaceDb.placename = placename_temp
+                    tempplaceDb.placename = placename_temp
                     val date = getCurrentDateTime()
                     val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
                     tempplaceDb.askdate = currenttime
@@ -1804,7 +1750,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
 
                     //update dia diem hien tai gan nhat da ghe qua
-                    if (curplace_like_beforeplace) {
+                    if(curplace_like_beforeplace){
                         tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
                         curplace_like_beforeplace = false
                     }
@@ -1817,155 +1763,22 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         })
     }
 
-    private fun uploadTempfavplace() {
-
-        //check tempfavplace data to add/update/ask tempfavplace
-        tempfavplace_list.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError) {
-                Log.e(TAG, "Error : " + p0.message)
-            }
-
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-
-                if (dataSnapshot.exists()) {
-                    // code if data exists
-                    // if current place like before place
-                    for (dsp in dataSnapshot.children) {
-                        val item: TempFavPlaceDbO? = dsp.getValue(TempFavPlaceDbO::class.java)
-                        if (item != null) {
-                            //update tempfavplace (number of search + 1) if user searchs there again
-                            if (favplaceDb.name == item.name || favplaceDb.placeId == item.id) {
-
-                                if(item.numofask >= 1 && item.numsearch_after_ask >= 2){
-                                    tempfavplaceDb.numofask=item.numofask - 1
-                                    tempfavplaceDb.numsearch_after_ask = 0
-                                }
-                                else if(item.numofask >= 2){
-                                    tempfavplaceDb.numsearch_after_ask=item.numsearch_after_ask+1
-                                    tempfavplaceDb.numofask = item.numofask
-                                }
-
-                                //place_list.child(place.id).setValue(placeDB)
-                                //tempplaceDb.numofvisit = item.numofvisit+1
-                                tempfavplaceDb.id = item.id
-                                //tempfavplaceDb.latitude = item.latitude
-                                // tempfavplaceDb.longitude = item.longitude
-                                tempfavplaceDb.name = item.name
-                                tempfavplaceDb.uri = item.uri
-                                tempfavplaceDb.address = item.address
-                                tempfavplaceDb.numofsearch = item.numofsearch + 1
-                                tempfavplaceDb.numofvisit = item.numofvisit
-                                tempfavplaceDb.askdate = item.askdate
-
-                                tempfavplace_list.child(item.id).setValue(tempfavplaceDb)
-
-
-                                newfavplace_flag = false
-
-                            }
-                        }//
-                    }
-
-                } else {
-                    if (favplaceDb.name != "") {
-                        // code if data does not  exists
-                        tempfavplaceDb.address = favplaceDb.address
-                        tempfavplaceDb.uri = favplaceDb.uri
-                        tempfavplaceDb.name = favplaceDb.name
-                        tempfavplaceDb.numofsearch = 1
-                        tempfavplaceDb.id = favplaceDb.placeId
-                        val date = getCurrentDateTime()
-                        val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
-                        tempfavplaceDb.askdate = currenttime
-
-                        tempfavplace_list.child(tempfavplaceDb.id).setValue(tempfavplaceDb)
-
-                        newplace_flag = false
-                    }
-                }
-                if (newfavplace_flag && favplaceDb.name != "") {
-                    tempfavplaceDb.address = favplaceDb.address
-                    tempfavplaceDb.uri = favplaceDb.uri
-                    tempfavplaceDb.name = favplaceDb.name
-                    tempfavplaceDb.numofsearch = 1
-                    tempfavplaceDb.id = favplaceDb.placeId
-                    val date = getCurrentDateTime()
-                    val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
-                    tempfavplaceDb.askdate = currenttime
-
-                    tempfavplace_list.child(tempfavplaceDb.id).setValue(tempfavplaceDb)
-
-                }
-                // Result will be holded Here
-
-                //insertAllPlace().execute(placeList)
-            }
-        })
-    }
-
-    private fun getPhoto(placeId: String) {
-        //val placeId = "ChIJa147K9HX3IAR-lwiGIQv9i4"
-        val mGeoDataClient = Places.getGeoDataClient(this.context!!)
-        val photoMetadataResponse = mGeoDataClient.getPlacePhotos(placeId)
-        photoMetadataResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoMetadataResponse> { task ->
-            // Get the list of photos.
-            val photos = task.result
-            // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
-            val photoMetadataBuffer = photos.photoMetadata
-            // Get the first photo in the list.
-            val photoMetadata = photoMetadataBuffer.get(0)
-            // Get a full-size bitmap for the photo.
-            val photoResponse = mGeoDataClient.getPhoto(photoMetadata)
-
-            //Listener Event compeleted itselt, update to firebase's storage
-            photoResponse.addOnCompleteListener(OnCompleteListener<PlacePhotoResponse> { task ->
-                val photo = task.result
-                val bitmap = photo.bitmap
-                upLoadBitmapToStorage(bitmap)
-            })
-        })
-    }
-
-    //Add that place's photos to storage & that place to firebase
-    private fun upLoadBitmapToStorage(bitmap: Bitmap) {
-        val storage = FirebaseStorage.getInstance()
-        val storageReference = storage.getReference("images")
-        val imageName = UUID.randomUUID().toString()
-        val imageFolder = storageReference.child(imageName)
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
-        val uploadTask = imageFolder.putBytes(data)
-
-        //after add photos to storage, update that place's uri to placeDb -> add to firebase by uploadDatabase()
-        uploadTask.addOnFailureListener(OnFailureListener {
-            // Handle unsuccessful uploads
-        }).addOnSuccessListener(OnSuccessListener<Any> { taskSnapshot ->
-            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-            imageFolder.downloadUrl.addOnSuccessListener {
-                Log.e(TAG, "Image : " + it.toString())
-                favplaceDb.uri = it.toString()
-                uploadTempfavplace()
-            }
-        })
-
-    }
-
-
     // Fetches data from url passed
-    private inner class FetchUrl(transkind: String) : AsyncTask<String, Void, String>() {
-        override fun doInBackground(vararg url: String): String {
+    private inner class FetchUrl(transkind: String) :AsyncTask<String, Void, String>() {
+         override fun doInBackground(vararg url:String):String {
 
-            Log.d("FetchUrl doInBackground", "vô nè")
+             Log.d("FetchUrl doInBackground", "vô nè")
 
-            // For storing data from web service
+             // For storing data from web service
             var data = ""
-            try {
+            try
+            {
                 // Fetching the data from web service
                 data = downloadUrl(url[0])
 
                 Log.d("Background Task data", data)
-            } catch (e: Exception) {
+            }
+            catch (e:Exception) {
                 Log.d("Background Task", e.toString())
             }
             return data
@@ -1973,28 +1786,30 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
         val transKind = transkind
 
-        override fun onPostExecute(result: String) {
-            Log.d("onPostExecue resute", result)
-            super.onPostExecute(result)
-            val parserTask = ParserTask(transKind, false, true)
+        override fun onPostExecute(result:String) {
+             Log.d("onPostExecue resute", result)
+             super.onPostExecute(result)
+             val parserTask = ParserTask(transKind,false,true)
             // Invokes the thread for parsing the JSON data
-            parserTask.execute(result)
+             parserTask.execute(result)
         }
     }
 
-    private inner class FetchUrl_ClickonRecycler(transkind: String) : AsyncTask<String, Void, String>() {
-        override fun doInBackground(vararg url: String): String {
+    private inner class FetchUrl_ClickonRecycler(transkind: String) :AsyncTask<String, Void, String>() {
+        override fun doInBackground(vararg url:String):String {
 
             Log.d("FetchUrl doInBackground", "vô nè")
 
             // For storing data from web service
             var data = ""
-            try {
+            try
+            {
                 // Fetching the data from web service
                 data = downloadUrl(url[0])
 
                 Log.d("Background Task data", data)
-            } catch (e: Exception) {
+            }
+            catch (e:Exception) {
                 Log.d("Background Task", e.toString())
             }
             return data
@@ -2002,28 +1817,30 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
         val transKind = transkind
 
-        override fun onPostExecute(result: String) {
+        override fun onPostExecute(result:String) {
             Log.d("onPostExecue resute", result)
             super.onPostExecute(result)
-            val parserTask = ParserTask(transKind, true, true)
+            val parserTask = ParserTask(transKind,true,true)
             // Invokes the thread for parsing the JSON data
             parserTask.execute(result)
         }
     }
 
-    private inner class FetchUrl_NotPolyline(transkind: String) : AsyncTask<String, Void, String>() {
-        override fun doInBackground(vararg url: String): String {
+    private inner class FetchUrl_NotPolyline(transkind: String) :AsyncTask<String, Void, String>() {
+        override fun doInBackground(vararg url:String):String {
 
             Log.d("FetchUrl doInBackground", "vô nè")
 
             // For storing data from web service
             var data = ""
-            try {
+            try
+            {
                 // Fetching the data from web service
                 data = downloadUrl(url[0])
 
                 Log.d("Background Task data", data)
-            } catch (e: Exception) {
+            }
+            catch (e:Exception) {
                 Log.d("Background Task", e.toString())
             }
             return data
@@ -2031,15 +1848,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
         val transKind = transkind
 
-        override fun onPostExecute(result: String) {
+        override fun onPostExecute(result:String) {
             Log.d("onPostExecue resute", result)
             super.onPostExecute(result)
-            val parserTask = ParserTask(transKind, true, false)
+            val parserTask = ParserTask(transKind,true,false)
             // Invokes the thread for parsing the JSON data
             parserTask.execute(result)
         }
     }
-
     /**
      * A method to download json data from url
      */
@@ -2100,7 +1916,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
         // Parsing the data in non-ui thread
         @RequiresApi(Build.VERSION_CODES.M)
-        override fun doInBackground(vararg jsonData: String): List<List<HashMap<String, String>>> {
+        override fun doInBackground(vararg jsonData: String): List<List<HashMap<String, String>>>  {
 
             val jObject: JSONObject?
             try {
@@ -2108,32 +1924,33 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
                 Log.d("ParserTask", jsonData[0])
                 val parser = DataParser()
-                if (transKind == "transit") {
+                if(transKind == "transit")
+                {
                     StepByStep_Transit(jObject)
-                } else StepByStep(jObject)
+                } else  StepByStep(jObject)
                 Log.d("ParserTask", parser.toString())
 
                 // Starts parsing data
-                val routes: List<List<HashMap<String, String>>> = parser.parse(jObject)
+                val routes: List<List<HashMap<String, String>>>  = parser.parse(jObject)
 
                 //parse2: get duration of this all route
-                val duration: String = parser.parse2(jObject)!!
+                val duration:  String  = parser.parse2(jObject)!!
 
                 Log.d("ParaserTask", "Executing routes")
                 Log.d("ParserTask", routes.toString())
 
-                if (click_rv_Trans == false) {
+                if(click_rv_Trans == false){
                     ///Add transportations's duration on rv_transportation
                     transList.clear()
                     when (transKind) {
                         "driving" -> {
-                            transList.add(TransportationDbO("driving", duration))
+                            transList.add(TransportationDbO("driving",duration))
                         }
                         "walking" -> {
-                            transList.add(TransportationDbO("walking", duration))
+                            transList.add(TransportationDbO("walking",duration))
                         }
                         "transit" -> {
-                            transList.add(TransportationDbO("transit", duration))
+                            transList.add(TransportationDbO("transit",duration))
                         }
                     }
                     //Error: Only the original thread that created a view hierarchy can touch its views.
@@ -2141,16 +1958,16 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     //But, adapterTransportation setted on DirectionsFragment, So this is solution
                     getActivity()!!.runOnUiThread { adapterTransportation.notifyDataSetChanged() }
 
-                } else if (draw_Polyline == false) {
+                } else if(draw_Polyline == false){
                     when (transKind) {
                         "driving" -> {
-                            transList.add(TransportationDbO("driving", duration))
+                            transList.add(TransportationDbO("driving",duration))
                         }
                         "walking" -> {
-                            transList.add(TransportationDbO("walking", duration))
+                            transList.add(TransportationDbO("walking",duration))
                         }
                         "transit" -> {
-                            transList.add(TransportationDbO("transit", duration))
+                            transList.add(TransportationDbO("transit",duration))
                         }
                     }
 
@@ -2167,13 +1984,14 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 e.printStackTrace()
             }
 
-            val r: List<List<HashMap<String, String>>> = ArrayList<ArrayList<HashMap<String, String>>>()
+            val r:List<List<HashMap<String, String>>> = ArrayList<ArrayList<HashMap<String, String>>>()
             return r
         }
 
         // Executes in UI thread, after the parsing process
         override fun onPostExecute(result: List<List<HashMap<String, String>>>) {
-            if (draw_Polyline == true) {
+            if(draw_Polyline == true)
+            {
                 var points: ArrayList<LatLng>
                 var lineOptions: PolylineOptions? = null
 
@@ -2220,7 +2038,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         history_list.child(myuser!!.uid).push().setValue(historyDb)
     }
 
-    private fun setupGoogleMapScreenSettings(mMap: GoogleMap) {
+    private fun setupGoogleMapScreenSettings(mMap:GoogleMap) {
         mMap.isBuildingsEnabled = true               //Turns the 3D buildings layer on
         mMap.isIndoorEnabled = true                  //Sets whether indoor maps should be enabled.
         //mMap.isTrafficEnabled = true                 //Turns the traffic layer on or off.
@@ -2236,8 +2054,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         mUiSettings.isMapToolbarEnabled = true       // It ain't working, CHECKKKKKK
     }
 
-    @Synchronized
-    private fun buildGoogleApiClient() {
+    @Synchronized private fun buildGoogleApiClient() {
         mGoogleApiClient = GoogleApiClient.Builder(context!!)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -2245,25 +2062,25 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 .build()
         mGoogleApiClient.connect()
     }
-
-    override fun onConnected(bundle: Bundle?) {
+    override fun onConnected(bundle:Bundle?) {
         mLocationRequest = LocationRequest()
         mLocationRequest.interval = 1000
         mLocationRequest.fastestInterval = 1000
         mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         if ((ContextCompat.checkSelfPermission(context!!,
-                        Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED)) {
+                Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
+        {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
         }
     }
-
-    override fun onConnectionSuspended(i: Int) {
+    override fun onConnectionSuspended(i:Int) {
     }
 
     var currentLocation_latLng: LatLng = LatLng(10.762622, 106.660172)
-    override fun onLocationChanged(location: Location) {
+    override fun onLocationChanged(location:Location) {
         mLastLocation = location
-        if (mCurrLocationMarker != null) {
+        if (mCurrLocationMarker != null)
+        {
             mCurrLocationMarker!!.remove()
         }
         //Place current location marker
@@ -2279,20 +2096,21 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
         mMap.animateCamera(CameraUpdateFactory.zoomTo(11F))
         //stop location updates
-        if (mGoogleApiClient != null) {
+        if (mGoogleApiClient != null)
+        {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this)
         }
     }
-
-    override fun onConnectionFailed(connectionResult: ConnectionResult) {
+    override fun onConnectionFailed(connectionResult:ConnectionResult) {
     }
-
-    private fun checkLocationPermission(): Boolean {
+    private fun checkLocationPermission():Boolean {
         if ((ContextCompat.checkSelfPermission(context!!,
-                        Manifest.permission.ACCESS_FINE_LOCATION) !== PackageManager.PERMISSION_GRANTED)) {
+                Manifest.permission.ACCESS_FINE_LOCATION) !== PackageManager.PERMISSION_GRANTED))
+        {
             // Asking user if explanation is needed
             if (ActivityCompat.shouldShowRequestPermissionRationale(this.activity!!,
-                            Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Manifest.permission.ACCESS_FINE_LOCATION))
+            {
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
@@ -2300,34 +2118,42 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 ActivityCompat.requestPermissions(this.activity!!,
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                         MY_PERMISSIONS_REQUEST_LOCATION)
-            } else {
+            }
+            else
+            {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this.activity!!,
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                         MY_PERMISSIONS_REQUEST_LOCATION)
             }
             return false
-        } else {
+        }
+        else
+        {
             return true
         }
     }
-
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode:Int,
+                                   permissions:Array<String>, grantResults:IntArray) {
         when (requestCode) {
             MY_PERMISSIONS_REQUEST_LOCATION -> {
                 // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED))
+                {
                     // permission was granted. Do the
                     // contacts-related task you need to do.
                     if ((ContextCompat.checkSelfPermission(context!!,
-                                    Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED)) {
-                        if (mGoogleApiClient == null) {
+                            Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED))
+                    {
+                        if (mGoogleApiClient == null)
+                        {
                             buildGoogleApiClient()
                         }
                         mMap.isMyLocationEnabled = true
                     }
-                } else {
+                }
+                else
+                {
                     // Permission denied, Disable the functionality that depends on this permission.
                     Toast.makeText(this.context, "permission denied", Toast.LENGTH_LONG).show()
                 }
@@ -2336,10 +2162,9 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         }// other 'case' lines to check for other permissions this app might request.
         // You can add here other case statements according to your requirement.
     }
-
     companion object {
         val MY_PERMISSIONS_REQUEST_LOCATION = 99
-        fun newInstance(latLng_toDirection: String): DirectionsFragment {
+        fun newInstance(latLng_toDirection: String): DirectionsFragment{
             val args = Bundle()
             args.putString("MyLatLng", latLng_toDirection)
             val fragment = DirectionsFragment()
@@ -2348,6 +2173,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         }
     }
 }
+
 
 
 class SmoothLinearLayoutManager : LinearLayoutManager {
