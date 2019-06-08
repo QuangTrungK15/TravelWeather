@@ -55,10 +55,10 @@
                         android:id="@+id/txt_date_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginLeft="10dp"
-                        android:text="Monday"
+                        android:layout_marginBottom="6dp"
+                        android:text="-------"
                         android:textColor="@android:color/white"
                         android:textSize="16sp" />
 
@@ -66,10 +66,10 @@
                         android:id="@+id/txt_current_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginLeft="10dp"
-                        android:text="16pm"
+                        android:layout_marginBottom="6dp"
+                        android:text="--(AM | PM)"
                         android:textColor="@android:color/white"
                         android:textSize="16sp" />
 
@@ -98,7 +98,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
-                            android:text="26 C"
+                            android:text="--℃"
                             android:textColor="@android:color/white"
                             android:textSize="50dp" />
 
@@ -108,7 +108,7 @@
                             android:layout_height="wrap_content"
                             android:layout_below="@id/txt_temperature"
                             android:layout_centerHorizontal="true"
-                            android:text="Rain"
+                            android:text="----"
                             android:textColor="@android:color/white"
                             android:textSize="18sp" />
 
@@ -139,7 +139,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:text="32 C"
+                    android:text="--℃"
                     android:textColor="@android:color/white"
                     android:textSize="18sp" />
 
@@ -160,7 +160,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/txt_temp_max"
                     android:layout_centerHorizontal="true"
-                    android:text="16 C"
+                    android:text="--℃"
                     android:textColor="@android:color/white"
                     android:textSize="18sp" />
 
@@ -226,15 +226,16 @@
                         android:layout_marginLeft="16dp"
                         android:layout_centerVertical="true"
                         />
+
                     <TextView
                         android:id="@+id/txt_cloud_cover"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        tools:text="13%"
-                        android:layout_centerVertical="true"/>
+                        tools:text="--%" />
                 </RelativeLayout>
             </android.support.v7.widget.CardView>
             <android.support.v7.widget.CardView
@@ -271,11 +272,11 @@
                         android:id="@+id/txt_wind"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        tools:text="4,5 m/s"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"/>
+                        tools:text="-- m/s" />
                 </RelativeLayout>
             </android.support.v7.widget.CardView>
             <android.support.v7.widget.CardView
@@ -312,11 +313,11 @@
                         android:id="@+id/txt_humidity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        tools:text="34%"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"/>
+                        tools:text="--%" />
                 </RelativeLayout>
 
             </android.support.v7.widget.CardView>

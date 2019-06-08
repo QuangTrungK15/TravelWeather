@@ -87,7 +87,7 @@ class WeatherDetailFragment : Fragment() {
                 .subscribe(
                         //cú pháp của rxjava trong kotlin
                         { result ->
-                            cityname_temp = getCityName_byLatlong (LatLng(lat,long))
+                            cityname_temp = getCityName_byLatlong(LatLng(lat, long))
                             //request thành công
                             processResponseData(result)
                         },
@@ -103,7 +103,7 @@ class WeatherDetailFragment : Fragment() {
                 .subscribe(
                         //cú pháp của rxjava trong kotlin
                         { result ->
-                            cityname_temp = getCityName_byLatlong (LatLng(lat,long))
+                            cityname_temp = getCityName_byLatlong(LatLng(lat, long))
                             //request thành công
                             processResponseDataDaily(result)
                         },
@@ -127,14 +127,15 @@ class WeatherDetailFragment : Fragment() {
     }
 
     private fun processResponseData(result: WeatherDetailsResponse) {
+        Log.e(TAG, "" + result);
         txt_current_time.text = getCurrentTime()
         txt_date_time.text = convertTimestampToDayAndHourFormat(result.dateTime)
-        if(cityname_temp != "") txt_city_name.text = cityname_temp
+        if (cityname_temp != "") txt_city_name.text = cityname_temp
         else txt_city_name.text = result.nameCity
         //cityname_temp = result.nameCity //using to add to tempplace
 
         txt_temperature.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp))
-        Log.e("nhiet do",txt_temperature.text.toString())
+        Log.e("nhiet do", txt_temperature.text.toString())
         txt_temp_max.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp_max))
         txt_temp_min.text = convertToValueWithUnit(0, unitDegreesCelsius, convertKelvinToCelsius(result.temperature.temp_min))
         txt_main_weather.text = result.weather[0].nameWeather
@@ -157,7 +158,7 @@ class WeatherDetailFragment : Fragment() {
         return view
     }
 
-    private fun addTempplace(){
+    private fun addTempplace() {
 
     }
 
@@ -181,98 +182,88 @@ class WeatherDetailFragment : Fragment() {
         //place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
 
 
-
         val rxLocationManager = context?.let { RxLocationManager(it) }
-        if(runonce_flag == true){
+        if (runonce_flag == true) {
 
-        if(arguments!!.getInt("position")==0) {
+            if (arguments!!.getInt("position") == 0) {
 
-            if (rxLocationManager != null) {
-                rxLocationManager.requestLocation(LocationManager.NETWORK_PROVIDER)
-                        .subscribe({
-                            val geocode = Geocoder(context, Locale.getDefault())
-                            val address = geocode.getFromLocation(it.latitude, it.longitude, 1)
-                            requestWeatherDetails(address[0].latitude, address[0].longitude)
-                            latitude_temp = it.latitude
-                            longitude_temp = it.longitude
-                            //get city name
-                            val geocoder = Geocoder(context!!, Locale.getDefault())
+                if (rxLocationManager != null) {
+                    rxLocationManager.requestLocation(LocationManager.NETWORK_PROVIDER)
+                            .subscribe({
+                                val geocode = Geocoder(context, Locale.getDefault())
+                                val address = geocode.getFromLocation(it.latitude, it.longitude, 1)
+                                requestWeatherDetails(address[0].latitude, address[0].longitude)
+                                latitude_temp = it.latitude
+                                longitude_temp = it.longitude
+                                //get city name
+                                val geocoder = Geocoder(context!!, Locale.getDefault())
 
-                            try
-                            {
-                            val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
+                                try {
+                                    val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
 
-                                if (addresses != null)
-                                {
-                                    Log.e("start location : ", addresses.toString())
+                                    if (addresses != null) {
+                                        Log.e("start location : ", addresses.toString())
 
-                                    val returnedAddress = addresses.get(0)
-                                    val strReturnedAddress = StringBuilder("Address:\n")
-                                    //val strReturnedAddress = StringBuilder()
+                                        val returnedAddress = addresses.get(0)
+                                        val strReturnedAddress = StringBuilder("Address:\n")
+                                        //val strReturnedAddress = StringBuilder()
 
-                                    for (i in 0 until returnedAddress.getMaxAddressLineIndex())
-                                    {
-                                        strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                                        for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
+                                            strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                                        }
+                                        Log.e("start location : ", addresses.get(0).subAdminArea)
+                                        cityname_temp = addresses.get(0).adminArea
+                                    } else {
+                                        Log.d("a", "No Address returned! : ")
                                     }
-                                    Log.e("start location : ", addresses.get(0).subAdminArea)
-                                    cityname_temp = addresses.get(0).adminArea
+                                } catch (e: IOException) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace()
+                                    Log.d("a", "Canont get Address!")
                                 }
-                                else
-                                {
-                                    Log.d("a","No Address returned! : ")
-                                }
-                            }
-                            catch (e:IOException) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace()
-                                Log.d("a","Canont get Address!")
-                            }
-                            //end get city name
+                                //end get city name
 
-                            //get placeid
-                            val apikey="AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
-                            val url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude_temp,$longitude_temp&language=vi&key=$apikey"
+                                //get placeid
+                                val apikey = "AIzaSyDc6fdew54ONuhKNVCCV6urWWL-1WWMmBI"
+                                val url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude_temp,$longitude_temp&language=vi&key=$apikey"
 
-                            val fetchUrl = FetchUrl()
-                            fetchUrl.execute(url)
+                                val fetchUrl = FetchUrl()
+                                fetchUrl.execute(url)
 
 
-                        }, {
-                            Log.e(TAG, "Error" + it.message)
-                        })
+                            }, {
+                                Log.e(TAG, "Error" + it.message)
+                            })
+                }
+            } else {
+                val geocode = Geocoder(activity, Locale.getDefault())
+                val address = geocode.getFromLocation(arguments!!.getDouble("lat"), arguments!!.getDouble("lon"), 1)
+                requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
             }
-        }
-        else {
-            val geocode = Geocoder(activity, Locale.getDefault())
-            val address = geocode.getFromLocation(arguments!!.getDouble("lat"), arguments!!.getDouble("lon"), 1)
-            requestWeatherDetails(address.get(0).latitude, address.get(0).longitude)
-        }
             runonce_flag = false
         }
     }
 
     private inner class FetchUrl() : AsyncTask<String, Void, String>() {
-        override fun doInBackground(vararg url:String):String {
+        override fun doInBackground(vararg url: String): String {
 
             Log.d("FetchUrl doInBackground", "vô nè")
 
             // For storing data from web service
             var data = ""
-            try
-            {
+            try {
                 // Fetching the data from web service
                 data = downloadUrl(url[0])
 
                 Log.d("Background Task data", data)
-            }
-            catch (e:Exception) {
+            } catch (e: Exception) {
                 Log.d("Background Task", e.toString())
             }
             return data
         }
 
 
-        override fun onPostExecute(result:String) {
+        override fun onPostExecute(result: String) {
             Log.d("onPostExecue resute", result)
             super.onPostExecute(result)
             val parserTask = ParserTask()
@@ -281,7 +272,7 @@ class WeatherDetailFragment : Fragment() {
         }
     }
 
-    fun getPlaceId(jObject: JSONObject):String {
+    fun getPlaceId(jObject: JSONObject): String {
 
         val jResults: JSONArray
         var jPlaceId = ""
@@ -291,9 +282,9 @@ class WeatherDetailFragment : Fragment() {
 
             /** Traversing all routes  */
             //for (i in 0 until jResults.length()) {
-                jPlaceId = ((jResults.get(0) as JSONObject).get("place_id")) as String
-                placeid_temp = jPlaceId
-                Log.e("Step duration: ",placeid_temp)
+            jPlaceId = ((jResults.get(0) as JSONObject).get("place_id")) as String
+            placeid_temp = jPlaceId
+            Log.e("Step duration: ", placeid_temp)
             return placeid_temp
 
             //}
@@ -309,7 +300,7 @@ class WeatherDetailFragment : Fragment() {
 
         // Parsing the data in non-ui thread
         @RequiresApi(Build.VERSION_CODES.M)
-        override fun doInBackground(vararg jsonData: String): List<List<HashMap<String, String>>>  {
+        override fun doInBackground(vararg jsonData: String): List<List<HashMap<String, String>>> {
 
             val jObject: JSONObject?
             try {
@@ -318,12 +309,12 @@ class WeatherDetailFragment : Fragment() {
                 Log.d("ParserTask", jsonData[0])
                 val parser = DataParser()
                 placeid_temp = getPlaceId(jObject)
-                Log.e("Step duration: ",placeid_temp)
+                Log.e("Step duration: ", placeid_temp)
 
                 Log.d("ParserTask", parser.toString())
 
                 // Starts parsing data
-                val routes: List<List<HashMap<String, String>>>  = parser.parse(jObject)
+                val routes: List<List<HashMap<String, String>>> = parser.parse(jObject)
 
                 //parse2: get duration of this all route
                 //val duration:  String  = parser.parse2(jObject)!!
@@ -338,34 +329,34 @@ class WeatherDetailFragment : Fragment() {
                 e.printStackTrace()
             }
 
-            val r:List<List<HashMap<String, String>>> = ArrayList<ArrayList<HashMap<String, String>>>()
+            val r: List<List<HashMap<String, String>>> = ArrayList<ArrayList<HashMap<String, String>>>()
             return r
         }
 
         // Executes in UI thread, after the parsing process
         override fun onPostExecute(result: List<List<HashMap<String, String>>>) {
-                /*var points: ArrayList<LatLng>
-                // Traversing through all the routes
-                for (i in result.indices) {
-                    points = ArrayList<LatLng>()
+            /*var points: ArrayList<LatLng>
+            // Traversing through all the routes
+            for (i in result.indices) {
+                points = ArrayList<LatLng>()
 
-                    // Fetching i-th route
-                    val path = result[i]
+                // Fetching i-th route
+                val path = result[i]
 
-                    // Fetching all the points in i-th route
-                    for (j in path.indices) {
-                        val point = path[j]
+                // Fetching all the points in i-th route
+                for (j in path.indices) {
+                    val point = path[j]
 
-                        val lat = java.lang.Double.parseDouble(point["lat"])
-                        val lng = java.lang.Double.parseDouble(point["lng"])
-                        val position = LatLng(lat, lng)
+                    val lat = java.lang.Double.parseDouble(point["lat"])
+                    val lng = java.lang.Double.parseDouble(point["lng"])
+                    val position = LatLng(lat, lng)
 
-                        points.add(position)
-                    }
+                    points.add(position)
+                }
 
-                    Log.d("onPostExecute", "onPostExecute lineoptions decoded")
+                Log.d("onPostExecute", "onPostExecute lineoptions decoded")
 
-                }*/
+            }*/
             database = FirebaseDatabase.getInstance()
             mAuth = FirebaseAuth.getInstance()
             tempplace_list = database.getReference("tempplace").child(mAuth.currentUser!!.uid)
@@ -383,13 +374,13 @@ class WeatherDetailFragment : Fragment() {
                     // Result will be holded Here
                     for (dsp in dataSnapshot.children) {
                         //add result into array list
-                        val item : PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
+                        val item: PlaceEntity? = dsp.getValue(PlaceEntity::class.java)
                         if (item != null) {
                             //placeList.add(item)
-                            cityname_list.add(getCityName_byLatlong(LatLng(item.latitude,item.longitude)))
+                            cityname_list.add(getCityName_byLatlong(LatLng(item.latitude, item.longitude)))
                             //cityname_list[index_temp++]=)
-                            Log.d("city name : ",cityname_list.get(index_temp))
-                           // placeList.add(PlaceEntity(item.id,cityname_list.get(index_temp),item.latitude,item.longitude))
+                            Log.d("city name : ", cityname_list.get(index_temp))
+                            // placeList.add(PlaceEntity(item.id,cityname_list.get(index_temp),item.latitude,item.longitude))
                             index_temp++
                         }
                     }
@@ -397,150 +388,134 @@ class WeatherDetailFragment : Fragment() {
 
 
             })
-                tempplace_list.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError) {
-                        Log.e(TAG, "Error : " + p0.message)
-                    }
+            tempplace_list.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.e(TAG, "Error : " + p0.message)
+                }
 
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                        if (dataSnapshot.exists()) {
-                            // code if data exists
+                    if (dataSnapshot.exists()) {
+                        // code if data exists
+                        for (dsp in dataSnapshot.children) {
+                            //add result into array list
+                            val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
+                            if (item != null) {
+                                //Log.e("Test AI : ",dsp.key)
+                                var now_cityname = ""
+
+                                if (dsp.key == mAuth.currentUser!!.uid && item.name == cityname_temp) {
+                                    curplace_like_beforeplace = true
+                                    now_cityname = item.name
+                                    //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
+                                    //break
+                                }
+
+                                //Add new place if temp place (visit:1 or searchh: 5)
+                                val date = getCurrentDateTime()
+                                val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+
+                                if (cityname_list.contains(item.name) == true) {
+
+                                } else if (dsp.key != mAuth.currentUser!!.uid &&
+                                        (item.numofvisit >= 1 || item.numofsearch > 4) && item.numofask < 3
+                                        && currenttime != item.askdate) {
+                                    val alertDialogBuilder = AlertDialog.Builder(context)
+                                    alertDialogBuilder.setTitle("Thêm địa điểm thời tiết")
+                                    alertDialogBuilder
+                                            .setMessage("Bạn có muốn thêm " + item.name + " vào màn hình để tiện quan sát" +
+                                                    " thời tiết hay không?")
+                                            .setCancelable(false)
+                                            .setPositiveButton("Yes") { dialog, id ->
+                                                // Add new place if temp place qualified
+                                                //for(pl in placeList){
+                                                //    if(pl.name == item.name){
+                                                val placeDB = PlaceEntity()
+                                                placeDB.name = item.name.toString()
+                                                placeDB.latitude = item.latitude
+                                                placeDB.longitude = item.longitude
+                                                placeDB.id = item.id
+                                                place_list.child(item.id).setValue(placeDB)
+
+                                                //  }
+                                                //}
+                                                Toast.makeText(context, "You added successfully.", Toast.LENGTH_SHORT).show()
+                                                val intent = Intent(context, BottomNavigation::class.java) //this activity will be this fragment's father
+                                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                                startActivity(intent)
+                                            }
+                                            .setNegativeButton("No") { dialog, id ->
+                                                // if this button is clicked, just close
+                                                // the dialog box and do nothing
+                                                tempplaceDb.latitude = item.latitude
+                                                tempplaceDb.longitude = item.longitude
+                                                tempplaceDb.name = item.name
+                                                tempplaceDb.placename = item.placename
+                                                tempplaceDb.numofvisit = item.numofvisit
+                                                tempplaceDb.numofsearch = item.numofsearch
+                                                tempplaceDb.isacity = item.isacity
+                                                tempplaceDb.id = item.id
+                                                tempplaceDb.numofask = item.numofask + 1
+                                                tempplaceDb.askdate = currenttime
+                                                tempplace_list.child(item.id).setValue(tempplaceDb)
+
+                                                if (curplace_like_beforeplace) {
+                                                    tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                                                    curplace_like_beforeplace = false
+                                                }
+
+                                                dialog.cancel()
+                                            }
+                                    val alertDialog = alertDialogBuilder.create()
+                                    alertDialog.show()
+                                }
+
+
+                            }
+                        }
+                        if (!curplace_like_beforeplace) {
+
                             for (dsp in dataSnapshot.children) {
                                 //add result into array list
                                 val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
                                 if (item != null) {
-                                    //Log.e("Test AI : ",dsp.key)
-                                    var now_cityname = ""
 
-                                    if (dsp.key == mAuth.currentUser!!.uid && item.name == cityname_temp) {
-                                        curplace_like_beforeplace = true
-                                        now_cityname = item.name
-                                        //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
-                                        //break
-                                    }
-
-                                    //Add new place if temp place (visit:1 or searchh: 5)
-                                    val date = getCurrentDateTime()
-                                    val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
-
-                                    if(cityname_list.contains(item.name) == true){
-
-                                    } else if(dsp.key != mAuth.currentUser!!.uid &&
-                                            (item.numofvisit >= 1 || item.numofsearch > 4) && item.numofask < 3
-                                    && currenttime != item.askdate){
-                                        val alertDialogBuilder = AlertDialog.Builder(context)
-                                        alertDialogBuilder.setTitle("Thêm địa điểm thời tiết")
-                                        alertDialogBuilder
-                                                .setMessage("Bạn có muốn thêm "+item.name+" vào màn hình để tiện quan sát" +
-                                                        " thời tiết hay không?")
-                                                .setCancelable(false)
-                                                .setPositiveButton("Yes") { dialog, id ->
-                                                    // Add new place if temp place qualified
-                                                    //for(pl in placeList){
-                                                    //    if(pl.name == item.name){
-                                                            val placeDB = PlaceEntity()
-                                                            placeDB.name = item.name.toString()
-                                                            placeDB.latitude = item.latitude
-                                                            placeDB.longitude = item.longitude
-                                                            placeDB.id = item.id
-                                                            place_list.child(item.id).setValue(placeDB)
-
-                                                      //  }
-                                                    //}
-                                                    Toast.makeText(context, "You added successfully.", Toast.LENGTH_SHORT).show()
-                                                    val intent = Intent(context, BottomNavigation::class.java) //this activity will be this fragment's father
-                                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                                    startActivity(intent)
-                                                }
-                                                .setNegativeButton("No") { dialog, id ->
-                                                    // if this button is clicked, just close
-                                                    // the dialog box and do nothing
-                                                    tempplaceDb.latitude = item.latitude
-                                                    tempplaceDb.longitude = item.longitude
-                                                    tempplaceDb.name = item.name
-                                                    tempplaceDb.placename = item.placename
-                                                    tempplaceDb.numofvisit = item.numofvisit
-                                                    tempplaceDb.numofsearch = item.numofsearch
-                                                    tempplaceDb.isacity = item.isacity
-                                                    tempplaceDb.id = item.id
-                                                    tempplaceDb.numofask = item.numofask+1
-                                                    tempplaceDb.askdate = currenttime
-                                                    tempplace_list.child(item.id).setValue(tempplaceDb)
-
-                                                    if(curplace_like_beforeplace){
-                                                        tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
-                                                        curplace_like_beforeplace = false
-                                                    }
-
-                                                    dialog.cancel()
-                                                }
-                                        val alertDialog = alertDialogBuilder.create()
-                                        alertDialog.show()
-                                    }
+                                    if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
+                                                    cityname_temp == "Thủ Đô " + item.name ||
+                                                    cityname_temp == "Tỉnh " + item.name) &&
+                                            item.isacity == true && curplace_like_beforeplace == false) {
 
 
-                                }
-                            }
-                            if(!curplace_like_beforeplace) {
+                                        //place_list.child(place.id).setValue(placeDB)
+                                        //tempplaceDb.numofvisit = item.numofvisit+1
 
-                                for (dsp in dataSnapshot.children) {
-                                    //add result into array list
-                                    val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
-                                    if (item != null) {
+                                        tempplaceDb.latitude = item.latitude
+                                        tempplaceDb.longitude = item.longitude
+                                        tempplaceDb.name = item.name
+                                        tempplaceDb.placename = item.placename
+                                        tempplaceDb.numofvisit = item.numofvisit + 1
+                                        tempplaceDb.numofsearch = item.numofsearch
+                                        tempplaceDb.isacity = item.isacity
+                                        tempplaceDb.id = item.id
+                                        tempplaceDb.numofask = item.numofask
+                                        //val date = getCurrentDateTime()
+                                        //val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                                        tempplaceDb.askdate = item.askdate
+                                        tempplace_list.child(item.id).setValue(tempplaceDb)
 
-                                        if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
-                                                cityname_temp == "Thủ Đô " + item.name ||
-                                                cityname_temp == "Tỉnh " + item.name) &&
-                                                item.isacity == true && curplace_like_beforeplace == false) {
-
-
-                                            //place_list.child(place.id).setValue(placeDB)
-                                            //tempplaceDb.numofvisit = item.numofvisit+1
-
-                                            tempplaceDb.latitude = item.latitude
-                                            tempplaceDb.longitude = item.longitude
-                                            tempplaceDb.name = item.name
-                                            tempplaceDb.placename = item.placename
-                                            tempplaceDb.numofvisit = item.numofvisit + 1
-                                            tempplaceDb.numofsearch = item.numofsearch
-                                            tempplaceDb.isacity = item.isacity
-                                            tempplaceDb.id = item.id
-                                            tempplaceDb.numofask = item.numofask
-                                            //val date = getCurrentDateTime()
-                                            //val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
-                                            tempplaceDb.askdate = item.askdate
-                                            tempplace_list.child(item.id).setValue(tempplaceDb)
-
-                                            //update dia diem hien tai gan nhat da ghe qua
-                                            tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                                        //update dia diem hien tai gan nhat da ghe qua
+                                        tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
 
 
-                                            newplace_flag = false
-                                        }
+                                        newplace_flag = false
                                     }
                                 }
-                            }
-                        } else {
-                            // code if data does not  exists
-                            if(!curplace_like_beforeplace) {
-
-                                tempplaceDb.latitude = latitude_temp
-                                tempplaceDb.longitude = longitude_temp
-                                tempplaceDb.name = cityname_temp
-                                tempplaceDb.numofvisit = 1
-                                tempplaceDb.isacity = true
-                                tempplaceDb.id = placeid_temp
-                                val date = getCurrentDateTime()
-                                val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
-                                tempplaceDb.askdate = currenttime
-                                //update dia diem hien tai gan nhat da ghe qua
-                                tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
-
-                                newplace_flag = false
                             }
                         }
-                        if (newplace_flag && !curplace_like_beforeplace) {
+                    } else {
+                        // code if data does not  exists
+                        if (!curplace_like_beforeplace) {
+
                             tempplaceDb.latitude = latitude_temp
                             tempplaceDb.longitude = longitude_temp
                             tempplaceDb.name = cityname_temp
@@ -550,58 +525,70 @@ class WeatherDetailFragment : Fragment() {
                             val date = getCurrentDateTime()
                             val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
                             tempplaceDb.askdate = currenttime
-                            tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
-
                             //update dia diem hien tai gan nhat da ghe qua
                             tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
-                        }
-                        // Result will be holded Here
 
-                        //insertAllPlace().execute(placeList)
+                            newplace_flag = false
+                        }
                     }
-                })
+                    if (newplace_flag && !curplace_like_beforeplace) {
+                        tempplaceDb.latitude = latitude_temp
+                        tempplaceDb.longitude = longitude_temp
+                        tempplaceDb.name = cityname_temp
+                        tempplaceDb.numofvisit = 1
+                        tempplaceDb.isacity = true
+                        tempplaceDb.id = placeid_temp
+                        val date = getCurrentDateTime()
+                        val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                        tempplaceDb.askdate = currenttime
+                        tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+
+                        //update dia diem hien tai gan nhat da ghe qua
+                        tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                    }
+                    // Result will be holded Here
+
+                    //insertAllPlace().execute(placeList)
+                }
+            })
         }
     }
+
     fun getCityName_byLatlong(latlong: LatLng): String {
         //get city name
         val geocoder = Geocoder(context!!, Locale.getDefault())
         val latitude_temp = latlong.latitude
         val longitude_temp = latlong.longitude
         val cityname_temp2 = ""
-        try
-        {
+        try {
             val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
 
-            if (addresses != null)
-            {
+            if (addresses != null) {
                 Log.e("start location : ", addresses.toString())
 
                 val returnedAddress = addresses.get(0)
                 val strReturnedAddress = StringBuilder("Address:\n")
                 //val strReturnedAddress = StringBuilder()
 
-                for (i in 0 until returnedAddress.getMaxAddressLineIndex())
-                {
+                for (i in 0 until returnedAddress.getMaxAddressLineIndex()) {
                     strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                 }
                 //Log.e("start location : ", addresses.get(0).subAdminArea)
                 var result_adminarea = addresses.get(0).adminArea
-                if(result_adminarea == null) result_adminarea = ""
+                if (result_adminarea == null) result_adminarea = ""
                 return result_adminarea
+            } else {
+                Log.d("a", "No Address returned! : ")
             }
-            else
-            {
-                Log.d("a","No Address returned! : ")
-            }
-        }
-        catch (e:IOException) {
+        } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
-            Log.d("a","Canont get Address!")
+            Log.d("a", "Canont get Address!")
         }
         //end get city name
         return cityname_temp2
     }
+
     /**
      * A method to download json data from url
      */
