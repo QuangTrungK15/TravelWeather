@@ -162,7 +162,7 @@ class HistoryAdapter(options: FirebaseRecyclerOptions<HistoryDbO>, private var t
 
                         temp_date = history.date
 
-                        if (history.placeTypes == "airport") {
+                        /*if (history.placeTypes == "airport") {
                             itemView.imgv_placetype.setImageResource(R.drawable.ic24_airport)
                         } else if (history.placeTypes == "spa") {
                             itemView.imgv_placetype.setImageResource(R.drawable.ic24_spa)
@@ -322,9 +322,9 @@ class HistoryAdapter(options: FirebaseRecyclerOptions<HistoryDbO>, private var t
                             itemView.imgv_placetype.setImageResource(R.drawable.ic24_convenience_store)
                         } else if (history.placeTypes == "amusement_park") {
                             itemView.imgv_placetype.setImageResource(R.drawable.ic24_packing)
-                        } else {
+                        } else {*/
                             itemView.imgv_placetype.setImageResource(R.drawable.ic24_place)
-                        }
+                        //}
 
                         itemView.tv_name.setOnClickListener {
                             /*view: View, motionEvent: MotionEvent ->*/

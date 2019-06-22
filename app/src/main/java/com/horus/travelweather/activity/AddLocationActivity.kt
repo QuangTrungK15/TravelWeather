@@ -62,7 +62,7 @@ class AddLocationActivity : AppCompatActivity() {
         history_list = database.getReference("history")
 
 
-
+        btn_add_location.text = "Danh Sách Thời Tiết"
         btn_add_location.setOnClickListener {
             //Filter results by place type (by address: get full address, by establisment: get business address)
             val typeFilter = AutocompleteFilter.Builder()
@@ -109,6 +109,10 @@ class AddLocationActivity : AppCompatActivity() {
             place_list.child(id).removeValue()
             adapter.notifyDataSetChanged()
         })
+        if(adapter.itemCount != 0){
+            btn_add_location.text = "Thêm địa điểm thời tiết"
+        } else btn_add_location.text = "Danh Sách Thời Tiết"
+
         val layoutManager : RecyclerView.LayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         rv_location.adapter = adapter
         rv_location.layoutManager = layoutManager
@@ -138,7 +142,7 @@ class AddLocationActivity : AppCompatActivity() {
                 //history object
                 historyDb.address = place.address.toString()
                 historyDb.name = place.name.toString()
-                historyDb.placeTypes = place.placeTypes.toString()
+                //historyDb.placeTypes = place.placeTypes.toString()
                 historyDb.historyId = place.id
                 val date = getCurrentDateTime()
                 //val c = GregorianCalendar(1995, 12, 23)

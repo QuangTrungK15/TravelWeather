@@ -1521,7 +1521,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 /*placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
                 placeDB.id = place.id*/
-                place.placeTypes
                 edt_orgin.setText(placeDB.name)
                 currentlocation = place.latLng
                 Log.e("nhiet2",place.latLng.toString())
@@ -1529,7 +1528,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //history object
                 historyDb.address = place.address.toString()
                 historyDb.name = place.name.toString()
-                historyDb.placeTypes = place.placeTypes.toString()
+                //historyDb.placeTypes = place.placeTypes.toString()
                 val mGroupId = history_list.push().getKey()
                 historyDb.historyId = mGroupId!!
 
@@ -1604,7 +1603,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //history object
                 historyDb.address = place.address.toString()
                 historyDb.name = place.name.toString()
-                historyDb.placeTypes = place.placeTypes.toString()
+                //historyDb.placeTypes = place.placeTypes.toString()
                 val mGroupId = history_list.push().getKey()
                 historyDb.historyId = mGroupId!!
 

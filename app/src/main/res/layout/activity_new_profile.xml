@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/bg_combine_color">
@@ -30,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="17sp"
                 android:textColor="@color/white"
-                android:text="View and edit profile"/>
+                android:text="Xem thông tin cá nhân"/>
         </LinearLayout>
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/img_url_photo"
@@ -40,7 +42,7 @@
             android:padding="10dp"
             android:src="@drawable/img_avatar" />
     </RelativeLayout>
-    <LinearLayout
+   <!-- <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -68,12 +70,13 @@
             android:layout_height="1dp"
             android:background="@color/colorViewLine"
             />
-    </LinearLayout>
+    </LinearLayout>-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <RelativeLayout
+            android:id="@+id/relat_viewprofile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
@@ -81,16 +84,16 @@
             android:layout_marginRight="32dp"
             android:layout_marginLeft="16dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="17dp"
                 android:textColor="@color/white"
-                android:text="Setting"/>
+                android:text="Xem Profile"/>
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/ic_setting"/>
+                app:srcCompat="@drawable/ic_profile_sliver_24dp"/>
         </RelativeLayout>
         <View
             android:layout_width="match_parent"
@@ -110,7 +113,7 @@
             android:layout_marginRight="32dp"
             android:layout_marginLeft="16dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="17dp"
                 android:textColor="@color/white"
@@ -119,7 +122,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/ic_about_us"/>
+                app:srcCompat="@drawable/ic_aboutus_24dp"/>
         </RelativeLayout>
         <View
             android:layout_width="match_parent"
@@ -127,6 +130,7 @@
             android:background="@color/colorViewLine"
             />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -139,7 +143,7 @@
             android:layout_marginRight="32dp"
             android:layout_marginLeft="16dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="17dp"
                 android:textColor="@color/white"
@@ -148,7 +152,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/ic_get_help"/>
+                app:srcCompat="@drawable/ic_help_24dp"/>
         </RelativeLayout>
         <View
             android:layout_width="match_parent"
@@ -168,7 +172,8 @@
             android:layout_marginRight="32dp"
             android:layout_marginLeft="16dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_logout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="17dp"
                 android:textColor="@color/white"
@@ -178,7 +183,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/ic_logout"/>
+                app:srcCompat="@drawable/ic_exit_to_app_24dp"/>
         </RelativeLayout>
         <View
             android:layout_width="match_parent"

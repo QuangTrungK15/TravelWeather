@@ -74,7 +74,7 @@ class FavoritePlaceFragment : Fragment() {
         history_list = database.getReference("history")
         tempfavplace_list = database.getReference("tempfavplace").child(mAuth.currentUser!!.uid)
 
-        add_tempfavplace()
+        add_tempfavplace("")
         view.btn_add_my_place.setOnClickListener {
             val typeFilter = AutocompleteFilter.Builder()
                     .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
@@ -104,7 +104,7 @@ class FavoritePlaceFragment : Fragment() {
 
     lateinit var favplace_list: DatabaseReference
 
-    fun add_tempfavplace(){
+    fun add_tempfavplace(position:String){
         database = FirebaseDatabase.getInstance()
         mAuth = FirebaseAuth.getInstance()
         tempfavplace_list = database.getReference("tempfavplace").child(mAuth.currentUser!!.uid)
@@ -151,7 +151,23 @@ class FavoritePlaceFragment : Fragment() {
                             val date = getCurrentDateTime()
                             val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
 
-                            if (favplacename_list.contains(item.name) == true) {
+                            /*if(position != "" && position == dsp.key){
+                                tempfavplaceDb.id = item.id
+                                //tempfavplaceDb.latitude = item.latitude
+                                // tempfavplaceDb.longitude = item.longitude
+                                tempfavplaceDb.name = item.name
+                                tempfavplaceDb.uri = item.uri
+                                tempfavplaceDb.address = item.address
+                                tempfavplaceDb.numofsearch = item.numofsearch
+                                tempfavplaceDb.numofvisit = item.numofvisit
+                                tempfavplaceDb.numofask = 0
+                                tempfavplaceDb.askdate = currenttime
+                                tempfavplaceDb.numsearch_after_ask = 0
+
+                                tempfavplace_list.child(item.id).setValue(tempfavplaceDb)
+
+                            }
+                            else*/ if (favplacename_list.contains(item.name) == true) {
 
                             } else if ((item.numofsearch > 2) && item.numofask < 2
                                     && currenttime != item.askdate && currentday_oldday_space(item.askdate) > 2
@@ -176,6 +192,22 @@ class FavoritePlaceFragment : Fragment() {
                                             //  }
                                             //}
                                             Toast.makeText(context, "Đã thêm vào danh sách yêu thích", Toast.LENGTH_SHORT).show()
+
+                                            //update date
+                                            tempfavplaceDb.id = item.id
+                                            //tempfavplaceDb.latitude = item.latitude
+                                            // tempfavplaceDb.longitude = item.longitude
+                                            tempfavplaceDb.name = item.name
+                                            tempfavplaceDb.uri = item.uri
+                                            tempfavplaceDb.address = item.address
+                                            tempfavplaceDb.numofsearch = item.numofsearch
+                                            tempfavplaceDb.numofvisit = item.numofvisit
+                                            tempfavplaceDb.numofask = item.numofask
+                                            tempfavplaceDb.askdate = currenttime
+                                            tempfavplaceDb.numsearch_after_ask = item.numsearch_after_ask
+
+                                            tempfavplace_list.child(item.id).setValue(tempfavplaceDb)
+
                                             //val intent = Intent(context, BottomNavigation::class.java) //this activity will be this fragment's father
                                             // intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                             //startActivity(intent)
@@ -193,6 +225,7 @@ class FavoritePlaceFragment : Fragment() {
                                             tempfavplaceDb.numofvisit = item.numofvisit
                                             tempfavplaceDb.numofask = item.numofask+1
                                             tempfavplaceDb.askdate = currenttime
+                                            tempfavplaceDb.numsearch_after_ask = item.numsearch_after_ask
 
                                             tempfavplace_list.child(item.id).setValue(tempfavplaceDb)
 
@@ -279,6 +312,7 @@ class FavoritePlaceFragment : Fragment() {
         //Add only option (remove) of per img
         popup.getMenu().add(0, position, 0, REMOVE_PLACE);
         popup.setOnMenuItemClickListener({ item ->
+            //add_tempfavplace(adapter.getRef(position).key!!)
             deleteFavouritePlace(adapter.getRef(position).key!!) //get position id of rv_my_places
             true
         })
@@ -330,7 +364,7 @@ class FavoritePlaceFragment : Fragment() {
                 //history object
                 historyDb.address = place.address.toString()
                 historyDb.name = place.name.toString()
-                historyDb.placeTypes = place.placeTypes.toString()
+                //historyDb.placeTypes = place.placeTypes.toString()
                 historyDb.historyId = place.id
                 val date = getCurrentDateTime()
                 //val c = GregorianCalendar(1995, 12, 23)

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_cloud_wind_humidity"
-        android:text="Click to add location"
+        android:text="DANH SÁCH THỜI TIẾT"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"

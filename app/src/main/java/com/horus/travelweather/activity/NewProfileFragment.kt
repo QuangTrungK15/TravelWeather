@@ -20,7 +20,14 @@ class NewProfileFragment : Fragment() {
             val intent = Intent(this.context, ProfileActivity::class.java) //this activity will be this fragment's father
             startActivity(intent)
         }
+        view.relat_viewprofile.setOnClickListener {
+            val intent = Intent(this.context, ProfileActivity::class.java) //this activity will be this fragment's father
+            startActivity(intent)
+        }
         view.btn_logout.setOnClickListener {
+            getActivity()!!.finish();
+        }
+        view.tv_logout.setOnClickListener {
             getActivity()!!.finish();
         }
         return view
