@@ -16,14 +16,14 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.horus.travelweather.BottomNavigation
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.adapter.LocationAdapter
 import com.horus.travelweather.database.PlaceEntity
 import com.horus.travelweather.database.TravelWeatherDB
+import com.horus.travelweather.model.CitySatisticsDbO
 import com.horus.travelweather.model.HistoryDbO
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -48,6 +48,7 @@ class AddLocationActivity : AppCompatActivity() {
     lateinit var adapter2: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
     var myuser: FirebaseUser? = null
 
+    lateinit var city_statistics: DatabaseReference //for statistics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +61,7 @@ class AddLocationActivity : AppCompatActivity() {
         place_list = database.getReference("places").child(mAuth.currentUser!!.uid)
         myuser = mAuth.currentUser
         history_list = database.getReference("history")
+        city_statistics = database.getReference("city_statistics").child(mAuth.currentUser!!.uid)
 
 
         btn_add_location.text = "Danh Sách Thời Tiết"
@@ -133,11 +135,14 @@ class AddLocationActivity : AppCompatActivity() {
                 placeDB.latitude = place.latLng.latitude
                 placeDB.longitude = place.latLng.longitude
                 placeDB.name = getCityName_byLatlong(place.latLng)
+                cityname_temp = placeDB.name
 
                 //placeDB.name = place.locale.toString()
                 placeDB.id = place.id
                 insertPLace().execute(placeDB)
                 place_list.child(place.id).setValue(placeDB)
+
+                uploadCitySatistics()
 
                 //history object
                 historyDb.address = place.address.toString()
@@ -156,6 +161,50 @@ class AddLocationActivity : AppCompatActivity() {
 
             }
         }
+    }
+
+    var cityname_temp = ""
+    var citysatistics_flag = true
+    private fun uploadCitySatistics() {
+
+        city_statistics.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Log.e(TAG, "Error : " + p0.message)
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    // code if data exists
+                    // if current place like before place
+                    for (dsp in dataSnapshot.children) {
+                        //add result into array list
+                        val item: CitySatisticsDbO? = dsp.getValue(CitySatisticsDbO::class.java)
+                        if (item != null) {
+                            if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
+                                            cityname_temp == "Thủ Đô " + item.name ||
+                                            cityname_temp == "Tỉnh " + item.name)) {
+                                Log.e("lamquanglich : ",dsp.key)
+                                city_statistics.child(dsp.key!!).setValue(CitySatisticsDbO(item.name,item.numofsearch+1))
+                                citysatistics_flag = false
+
+                            }
+                        }
+                    }
+
+                } else {
+                    if(cityname_temp != ""){
+                        // code if data does not  exists
+                        city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+
+                        citysatistics_flag = false
+                    }
+                }
+                if (citysatistics_flag && cityname_temp != "") {
+                    city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+                }
+            }
+        })
     }
 
     fun getCityName_byLatlong(latlong: LatLng): String {

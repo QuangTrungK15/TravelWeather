@@ -110,6 +110,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
     private val favplaceDb = PlaceDbO()
     private val tempfavplaceDb = TempFavPlaceDbO() //for AI
     lateinit var tempfavplace_list: DatabaseReference //for AI
+    //
+    lateinit var city_statistics: DatabaseReference //for statistics
 
     lateinit var mAuth: FirebaseAuth
     lateinit var adapter: FirebaseRecyclerAdapter<HistoryDbO, HistoryAdapter.HistoryViewHolder>
@@ -131,6 +133,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         database = FirebaseDatabase.getInstance()
         history_list = database.getReference("history")
         tempplace_list = database.getReference("tempplace").child(mAuth.currentUser!!.uid)
+        city_statistics = database.getReference("city_statistics").child(mAuth.currentUser!!.uid)
 
         // Initializing
         markerPoints = ArrayList<LatLng>()
@@ -1552,7 +1555,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //data for tempfavplace
                 favplaceDb.name = place.name.toString()
                 favplaceDb.placeId = place.id
-                getPhoto(place.id)
                 Log.e(TAG, "Image : " + favplaceDb.uri)
 
                 //address for tempfavplace
@@ -1577,10 +1579,12 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     e.printStackTrace()
                     Log.d("a", "Canont get Address!")
                 }
+                //uploadTempFavPlace() in this getPhoto
+                getPhoto(place.id)
 
                 uploadTempplace()
+                uploadCitySatistics()
 
-                uploadTempplace()
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(context, data)
                 Log.e(TAG, ""+status)
@@ -1628,7 +1632,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 //data for tempfavplace
                 favplaceDb.name = place.name.toString()
                 favplaceDb.placeId = place.id
-                getPhoto(place.id)
                 Log.e(TAG, "Image : " + favplaceDb.uri)
 
                 //address for tempfavplace
@@ -1653,10 +1656,11 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     e.printStackTrace()
                     Log.d("a", "Canont get Address!")
                 }
+                getPhoto(place.id)
 
                 uploadTempplace()
+                uploadCitySatistics()
 
-                uploadTempplace()
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 val status = PlaceAutocomplete.getStatus(context, data)
                 Log.e(TAG, ""+status)
@@ -1850,6 +1854,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         database = FirebaseDatabase.getInstance()
         mAuth = FirebaseAuth.getInstance()
         tempfavplace_list = database.getReference("tempfavplace").child(mAuth.currentUser!!.uid)
+        newfavplace_flag = true
 
         //check tempfavplace data to add/update/ask tempfavplace
         tempfavplace_list.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -1934,6 +1939,88 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 // Result will be holded Here
 
                 //insertAllPlace().execute(placeList)
+            }
+        })
+    }
+
+    var citysatistics_flag = true
+    private fun uploadCitySatistics() {
+        //get city name
+        val geocoder = Geocoder(context!!, Locale.getDefault())
+
+        try
+        {
+            val addresses = geocoder.getFromLocation(latitude_temp, longitude_temp, 1)
+
+            if (addresses != null)
+            {
+                Log.e("start location : ", addresses.toString())
+
+                val returnedAddress = addresses.get(0)
+                val strReturnedAddress = StringBuilder("Address:\n")
+                //val strReturnedAddress = StringBuilder()
+
+                for (i in 0 until returnedAddress.getMaxAddressLineIndex())
+                {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
+                }
+                //Log.e("start location : ", addresses.get(0).subAdminArea)
+                if(addresses.get(0).adminArea != null){
+                    cityname_temp = addresses.get(0).adminArea
+                } else {
+                    cityname_temp = ""
+
+                }
+            }
+            else
+            {
+                Log.d("a","No Address returned! : ")
+            }
+        }
+        catch (e:IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+            Log.d("a","Canont get Address!")
+        }
+        //end get city name
+
+
+        city_statistics.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Log.e(TAG, "Error : " + p0.message)
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    // code if data exists
+                    // if current place like before place
+                    for (dsp in dataSnapshot.children) {
+                        //add result into array list
+                        val item: CitySatisticsDbO? = dsp.getValue(CitySatisticsDbO::class.java)
+                        if (item != null) {
+                            if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
+                                            cityname_temp == "Thủ Đô " + item.name ||
+                                            cityname_temp == "Tỉnh " + item.name)) {
+                                Log.e("lamquanglich : ",dsp.key)
+                                city_statistics.child(dsp.key!!).setValue(CitySatisticsDbO(item.name,item.numofsearch+1))
+                                citysatistics_flag = false
+
+                            }
+                        }
+                    }
+
+                } else {
+                    if(cityname_temp != ""){
+                        // code if data does not  exists
+                        city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+
+                        citysatistics_flag = false
+                    }
+                }
+                if (citysatistics_flag && cityname_temp != "") {
+                    city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+                }
             }
         })
     }

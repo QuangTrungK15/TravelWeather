@@ -33,9 +33,7 @@ import com.horus.travelweather.R
 import com.horus.travelweather.adapter.FavouritePlaceAdapter
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.common.TWConstant.Companion.REMOVE_PLACE
-import com.horus.travelweather.model.HistoryDbO
-import com.horus.travelweather.model.PlaceDbO
-import com.horus.travelweather.model.TempFavPlaceDbO
+import com.horus.travelweather.model.*
 import kotlinx.android.synthetic.main.activity_directions.view.*
 import kotlinx.android.synthetic.main.activity_favourite_my_place.view.*
 import java.io.ByteArrayOutputStream
@@ -64,6 +62,12 @@ class FavoritePlaceFragment : Fragment() {
     private val tempfavplaceDb = TempFavPlaceDbO() //for AI
     lateinit var tempfavplace_list: DatabaseReference //for AI
 
+    lateinit var city_statistics: DatabaseReference //for statistics
+
+    //temp place
+    private val tempplaceDb = TempPlaceDbO() //for AI
+    lateinit var tempplace_list: DatabaseReference //for AI
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_favourite_my_place, container, false)
         setHasOptionsMenu(true)
@@ -73,6 +77,9 @@ class FavoritePlaceFragment : Fragment() {
         favourite_list = database.getReference("favouriteplace")
         history_list = database.getReference("history")
         tempfavplace_list = database.getReference("tempfavplace").child(mAuth.currentUser!!.uid)
+        city_statistics = database.getReference("city_statistics").child(mAuth.currentUser!!.uid)
+        tempplace_list = database.getReference("tempplace").child(mAuth.currentUser!!.uid)
+
 
         add_tempfavplace("")
         view.btn_add_my_place.setOnClickListener {
@@ -247,6 +254,168 @@ class FavoritePlaceFragment : Fragment() {
         })
     }
 
+    var cityname_temp = ""
+    var citysatistics_flag = true
+    private fun uploadCitySatistics() {
+
+        city_statistics.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Log.e(TAG, "Error : " + p0.message)
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    // code if data exists
+                    // if current place like before place
+                    for (dsp in dataSnapshot.children) {
+                        //add result into array list
+                        val item: CitySatisticsDbO? = dsp.getValue(CitySatisticsDbO::class.java)
+                        if (item != null) {
+                            if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
+                                            cityname_temp == "Thủ Đô " + item.name ||
+                                            cityname_temp == "Tỉnh " + item.name)) {
+                                Log.e("lamquanglich : ",dsp.key)
+                                city_statistics.child(dsp.key!!).setValue(CitySatisticsDbO(item.name,item.numofsearch+1))
+                                citysatistics_flag = false
+
+                            }
+                        }
+                    }
+
+                } else {
+                    if(cityname_temp != ""){
+                        // code if data does not  exists
+                        city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+
+                        citysatistics_flag = false
+                    }
+                }
+                if (citysatistics_flag && cityname_temp != "") {
+                    city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+                }
+            }
+        })
+    }
+
+    var newplace_flag = true
+    var curplace_like_beforeplace = false
+    var placeid_temp = ""
+    var latitude_temp = 0.0
+    var longitude_temp = 0.0
+    private fun uploadTempplace() {
+
+        tempplace_list.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                Log.e(TAG, "Error : " + p0.message)
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    // code if data exists
+                    // if current place like before place
+                    for (dsp in dataSnapshot.children) {
+                        //add result into array list
+                        val item: TempPlaceDbO? = dsp.getValue(TempPlaceDbO::class.java)
+                        if (item != null) {
+                            var now_cityname = ""
+
+                            //Log.e("Test AI : ",dsp.key)
+                            if (dsp.key == mAuth.currentUser!!.uid && item.name == cityname_temp) {
+                                curplace_like_beforeplace = true
+                                now_cityname = item.name
+                                //Log.e("Test AI : ",placeid_temp + item.name + cityname_temp)
+                                //break
+                            }
+                            if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
+                                            cityname_temp == "Thủ Đô " + item.name ||
+                                            cityname_temp == "Tỉnh " + item.name)) {
+
+                                if(item.numofask >= 1 && item.numsearch_after_ask >= 4){
+                                    tempplaceDb.numofask=item.numofask - 1
+                                    tempplaceDb.numsearch_after_ask = 0
+                                }
+                                else if(item.numofask >= 2){
+                                    tempplaceDb.numsearch_after_ask=item.numsearch_after_ask+1
+                                    tempplaceDb.numofask = item.numofask
+                                } else {
+                                    tempplaceDb.numofask = item.numofask
+                                    tempplaceDb.numsearch_after_ask=item.numsearch_after_ask
+                                }
+
+
+                                //place_list.child(place.id).setValue(placeDB)
+                                //tempplaceDb.numofvisit = item.numofvisit+1
+
+                                tempplaceDb.latitude = item.latitude
+                                tempplaceDb.longitude = item.longitude
+                                tempplaceDb.name = item.name
+                                tempplaceDb.numofsearch = item.numofsearch + 1
+                                tempplaceDb.numofvisit = item.numofvisit
+                                tempplaceDb.id = item.id
+                                tempplaceDb.askdate = item.askdate
+                                tempplace_list.child(item.id).setValue(tempplaceDb)
+
+                                //update dia diem hien tai gan nhat da ghe qua
+                                if(curplace_like_beforeplace){
+                                    tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                                    curplace_like_beforeplace = false
+                                }
+
+                                newplace_flag = false
+
+                            }
+                        }
+                    }
+                } else {
+                    if(cityname_temp != ""){
+                        // code if data does not  exists
+                        tempplaceDb.latitude = latitude_temp
+                        tempplaceDb.longitude = longitude_temp
+                        tempplaceDb.name = cityname_temp
+                        tempplaceDb.numofsearch = 1
+                        tempplaceDb.id = placeid_temp
+                        val date = getCurrentDateTime()
+                        val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                        tempplaceDb.askdate = currenttime
+
+                        tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+
+                        //update dia diem hien tai gan nhat da ghe qua
+                        if(curplace_like_beforeplace){
+                            tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                            curplace_like_beforeplace = false
+                        }
+                        newplace_flag = false
+                    }
+                }
+                if (newplace_flag && cityname_temp != "") {
+                    tempplaceDb.latitude = latitude_temp
+                    tempplaceDb.longitude = longitude_temp
+                    tempplaceDb.name = cityname_temp
+                    tempplaceDb.numofsearch = 1
+                    tempplaceDb.id = placeid_temp
+                    val date = getCurrentDateTime()
+                    val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
+                    tempplaceDb.askdate = currenttime
+
+                    tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+
+                    //update dia diem hien tai gan nhat da ghe qua
+                    if(curplace_like_beforeplace){
+                        tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
+                        curplace_like_beforeplace = false
+                    }
+
+                }
+                // Result will be holded Here
+
+                //insertAllPlace().execute(placeList)
+            }
+        })
+    }
+
     fun currentday_oldday_space(startDate:String) : Long{
         val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
         val currentDate = Date()
@@ -343,6 +512,12 @@ class FavoritePlaceFragment : Fragment() {
                             strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n")
                         }
                         placeDb.address = addresses.get(0).getAddressLine(0)
+                        if(addresses.get(0).adminArea != null){
+                            cityname_temp = addresses.get(0).adminArea
+                        } else {
+                            cityname_temp = ""
+
+                        }
                        // Log.e("start location: ",addresses.get(0).getAddressLine(0))
                     }
                     else
@@ -360,6 +535,15 @@ class FavoritePlaceFragment : Fragment() {
                 placeDb.placeId = place.id
                 placeDb.name = place.name.toString()
                 getPhoto(place.id)
+
+                //tempplace
+                latitude_temp = place.latLng.latitude
+                longitude_temp = place.latLng.longitude
+                placeid_temp = place.id
+                uploadTempplace()
+
+                //statistics
+                uploadCitySatistics()
 
                 //history object
                 historyDb.address = place.address.toString()

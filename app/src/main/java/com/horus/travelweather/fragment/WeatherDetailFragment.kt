@@ -502,6 +502,9 @@ class WeatherDetailFragment : Fragment() {
                             val date = getCurrentDateTime()
                             val currenttime = String.format("%1\$td/%1\$tm/%1\$tY", date)
                             tempplaceDb.askdate = currenttime
+
+                            tempplace_list.child(tempplaceDb.id).setValue(tempplaceDb)
+
                             //update dia diem hien tai gan nhat da ghe qua
                             tempplace_list.child(mAuth.currentUser!!.uid).setValue(tempplaceDb)
 
