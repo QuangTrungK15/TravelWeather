@@ -77,7 +77,7 @@ class FavoritePlaceFragment : Fragment() {
         favourite_list = database.getReference("favouriteplace")
         history_list = database.getReference("history")
         tempfavplace_list = database.getReference("tempfavplace").child(mAuth.currentUser!!.uid)
-        city_statistics = database.getReference("city_statistics").child(mAuth.currentUser!!.uid)
+        city_statistics = database.getReference("city_statistics")
         tempplace_list = database.getReference("tempplace").child(mAuth.currentUser!!.uid)
 
 
@@ -263,6 +263,7 @@ class FavoritePlaceFragment : Fragment() {
                 Log.e(TAG, "Error : " + p0.message)
             }
 
+            var numofsearch_others = 0
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                 if (dataSnapshot.exists()) {
@@ -272,6 +273,7 @@ class FavoritePlaceFragment : Fragment() {
                         //add result into array list
                         val item: CitySatisticsDbO? = dsp.getValue(CitySatisticsDbO::class.java)
                         if (item != null) {
+                            if(item.name == "Others") numofsearch_others = item.numofsearch
                             if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
                                             cityname_temp == "Thủ Đô " + item.name ||
                                             cityname_temp == "Tỉnh " + item.name)) {
@@ -284,15 +286,33 @@ class FavoritePlaceFragment : Fragment() {
                     }
 
                 } else {
+                    // code if data does not  exists
                     if(cityname_temp != ""){
-                        // code if data does not  exists
-                        city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+                        if((cityname_temp.toLowerCase() == "hồ chí minh" || cityname_temp == "thành phố hồ chí minh") ||
+                                (cityname_temp.toLowerCase() == "hà nội" || cityname_temp == "thủ đô hà nội") ||
+                                (cityname_temp.toLowerCase() == "đà nẵng" || cityname_temp == "thành phố đà nẵng") ||
+                                (cityname_temp.toLowerCase() == "cần thơ" || cityname_temp == "thành phố cần thơ")
+                        ){
+                            city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+
+                        } else {
+                            city_statistics.child("-Li261TH2CuzJV9lyWvM").setValue(CitySatisticsDbO("Others",numofsearch_others+1))
+                        }
 
                         citysatistics_flag = false
                     }
                 }
                 if (citysatistics_flag && cityname_temp != "") {
-                    city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+                    if((cityname_temp.toLowerCase() == "hồ chí minh" || cityname_temp == "thành phố hồ chí minh") ||
+                            (cityname_temp.toLowerCase() == "hà nội" || cityname_temp == "thủ đô hà nội") ||
+                            (cityname_temp.toLowerCase() == "đà nẵng" || cityname_temp == "thành phố đà nẵng") ||
+                            (cityname_temp.toLowerCase() == "cần thơ" || cityname_temp == "thành phố cần thơ")
+                    ){
+                        city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+
+                    } else {
+                        city_statistics.child("-Li261TH2CuzJV9lyWvM").setValue(CitySatisticsDbO("Others",numofsearch_others+1))
+                    }
                 }
             }
         })
@@ -518,7 +538,7 @@ class FavoritePlaceFragment : Fragment() {
                             cityname_temp = ""
 
                         }
-                       // Log.e("start location: ",addresses.get(0).getAddressLine(0))
+                        Log.e("start location2: ",cityname_temp)
                     }
                     else
                     {

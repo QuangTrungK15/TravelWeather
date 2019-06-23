@@ -133,8 +133,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         database = FirebaseDatabase.getInstance()
         history_list = database.getReference("history")
         tempplace_list = database.getReference("tempplace").child(mAuth.currentUser!!.uid)
-        city_statistics = database.getReference("city_statistics").child(mAuth.currentUser!!.uid)
-
+        city_statistics = database.getReference("city_statistics")
         // Initializing
         markerPoints = ArrayList<LatLng>()
 
@@ -1969,8 +1968,8 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     cityname_temp = addresses.get(0).adminArea
                 } else {
                     cityname_temp = ""
-
                 }
+                Log.e("c location2: ",cityname_temp)
             }
             else
             {
@@ -1990,6 +1989,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 Log.e(TAG, "Error : " + p0.message)
             }
 
+            var numofsearch_others = 0
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                 if (dataSnapshot.exists()) {
@@ -1999,6 +1999,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                         //add result into array list
                         val item: CitySatisticsDbO? = dsp.getValue(CitySatisticsDbO::class.java)
                         if (item != null) {
+                            if(item.name == "Others") numofsearch_others = item.numofsearch
                             if ((cityname_temp == item.name || cityname_temp == "Thành phố " + item.name ||
                                             cityname_temp == "Thủ Đô " + item.name ||
                                             cityname_temp == "Tỉnh " + item.name)) {
@@ -2011,15 +2012,33 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                     }
 
                 } else {
+                    // code if data does not  exists
                     if(cityname_temp != ""){
-                        // code if data does not  exists
-                        city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+                        if((cityname_temp.toLowerCase() == "hồ chí minh" || cityname_temp == "thành phố hồ chí minh") ||
+                            (cityname_temp.toLowerCase() == "hà nội" || cityname_temp == "thủ đô hà nội") ||
+                                (cityname_temp.toLowerCase() == "đà nẵng" || cityname_temp == "thành phố đà nẵng") ||
+                                (cityname_temp.toLowerCase() == "cần thơ" || cityname_temp == "thành phố cần thơ")
+                        ){
+                            city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+
+                        } else {
+                            city_statistics.child("-Li261TH2CuzJV9lyWvM").setValue(CitySatisticsDbO("Others",numofsearch_others+1))
+                        }
 
                         citysatistics_flag = false
                     }
                 }
                 if (citysatistics_flag && cityname_temp != "") {
-                    city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+                    if((cityname_temp.toLowerCase() == "hồ chí minh" || cityname_temp == "thành phố hồ chí minh") ||
+                            (cityname_temp.toLowerCase() == "hà nội" || cityname_temp == "thủ đô hà nội") ||
+                            (cityname_temp.toLowerCase() == "đà nẵng" || cityname_temp == "thành phố đà nẵng") ||
+                            (cityname_temp.toLowerCase() == "cần thơ" || cityname_temp == "thành phố cần thơ")
+                    ){
+                        city_statistics.push().setValue(CitySatisticsDbO(cityname_temp,1))
+
+                    } else {
+                        city_statistics.child("-Li261TH2CuzJV9lyWvM").setValue(CitySatisticsDbO("Others",numofsearch_others+1))
+                    }
                 }
             }
         })
