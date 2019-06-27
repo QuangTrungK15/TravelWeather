@@ -40,7 +40,8 @@ class HistoryFragment: Fragment() {
     var myuser: FirebaseUser? = null
     var length: Int = 0
     var runagain: Int = 0
-    lateinit var placeList: ArrayList<HistoryDbO>
+    lateinit var placeList: ArrayList<HistoryDbO> //showp per 18 items
+    lateinit var placeList_All: ArrayList<HistoryDbO>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_history, container, false)
@@ -85,6 +86,13 @@ class HistoryFragment: Fragment() {
             }
         })
 
+        placeList_All = ArrayList<HistoryDbO>(placeList)
+
+        if(placeList_All.size > 17)
+        {
+            placeList = ArrayList<HistoryDbO>(placeList_All.take(18))
+        }
+
         adapter = HistoryAdapter(options, placeList, runagain, { context,textview, i ->
             showPopup(context,textview, i)
         })
@@ -95,7 +103,35 @@ class HistoryFragment: Fragment() {
         view.rv_history.layoutManager = linearLayoutManager as RecyclerView.LayoutManager?
         view.rv_history.adapter = adapter
         view.rv_history.isNestedScrollingEnabled = false
+
+        view.rv_history.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx:Int, dy:Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (!recyclerView.canScrollVertically(1))
+                    onScrolledToBottom()
+            }
+        })
         return view
+    }
+
+    //show per 30 items to avoid big data
+    private fun onScrolledToBottom() {
+        if (placeList.size < placeList_All.size) {
+            val x: Int
+            val y: Int
+            if (placeList_All.size - placeList.size >= 18) {
+                x = placeList.size
+                y = x + 18
+            } else {
+                x = placeList.size
+                y = x + placeList_All.size - placeList.size
+            }
+            for (i in x until y) {
+                placeList.add(placeList_All.get(i))
+            }
+            adapter.notifyDataSetChanged()
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {

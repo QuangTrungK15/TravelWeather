@@ -1,6 +1,7 @@
 package com.horus.travelweather.activity
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.location.Geocoder
 import android.os.AsyncTask
@@ -10,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Toast
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.android.gms.location.places.AutocompleteFilter
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
@@ -88,6 +90,7 @@ class AddLocationActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    var numofplace = 0
     //Load user's available places in database room -> recycleviewer rv_location
     private fun loadPlaces()
     {
@@ -97,6 +100,9 @@ class AddLocationActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     implementLoad(it)
+                    numofplace=it.size
+                    Log.e(TAG,"sizeeee : "+ numofplace)
+
                 }, {
                     Log.e(TAG,""+ it.message)
                 }))
@@ -107,9 +113,23 @@ class AddLocationActivity : AppCompatActivity() {
     private fun implementLoad(list : List<PlaceEntity>) {
         adapter = LocationAdapter(list,{
             id ->
-            deletePLace().execute(id)
-            place_list.child(id).removeValue()
-            adapter.notifyDataSetChanged()
+
+                val alertDialogBuilder = AlertDialog.Builder(this)
+                alertDialogBuilder.setTitle("Xóa Địa Điểm Thời Tiết")
+                alertDialogBuilder
+                        .setMessage("Bạn có thật sự muốn xóa địa điểm thời tiết này?")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes") { dialog, id2 ->
+                            deletePLace().execute(id)
+                            place_list.child(id).removeValue()
+                            adapter.notifyDataSetChanged()
+                        }
+                        .setNegativeButton("No") { dialog, id2 ->
+                            dialog.cancel()
+                        }
+                val alertDialog = alertDialogBuilder.create()
+                alertDialog.show()
+
         })
         if(adapter.itemCount != 0){
             btn_add_location.text = "Thêm địa điểm thời tiết"
@@ -139,8 +159,23 @@ class AddLocationActivity : AppCompatActivity() {
 
                 //placeDB.name = place.locale.toString()
                 placeDB.id = place.id
-                insertPLace().execute(placeDB)
-                place_list.child(place.id).setValue(placeDB)
+                if(numofplace < 4){
+                    insertPLace().execute(placeDB)
+                    place_list.child(place.id).setValue(placeDB)
+                } else {
+                    val alertDialogBuilder = AlertDialog.Builder(this)
+                    alertDialogBuilder.setTitle("Thông Báo")
+                    alertDialogBuilder
+                            .setMessage("Bạn chỉ được thêm tối đa 4 địa điểm thời tiết hay ghé thăm để theo dõi."+
+                            " Để thêm địa điểm mới, vui lòng xóa địa điểm bạn không còn quan tâm!")
+                            .setCancelable(false)
+                            .setPositiveButton("OK") { dialog, id ->
+                                dialog.cancel()
+                            }
+                    val alertDialog = alertDialogBuilder.create()
+                    alertDialog.show()
+                }
+
 
                 uploadCitySatistics()
 
