@@ -16,6 +16,8 @@ class NewProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.activity_new_profile, container, false)
         view.txt_username.text =  TWConstant.currentUser.name
         Picasso.with(this.context).load(TWConstant.currentUser.urlPhoto).into(view.img_url_photo)
+
+        //go to profile detail
         view.edit_profile.setOnClickListener {
             val intent = Intent(this.context, ProfileActivity::class.java) //this activity will be this fragment's father
             startActivity(intent)
@@ -24,11 +26,23 @@ class NewProfileFragment : Fragment() {
             val intent = Intent(this.context, ProfileActivity::class.java) //this activity will be this fragment's father
             startActivity(intent)
         }
+
+        //about us
+        view.edit_profile.setOnClickListener {
+            val intent = Intent(this.context, AboutUsActivity::class.java) //this activity will be this fragment's father
+            startActivity(intent)
+        }
+        view.tv_gethelp.setOnClickListener {
+            val intent = Intent(this.context, AboutUsActivity::class.java) //this activity will be this fragment's father
+            startActivity(intent)
+        }
+
+        //logout
         view.btn_logout.setOnClickListener {
-            getActivity()!!.finish();
+            getActivity()!!.finish()
         }
         view.tv_logout.setOnClickListener {
-            getActivity()!!.finish();
+            getActivity()!!.finish()
         }
         return view
     }

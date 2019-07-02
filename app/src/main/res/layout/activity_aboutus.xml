@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:scrollbars="vertical"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:text="1. Theo dõi nhiều địa điểm thời tiết"
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Bạn có thể theo dõi cùng lúc thời tiết của nhiều địa điểm hay ghé thăm vì công tác/du lịch, khác với những ứng dụng thời tiết khác chỉ có thể theo dõi thời tiết của địa điểm hiện tại."
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:text="2. Lưu trữ nhiều địa điểm yêu thích"
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Khi bạn ghé thăm một địa điểm vì công tác/du lịch, bạn có thể lưu lại những địa điểm yêu thích trên địa điểm (thành phố) đó để tiết kiệm thời gian và tiện cho việc di chuyển."
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:text="3. Sử dụng như ứng dụng chỉ đường"
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Khi bạn cần chỉ đường từ vị trí hiện tại (hoặc địa điểm khác) đến một địa điểm nào đó thì ứng dụng có hỗ trợ chỉ đường như Gooogle Maps để tiện cho người dùng không cần phải sử dụng ứng dụng thứ ba."
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:text="4. Lưu trữ nhật ký hoạt động"
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Ứng dụng có lưu trữ lại nhật ký hoạt động khi thực hiện tìm kiếm địa điểm thời tiết, địa điểm yêu thích hay địa điểm trong chỉ đường. Bạn có thể thực hiện viêc xem lại hoặc xóa bỏ nhật ký hoạt động của mình."
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:text="5. Quản lý thông tin cá nhân"
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Ứng dụng có lưu lại thông tin cá nhân để bạn tiện xem lại thông tin mà bạn muốn cung cấp cho ứng dụng. Bạn có thể xem lại thông tin cá nhân của mình hoặc bổ sung, chỉnh sửa tùy ý."
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:text="Cảm ơn bạn đã sử dụng ứng dụng. Nếu bạn muốn góp ý để cải thiện ứng dụng tốt hơn, vui lòng đánh giá trên AppStore để chúng tôi có thể thay đổi tạo trãi nghiệm tốt nhất cho bạn."
+                android:textSize="20dp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

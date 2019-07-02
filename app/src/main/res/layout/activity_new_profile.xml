@@ -113,6 +113,7 @@
             android:layout_marginRight="32dp"
             android:layout_marginLeft="16dp">
             <TextView
+                android:id="@+id/tv_aboutus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="17dp"
@@ -143,6 +144,7 @@
             android:layout_marginRight="32dp"
             android:layout_marginLeft="16dp">
             <TextView
+                android:id="@+id/tv_gethelp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="17dp"
