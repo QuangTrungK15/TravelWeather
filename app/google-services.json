@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "393459142515-6rkpnus6uhitglrhben064qhe84qjmbi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.horus.travelweather",
+            "certificate_hash": "5f1e4f7829c6a81bbdf4195fa4dabb3e8c6dc211"
+          }
+        },
+        {
+          "client_id": "393459142515-9m0pallflkjdk7e0da448s0h7f6ssngk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.horus.travelweather",
+            "certificate_hash": "0a141ab34dfe4c24b5400a7e3da5cb71ae241e84"
+          }
+        },
+        {
           "client_id": "393459142515-g2kv2grljivo6h42oqpq32pcplneo8mv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -36,20 +52,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "393459142515-b1q7q1iks8vs4vtlnotbi481v32rkglm.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }
