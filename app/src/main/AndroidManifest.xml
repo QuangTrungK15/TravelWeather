@@ -57,6 +57,11 @@
                 <!--<category android:name="android.intent.category.LAUNCHER" />-->
             <!--</intent-filter>-->
         <!--</activity>-->
+
+        <activity
+            android:name=".activity.AboutUsActivity"
+            android:label="About Us" />
+
         <activity
             android:name=".BottomNavigation"
             android:label="@string/title_activity_bottom_navigation" />

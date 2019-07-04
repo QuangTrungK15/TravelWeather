@@ -28,7 +28,7 @@ class NewProfileFragment : Fragment() {
         }
 
         //about us
-        view.edit_profile.setOnClickListener {
+        view.tv_aboutus.setOnClickListener {
             val intent = Intent(this.context, AboutUsActivity::class.java) //this activity will be this fragment's father
             startActivity(intent)
         }
