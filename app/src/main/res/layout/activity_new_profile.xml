@@ -179,7 +179,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="17dp"
                 android:textColor="@color/white"
-                android:text="Logout"/>
+                android:text="Đăng Xuất"/>
             <ImageView
                 android:id="@+id/btn_logout"
                 android:layout_width="wrap_content"

@@ -22,7 +22,7 @@
                 android:layout_marginTop="18dp"
                 android:fontFamily="SVN-Sofia Pro"
                 android:textSize="16sp"
-                android:text="@string/sign_up"
+                android:text="Đăng Ký"
                 android:gravity="right"
                 android:textColor="@color/white"/>
 
@@ -57,7 +57,7 @@
                     android:inputType="text"
                     android:paddingLeft="24dp"
                     android:textColor="@color/white"
-                    android:text="trung123@gmail.com"
+                    android:text=""
                     android:hint="Email"
                     android:textColorHint="@android:color/white"
                     android:background="@drawable/bg_login_password"/>
@@ -70,24 +70,24 @@
                     android:paddingLeft="24dp"
                     android:layout_marginTop="32dp"
                     android:textColor="@color/white"
-                    android:text="123456"
+                    android:text=""
                     android:hint="@string/password"
                     android:textColorHint="@android:color/white"
                     android:background="@drawable/bg_login_password"/>
-                <TextView
+                <!--<TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/forgot_password"
                     android:layout_marginTop="20dp"
                     android:textColor="@color/white"
-                    android:gravity="center"/>
+                    android:gravity="center"/>-->
 
                 <Button
                     android:id="@+id/btnLogin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_login__sign_up"
-                    android:text="@string/login"
+                    android:text="ĐĂNG NHẬP"
                     android:textColor="@color/white"
                     android:layout_marginTop="24dp"/>
 

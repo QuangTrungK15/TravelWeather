@@ -14,7 +14,7 @@
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/editName"
-            android:hint="@string/name"
+            android:hint="Họ và tên"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@color/colorPrimary"
@@ -29,7 +29,7 @@
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/editPhone"
-            android:hint="@string/phone"
+            android:hint="Số điện thoại"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColorHint="@color/colorPrimary"

@@ -23,21 +23,21 @@ class BottomNavigation : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_favorite -> {
-                getSupportActionBar()!!.setTitle("Favorite Places")
+                getSupportActionBar()!!.setTitle("Địa Điểm Yêu Thích")
                 val favouriteFragment = FavoritePlaceFragment.newInstance()
                 //progress_loading.visibility = View.GONE
                 openFragment(favouriteFragment)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_direction -> {
-                getSupportActionBar()!!.setTitle("Direction")
+                getSupportActionBar()!!.setTitle("Chỉ Đường")
                 val directionFragment = DirectionsFragment.newInstance("")
                 //progress_loading.visibility = View.GONE
                 openFragment(directionFragment)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_history -> {
-                getSupportActionBar()!!.setTitle("History")
+                getSupportActionBar()!!.setTitle("Nhật Ký Hoạt Động")
                 val historyFragment = HistoryFragment.newInstance()
                 //progress_loading.visibility = View.GONE
                 openFragment(historyFragment)
