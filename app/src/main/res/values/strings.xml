@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TravelWeather</string>
+    <string name="app_name">BusinessWeather</string>
     <string name="directionsApiKey">AIzaSyDX8NwkjIOZmHUeanSdexDezRMNCx5pc2M</string>
     <string name="title_activity_home">Home</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>

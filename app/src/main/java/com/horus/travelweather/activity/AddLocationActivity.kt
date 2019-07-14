@@ -57,6 +57,13 @@ class AddLocationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_location)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val actionBar1 = supportActionBar
+        if (actionBar1 != null) {
+            //actionBar1.setDisplayHomeAsUpEnabled(true)
+            actionBar1.title = "Danh Sách Thời Tiết"
+        }
+
         loadPlaces()
         database = FirebaseDatabase.getInstance()
         mAuth = FirebaseAuth.getInstance()

@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         progress.dismiss()
                         Log.e(TAG, "signInWithEmail: Fail!", task.exception)
-                        Toast.makeText(this@MainActivity, getString(R.string.authentication_fail), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "Tài khoản hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show()
                     }
                 }
     }
@@ -253,17 +253,17 @@ class MainActivity : AppCompatActivity() {
     private fun validateForm(email: String, password: String): Boolean {
 
         if (TextUtils.isEmpty(email)) {
-            Toast.makeText(this@MainActivity, "Enter email address!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this@MainActivity, "Vui lòng điền địa chỉ email", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if (TextUtils.isEmpty(password)) {
-            Toast.makeText(this@MainActivity, "Enter password!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this@MainActivity, "Vui lòng nhập password", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if (password.length < 6) {
-            Toast.makeText(this@MainActivity, "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this@MainActivity, "Vui lòng nhập mật khẩu lớn hơn hoặc bằng 6 ký tự", Toast.LENGTH_SHORT).show();
             return false;
         }
 

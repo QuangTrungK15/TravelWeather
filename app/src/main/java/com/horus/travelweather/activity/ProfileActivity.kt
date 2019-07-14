@@ -35,6 +35,13 @@ class   ProfileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_profile)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val actionBar1 = supportActionBar
+        if (actionBar1 != null) {
+            //actionBar1.setDisplayHomeAsUpEnabled(true)
+            actionBar1.title = "Thông Tin Cá Nhân"
+        }
+
         txt_user_profile_name.text =  TWConstant.currentUser.name
         txt_phone_number.text = TWConstant.currentUser.phone
         txt_email_user.text = TWConstant.currentUser.email
@@ -55,14 +62,13 @@ class   ProfileActivity : AppCompatActivity() {
 
     private fun showDialogChangeProfile() {
         val alterDialog : AlertDialog.Builder = AlertDialog.Builder(this)
-        alterDialog.setTitle("Edit Profile")
+        alterDialog.setTitle("Thay đổi thông tin")
 
-        val actionBar1 = supportActionBar
 
-        if (actionBar1 != null) {
+/*if (actionBar1 != null) {
             //actionBar1.setDisplayHomeAsUpEnabled(true)
-            actionBar1.title = "Edit Profile"
-        }
+            actionBar1.title = "Thông Tin Cá Nhân"
+        }*/
 
         val inflater : LayoutInflater = LayoutInflater.from(this)
         val dialogView =    inflater.inflate(R.layout.edit_profile_layout,null)
@@ -76,18 +82,18 @@ class   ProfileActivity : AppCompatActivity() {
         val table_user : DatabaseReference = database.getReference("users")
 
         val mAuth : FirebaseAuth = FirebaseAuth.getInstance()
-        alterDialog.setPositiveButton(getString(R.string.update)) { dialog, _ ->
+        alterDialog.setPositiveButton("Cập Nhật") { dialog, _ ->
 
             val user = UserDbO(editName.text.toString(),TWConstant.currentUser.email,editPhone.text.toString(),TWConstant.currentUser.urlPhoto)
 
             table_user.child(mAuth.uid!!).setValue(user).addOnCompleteListener {
                 if(it.isComplete)
                 {
-                    Toast.makeText(this@ProfileActivity,"UPDATED" , Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ProfileActivity,"Thay đổi đã được cập nhật" , Toast.LENGTH_SHORT).show()
                 }
             }
         }
-        alterDialog.setNegativeButton(getString(R.string.cancel), { dialog, whichButton ->
+        alterDialog.setNegativeButton("Hủy", { dialog, whichButton ->
             progress.dismiss()
         })
         alterDialog.create().show()
@@ -96,13 +102,13 @@ class   ProfileActivity : AppCompatActivity() {
     private fun showDialogChangePassword() {
         progress.show()
         val alterDialog : AlertDialog.Builder = AlertDialog.Builder(this)
-        alterDialog.setTitle("Edit Password")
+        alterDialog.setTitle("Thay đổi mật khẩu")
         val inflater : LayoutInflater = LayoutInflater.from(this)
         val dialogView = inflater.inflate(R.layout.edit_password_layout,null)
         val editPassword = dialogView.findViewById<View>(R.id.editPassword) as MaterialEditText
         alterDialog.setView(dialogView)
         editPassword.setText("")
-        alterDialog.setPositiveButton(getString(R.string.update)) { dialog, _ ->
+        alterDialog.setPositiveButton("Cập nhật") { dialog, _ ->
             if(countOnString(editPassword.text.toString().trim()))
             {
                 val newUser = FirebaseAuth.getInstance().currentUser
@@ -113,13 +119,13 @@ class   ProfileActivity : AppCompatActivity() {
                         if(it.isComplete)
                         {
                             progress.dismiss()
-                            Toast.makeText(this@ProfileActivity,"User password updated" , Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@ProfileActivity,"Mật khẩu đã được cập nhật" , Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
         }
-        alterDialog.setNegativeButton(getString(R.string.cancel), { dialog, whichButton ->
+        alterDialog.setNegativeButton("Hủy", { dialog, whichButton ->
             progress.dismiss()
         })
         alterDialog.create().show()
@@ -133,7 +139,7 @@ class   ProfileActivity : AppCompatActivity() {
             return true
         }
         progress.dismiss()
-        Toast.makeText(this@ProfileActivity,"Text must be larger five characters" , Toast.LENGTH_LONG).show()
+        Toast.makeText(this@ProfileActivity,"Mật khẩu phải lớn hơn hoặc bằng 6 ký tự" , Toast.LENGTH_LONG).show()
         return false
     }
 
@@ -143,8 +149,8 @@ class   ProfileActivity : AppCompatActivity() {
         }
 
         override fun getMenuItem(context: Context, position: Int): SpeedDialMenuItem = when (position) {
-            0 -> SpeedDialMenuItem(context, R.drawable.ic_edit_white_24dp, "Edit Profile")
-            1 -> SpeedDialMenuItem(context, R.drawable.ic_vpn_key_white_24dp, "Change Password")
+            0 -> SpeedDialMenuItem(context, R.drawable.ic_edit_white_24dp, "Chỉnh sửa profile")
+            1 -> SpeedDialMenuItem(context, R.drawable.ic_vpn_key_white_24dp, "Thay đổi mật khẩu")
             else -> throw IllegalArgumentException("No menu item: $position")
         }
 

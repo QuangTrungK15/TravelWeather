@@ -37,7 +37,7 @@ class DetailMyPlace : AppCompatActivity() {
         val actionBar1 = supportActionBar
         if (actionBar1 != null) {
             //actionBar1.setDisplayHomeAsUpEnabled(true)
-            actionBar1.title = "Detail Place"
+            actionBar1.title = "Thông Tin Địa Điểm"
         }
 
         sliding_view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
@@ -71,29 +71,34 @@ class DetailMyPlace : AppCompatActivity() {
                         getSupportActionBar()!!.setTitle("Home")
                         val homeFragment = HomeFragment.newInstance()
                         openFragment(homeFragment)
+                        //progress_loading.visibility = View.VISIBLE
                         return@OnNavigationItemSelectedListener true
                     }
                     R.id.navigation_favorite -> {
-                        getSupportActionBar()!!.setTitle("Favorite Places")
+                        getSupportActionBar()!!.setTitle("Địa Điểm Yêu Thích")
                         val favouriteFragment = FavoritePlaceFragment.newInstance()
+                        //progress_loading.visibility = View.GONE
                         openFragment(favouriteFragment)
                         return@OnNavigationItemSelectedListener true
                     }
                     R.id.navigation_direction -> {
-                        getSupportActionBar()!!.setTitle("Direction")
-                        val directionFragment = DirectionsFragment.newInstance(latLng_toDirection.toString())
+                        getSupportActionBar()!!.setTitle("Chỉ Đường")
+                        val directionFragment = DirectionsFragment.newInstance("")
+                        //progress_loading.visibility = View.GONE
                         openFragment(directionFragment)
                         return@OnNavigationItemSelectedListener true
                     }
                     R.id.navigation_history -> {
-                        getSupportActionBar()!!.setTitle("History")
+                        getSupportActionBar()!!.setTitle("Nhật Ký Hoạt Động")
                         val historyFragment = HistoryFragment.newInstance()
+                        //progress_loading.visibility = View.GONE
                         openFragment(historyFragment)
                         return@OnNavigationItemSelectedListener true
                     }
                     R.id.navigation_profile -> {
                         getSupportActionBar()!!.setTitle("Profile")
                         val profileFragment = NewProfileFragment.newInstance()
+                        //progress_loading.visibility = View.GONE
                         openFragment(profileFragment)
                         return@OnNavigationItemSelectedListener true
                     }
