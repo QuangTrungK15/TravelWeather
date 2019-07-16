@@ -6,9 +6,10 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_combine_color"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:scrollbarStyle="outsideOverlay"
+    android:padding="14dp">
 
-
+z
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -172,7 +173,7 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:backgroundTint="@color/transparent"
         app:cardCornerRadius="6dp">
 
@@ -184,17 +185,17 @@
     </android.support.v7.widget.CardView>
 
 
-    <!--<android.support.v7.widget.CardView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="16dp"-->
-        <!--android:backgroundTint="@color/transparent"-->
-        <!--app:cardCornerRadius="8dp">-->
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:backgroundTint="@color/transparent"
+        app:cardCornerRadius="8dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:backgroundTint="@color/transparent"
             android:orientation="vertical">
             <android.support.v7.widget.CardView
@@ -324,6 +325,6 @@
 
         </LinearLayout>
 
-    <!--</android.support.v7.widget.CardView>-->
+    </android.support.v4.widget.NestedScrollView>
 
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.horus.travelweather.activity
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.RatingBar
 import android.widget.TextView
@@ -32,6 +34,9 @@ class DetailMyPlace : AppCompatActivity() {
         val place = intent.getSerializableExtra("MyPlace") as PlaceDbO
         Log.e(TAG,"ABC : "+place.name)
 
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        
         getPhoto(place.placeId)
 
         val actionBar1 = supportActionBar
@@ -132,6 +137,14 @@ class DetailMyPlace : AppCompatActivity() {
 
     fun getMyData(): String {
         return latLng_toDirection.toString()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item?.itemId
+        if(id == android.R.id.home) {
+            finish()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun openFragment(fragment: Fragment) {
