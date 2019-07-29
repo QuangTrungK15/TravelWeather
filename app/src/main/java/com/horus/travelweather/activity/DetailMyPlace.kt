@@ -36,7 +36,7 @@ class DetailMyPlace : AppCompatActivity() {
 
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        
+
         getPhoto(place.placeId)
 
         val actionBar1 = supportActionBar

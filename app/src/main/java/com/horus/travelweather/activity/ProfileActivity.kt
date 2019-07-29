@@ -3,6 +3,7 @@ package com.horus.travelweather.activity
 
 import android.app.ProgressDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -16,6 +17,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.horus.travelweather.BottomNavigation
 import com.horus.travelweather.R
 import com.horus.travelweather.common.TWConstant
 import com.horus.travelweather.model.UserDbO
@@ -89,6 +91,9 @@ class   ProfileActivity : AppCompatActivity() {
             table_user.child(mAuth.uid!!).setValue(user).addOnCompleteListener {
                 if(it.isComplete)
                 {
+                    val intent = Intent(this, ProfileActivity::class.java) //this activity will be this fragment's father
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
                     Toast.makeText(this@ProfileActivity,"Thay đổi đã được cập nhật" , Toast.LENGTH_SHORT).show()
                 }
             }
@@ -119,6 +124,9 @@ class   ProfileActivity : AppCompatActivity() {
                         if(it.isComplete)
                         {
                             progress.dismiss()
+                            val intent = Intent(this, ProfileActivity::class.java) //this activity will be this fragment's father
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            startActivity(intent)
                             Toast.makeText(this@ProfileActivity,"Mật khẩu đã được cập nhật" , Toast.LENGTH_SHORT).show()
                         }
                     }

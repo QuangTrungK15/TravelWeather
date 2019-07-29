@@ -97,10 +97,10 @@ class HistoryFragment: Fragment() {
             showPopup(context,textview, i)
         })
 
-        val linearLayoutManager = LinearLayoutManager(this.activity)
+        val linearLayoutManager = LinearLayoutManager(this.activity, LinearLayoutManager.VERTICAL, false)
         linearLayoutManager.reverseLayout = true
         linearLayoutManager.stackFromEnd = true
-        view.rv_history.layoutManager = linearLayoutManager as RecyclerView.LayoutManager?
+        view.rv_history.layoutManager = linearLayoutManager
         view.rv_history.adapter = adapter
         view.rv_history.isNestedScrollingEnabled = false
 

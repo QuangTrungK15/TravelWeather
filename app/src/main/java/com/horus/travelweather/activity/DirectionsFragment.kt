@@ -49,6 +49,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
+import com.horus.travelweather.BottomNavigation
 import com.horus.travelweather.R
 import com.horus.travelweather.adapter.HistoryAdapter
 import com.horus.travelweather.adapter.StepbyStepDirectionsAdapter
@@ -394,7 +395,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         })
 
         popup.menu.getItem(1).setOnMenuItemClickListener({
-            Log.e("Ok nha2:","1")
+            //Log.e("Ok nha2:","1")
             destlocation = currentLocation_latLng
 
             val geocoder = Geocoder(context!!, Locale.getDefault())
@@ -428,132 +429,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
         })
 
     }
-//    @SuppressLint("ClickableViewAccessibility")
-//    @RequiresApi(Build.VERSION_CODES.M)
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_directions)
-        //val actionBar = actionBar
-        //actionBar.hide()
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-//        {
-//            checkLocationPermission()
-//        }
-//        // Initializing
-//        markerPoints = ArrayList<LatLng>()
-//        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-//        val mapFragment = getFragmentManager()!!
-//                .findFragmentById(R.id.map) as SupportMapFragment
-//        mapFragment.getMapAsync(this)
-//
-//        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView
-//        val edt_destination = this.findViewById<View>(R.id.edt_destination) as TextView
-//        //This btn shows direction (org -> dest) steps
-//        val btn_steps = this.findViewById<View>(R.id.btn_steps) as Button
-//
-//        //val recyclerView = this.findViewById<View>(R.id.rv_directionsSteps) as RecyclerView
-//
-////        val behavior = BottomSheetBehavior.from(recyclerView)
-//
-//        //val transList = ArrayList<TransportationDbO>()
-//        transList.add(TransportationDbO("driving",""))
-//        transList.add(TransportationDbO("walking",""))
-//        transList.add(TransportationDbO("transit",""))
-//        implementLoad(transList)
-//
-//        stepsList.add(DirectionsStepDbO(0,"head","s","s","3243","432", currentlocation))
-//        loadingStepbyStep(stepsList)
-//
-//        clicksteps.setOnClickListener{
-//            numberofclick++
-//
-//            /*if(numberofclick == 1){
-//                layoutParams_temp = scroll_directionsdetail.layoutParams as RelativeLayout.LayoutParams
-//
-//                Log.e("ACTION stop=: ",layoutParams_temp!!.topMargin.toString())
-//                numberofclick++
-//            }*/
-//
-//            if(count%2 != 0)
-//            {
-//                rv_directionsSteps.visibility = View.VISIBLE
-//
-//                linear_orgindest.animate()
-//                        .translationY(linear_orgindest.height.toFloat())
-//                        .alpha(0.0f)
-//                        .duration = 800
-//                rv_transportations.animate()
-//                        .translationY(rv_transportations.height.toFloat())
-//                        .alpha(0.0f)
-//                        .duration = 800
-//
-//                clicksteps.setOnTouchListener(onTouchListener())
-//
-//                linear_orgindest.visibility = View.GONE
-//                rv_transportations.visibility = View.GONE
-//            }
-//            else{
-//                rv_directionsSteps.visibility = View.GONE
-//
-//                linear_orgindest.animate()
-//                        .translationY(0F)
-//                        .alpha(1.0f)
-//                        .duration = 200
-//                rv_transportations.animate()
-//                        .translationY(0F)
-//                        .alpha(1.0f)
-//                        .duration = 200
-//
-//                linear_orgindest.visibility = View.VISIBLE
-//                rv_transportations.visibility = View.VISIBLE
-//            }
-//            count++
-//        }
-//        /*stepsicon.setOnClickListener{
-//            if(count%2 != 0)
-//            {
-//                rv_directionsSteps.visibility = View.VISIBLE
-//                linear_orgindest.visibility = View.GONE
-//                rv_transportations.visibility = View.GONE
-//            }
-//            else{
-//                rv_directionsSteps.visibility = View.GONE
-//                linear_orgindest.visibility = View.VISIBLE
-//                rv_transportations.visibility = View.VISIBLE
-//            }
-//            count++
-//        }*/
-//
-//
-//
-//        edt_orgin.setOnClickListener {
-//            //Filter results by place type (by address: get full address, by establisment: get business address)
-//            val typeFilter = AutocompleteFilter.Builder()
-//                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
-//                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
-//                    .build()
-//            //Use an intent to launch the autocomplete activity (fullscreen mode)
-//            //https://developers.google.com/places/android-sdk/autocomplete
-//            val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-//                    .setFilter(typeFilter)
-//                    .build(this)
-//            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
-//        }
-//        edt_destination.setOnClickListener {
-//            //Filter results by place type (by address: get full address, by establisment: get business address)
-//            val typeFilter = AutocompleteFilter.Builder()
-//                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
-//                    .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
-//                    .build()
-//            //Use an intent to launch the autocomplete activity (fullscreen mode)
-//            //https://developers.google.com/places/android-sdk/autocomplete
-//            val intent = PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-//                    .setFilter(typeFilter)
-//                    .build(this)
-//            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE2)
-//        }
-//    }
 
     private fun distance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
         val dx = x1 - x2
@@ -974,6 +849,16 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
 
     }
 
+    override fun onDestroy() {
+        //Close the Text to Speech Library
+        if (textToSpeech != null) {
+
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+            Log.d(TAG, "TTS Destroyed")
+        }
+        super.onDestroy()
+    }
 
     override fun onOptionsItemSelected(item: MenuItem?):Boolean {
         when (item?.itemId) {
@@ -993,7 +878,7 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
                 rv_transportations.visibility = View.VISIBLE
                 scroll_directionsdetail.visibility = View.VISIBLE
                 fab_directions.visibility = View.VISIBLE
-
+                directionsID.visibility = View.VISIBLE
                 //mMap.animateCamera(CameraUpdateFactory.zoomTo(12F))
                 thestep = 0
 
@@ -1013,7 +898,6 @@ class DirectionsFragment : Fragment(), OnMapReadyCallback, GoogleApiClient.Conne
             else -> return super.onOptionsItemSelected(item)
         }
     }
-
 
     private fun AddMarker(currentlocation: LatLng, destlocation: LatLng){
 //        val edt_orgin = this.findViewById<View>(R.id.edt_orgin) as TextView

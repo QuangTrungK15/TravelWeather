@@ -38,8 +38,9 @@
             android:layout_height="wrap_content"
             android:text="15:00"
             android:textColor="@color/white"
-            android:textSize="12sp"
-            android:layout_marginBottom="4dp"/>
+            android:textSize="11sp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="1dp"/>
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/imgv_placetype"
             android:layout_width="match_parent"
